@@ -6,13 +6,137 @@
 //
 
 import SwiftUI
+import Combine
 
 struct DreamSummaryView: View {
+    @ObservedObject var vm: DreamSessionViewModel
+    @State private var goInterpret = false
+    @Environment(\.dismiss) private var dismiss
+    
     var body: some View {
-        Text(/*@START_MENU_TOKEN@*/"Hello, World!"/*@END_MENU_TOKEN@*/)
+        ZStack {
+            Image("DreamSessionBackgroundImage")
+                .resizable()
+                .scaledToFill()
+                .ignoresSafeArea()
+            
+            if let restate = vm.restate {
+                
+                VStack(spacing: 14) {
+                    
+                    let style = Date.FormatStyle.dateTime
+                        .year().month().day().weekday(.wide)
+                        .locale(Locale(identifier: "ko_KR"))
+                    
+                    Text("\(vm.input.date.formatted(style))의 꿈")
+                        .font(.headline)
+                        .foregroundStyle(.white)
+                        .padding()
+                    
+                    Spacer()
+                    
+                    Text(restate.emoji)
+                        .font(.system(size: 40))
+                    
+                    Text(restate.title)
+                        .font(.title3.bold())
+                        .foregroundStyle(Color(hex: "#E8D9FF"))
+                        .multilineTextAlignment(.center)
+                        .padding(.bottom, 32)
+                    
+                    Text(restate.content)
+                        .font(.body)
+                        .multilineTextAlignment(.center)
+                        .foregroundStyle(Color(hex: "#E8D9FF"))
+                        .padding(.horizontal)
+                        .padding()
+                    
+                    Text("꿈 카테고리")
+                        .font(.caption)
+                        .foregroundStyle(Color(hex: "#9963FF"))
+                        .padding(.top, 32)
+                    
+                    Text("일상 반영 꿈")
+                        .font(.title3)
+                        .padding(.horizontal, 12)
+                        .padding(12)
+                        .foregroundStyle(.white)
+                        .background(
+                            RoundedRectangle(cornerRadius: 100, style: .circular)
+                                .fill(Color(hex: "#9963FF").opacity(0.3))
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 100, style: .circular)
+                                        .stroke(
+                                            LinearGradient(
+                                                gradient: Gradient(colors: [
+                                                    Color(hex: "#E8D9FF"),  // purple/100
+                                                    Color(hex: "#7534E4"),  // purple/600
+                                                    Color(hex: "#E8D9FF")   // 다시 purple/100
+                                                ]),
+                                                startPoint: .topLeading,
+                                                endPoint: .bottomTrailing
+                                            ),
+                                            lineWidth: 1
+                                        )
+                                )
+                        )
+                        .padding()
+                    
+                    Text("낮 동안의 경험이나 생각이 꿈속에 그대로 혹은 부분적으로 재현된 꿈")
+                        .font(.caption)
+                        .foregroundStyle(Color(hex: "FFFFFF").opacity(0.6))
+                        .padding(.horizontal, 100)
+                    
+                    Spacer()
+                    
+                    Button("다음으로") {
+                        goInterpret = true
+                    }
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 16)
+                    .background(Color(hex: "5F21CC").opacity(0.3).blur(radius: 40))
+                    .overlay(RoundedRectangle(cornerRadius: 28, style: .continuous).stroke(Color(hex: "4312A0"), lineWidth: 1.5))
+                    .foregroundStyle(Color(hex: "B184FF"))
+                    .clipShape(RoundedRectangle(cornerRadius: 28, style: .continuous))
+                    .padding(.horizontal, 24)
+                    .padding(.bottom, 24) // 홈 인디케이터와 간격
+                    .navigationDestination(isPresented: $goInterpret) {
+                        DreamInterpretationView(vm: vm)
+                    }
+                }
+            }
+        }
+        .navigationBarTitleDisplayMode(.inline)
+        .navigationBarBackButtonHidden(true)
+        .toolbar {
+            ToolbarItem(placement: .navigationBarLeading) {
+                Button {
+                    dismiss()
+                } label: {
+                    Image(systemName: "arrow.left")
+                        .font(.system(size: 18, weight: .semibold))
+                        .foregroundStyle(Color(hex: "#B184FF"))
+                        .padding(.leading, 8)
+                }
+            }
+            
+            ToolbarItem(placement: .principal) {
+                Image("AppLogo")
+                    .resizable()
+                    .scaledToFit()
+                    .frame(height: 18)
+            }
+            
+            ToolbarItem(placement: .navigationBarTrailing) {
+                Button {
+                    
+                } label: {
+                    Image(systemName: "house.fill")
+                        .font(.system(size: 18, weight: .semibold))
+                        .foregroundStyle(Color(hex: "#B184FF"))
+                        .padding(.trailing, 8)
+                }
+            }
+        }
     }
-}
-
-#Preview {
-    DreamSummaryView()
 }
