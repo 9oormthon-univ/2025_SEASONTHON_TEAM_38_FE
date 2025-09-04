@@ -127,9 +127,7 @@ struct FloatingTabContainerView<Content: View>: View {
     var body: some View {
         NavigationStack {
             ZStack() {
-                content.ignoresSafeArea()
-                
-                
+                content
             }
             .overlay(alignment: .bottomLeading) {
                 FloatingTabView(tabs: tabs, selection: $selection, localSelection: selection).ignoresSafeArea(.keyboard)
