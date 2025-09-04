@@ -32,14 +32,14 @@ struct DreamInterpretationView: View {
                     Text(interp.detail)
                         .font(.body)
                         .foregroundStyle(Color(hex: "#E8D9FF"))
-                        .multilineTextAlignment(.leading)
+                        .multilineTextAlignment(.center)
                         .padding(28)
                         .background(
                             RoundedRectangle(cornerRadius: 24, style: .continuous)
                                 .fill(Color(hex: "#7534E4").opacity(0.2))
                         )
-                        .overlay(RoundedRectangle(cornerRadius: 24, style: .continuous).stroke(LinearGradient(colors: [Color(hex: "#E8D9FF"), Color(hex: "#5F21CC"), Color(hex: "#E8D9FF")], startPoint: .topLeading, endPoint: .bottomTrailing), lineWidth: 1)
-                                 )
+//                        .overlay(RoundedRectangle(cornerRadius: 24, style: .continuous).stroke(LinearGradient(colors: [Color(hex: "#E8D9FF"), Color(hex: "#5F21CC"), Color(hex: "#E8D9FF")], startPoint: .topLeading, endPoint: .bottomTrailing), lineWidth: 1)
+//                                 )
                         .padding(.horizontal, 18)
                         .padding(.top, 36)
                     

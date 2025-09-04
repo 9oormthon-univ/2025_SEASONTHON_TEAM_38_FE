@@ -32,6 +32,7 @@ struct DreamSummaryView: View {
                         .font(.headline)
                         .foregroundStyle(.white)
                         .padding()
+                        .padding(.top, 24)
                     
                     Spacer()
                     
@@ -57,9 +58,9 @@ struct DreamSummaryView: View {
                         .padding(.top, 32)
                     
                     Text("일상 반영 꿈")
-                        .font(.title3)
-                        .padding(.horizontal, 12)
-                        .padding(12)
+                        .font(.caption)
+                        .padding(.horizontal, 8)
+                        .padding(8)
                         .foregroundStyle(.white)
                         .background(
                             RoundedRectangle(cornerRadius: 100, style: .circular)
@@ -69,21 +70,21 @@ struct DreamSummaryView: View {
                                         .stroke(
                                             LinearGradient(
                                                 gradient: Gradient(colors: [
-                                                    Color(hex: "#E8D9FF"),  // purple/100
-                                                    Color(hex: "#7534E4"),  // purple/600
-                                                    Color(hex: "#E8D9FF")   // 다시 purple/100
+                                                    Color(hex: "#E8D9FF"),
+                                                    Color(hex: "#7534E4"),
+                                                    Color(hex: "#E8D9FF")
                                                 ]),
                                                 startPoint: .topLeading,
                                                 endPoint: .bottomTrailing
                                             ),
-                                            lineWidth: 1
+                                            lineWidth: 0.5
                                         )
                                 )
                         )
-                        .padding()
                     
                     Text("낮 동안의 경험이나 생각이 꿈속에 그대로 혹은 부분적으로 재현된 꿈")
                         .font(.caption)
+                        .multilineTextAlignment(.center)
                         .foregroundStyle(Color(hex: "FFFFFF").opacity(0.6))
                         .padding(.horizontal, 100)
                     

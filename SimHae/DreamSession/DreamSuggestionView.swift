@@ -24,8 +24,10 @@ struct DreamSuggestionView: View {
                         .foregroundStyle(.white)
                         .padding(32)
                     
-                    Image(systemName: "tortoise.fill")
-                        .foregroundStyle(.white)
+                    Image("jellyCha")
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 120, height: 120)
                     
                     Text("추천을 불러오는 중이거나 아직 없어요")
                         .multilineTextAlignment(.leading)
@@ -44,21 +46,25 @@ struct DreamSuggestionView: View {
             } else {
                 VStack(spacing: 12) {
                     Text("해파리의 제안")
+                        .foregroundStyle(.white)
                         .padding(32)
                     
-                    Image(systemName: "tortoise.fill")
-                        .foregroundStyle(Color(hex: "#E8D9FF"))
+                    Image("jellyCha")
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 120, height: 120)
+                        .padding()
                     
                     ForEach(vm.actions, id: \.self) { suggestion in
                         HStack(alignment: .top, spacing: 10) {
                             Text(suggestion)
-                                .multilineTextAlignment(.leading)
+                                .multilineTextAlignment(.center)
                                 .font(.body)
                                 .foregroundStyle(Color(hex: "#E8D9FF"))
                                 .padding(28)
                                 .background(
                                     RoundedRectangle(cornerRadius: 24, style: .continuous)
-                                        .fill(Color(hex: "#7534E4").opacity(0.2))
+                                        .fill(Color(hex: "#FFFFFF").opacity(0.1))
                                 )
                                 .overlay(RoundedRectangle(cornerRadius: 24, style: .continuous).stroke(LinearGradient(colors: [Color(hex: "#E8D9FF"), Color(hex: "#5F21CC"), Color(hex: "#E8D9FF")], startPoint: .topLeading, endPoint: .bottomTrailing), lineWidth: 1)
                                          )

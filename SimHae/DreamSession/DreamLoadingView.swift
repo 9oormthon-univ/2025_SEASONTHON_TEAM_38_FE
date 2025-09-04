@@ -22,7 +22,7 @@ struct DreamLoadingView: View {
                 Image("jellyCha")
                     .resizable()
                     .scaledToFit()
-                    .frame(width: 300, height: 300)
+                    .frame(width: 200, height: 200)
                     .padding()
                 
                 let style = Date.FormatStyle.dateTime
@@ -31,6 +31,7 @@ struct DreamLoadingView: View {
 
                 Text("\(vm.input.date.formatted(style))의 꿈을 \n 해몽중이에요.")
                     .font(.system(size: 20))
+                    .multilineTextAlignment(.center)
                     .foregroundStyle(Color(hex: "#E8D9FF"))
                     .padding()
                 
@@ -41,7 +42,6 @@ struct DreamLoadingView: View {
                         .padding(.top, 4)
                 }
             }
-            .background(Color.black.ignoresSafeArea())
             .onChange(of: vm.restate) { new in
                 if new != nil { goSummary = true }
             }
