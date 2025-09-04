@@ -19,6 +19,13 @@ struct AddDreamView: View {
     @State private var showCalendar = false
     @State private var tempDate = Date()
     
+    private var guidanceText: String {
+        if vm.canSubmit {
+            return "듣고 있어요."
+        }
+        return "20자 이상 입력해주세요."
+    }
+    
     var body: some View {
         ZStack(alignment: .top) {
             Image("AddDreamBackgroundImage")
@@ -210,6 +217,16 @@ struct AddDreamView: View {
                 Text("지금까지 입력한 모든 내용이 삭제돼요.")
             }
         }
+        .overlay(alignment: .bottom) {
+            Text(guidanceText)
+                 .font(.footnote)
+                 .foregroundStyle(.white.opacity(0.5))
+                 .padding(.bottom, 120)
+                 .frame(maxWidth: .infinity)
+                 .animation(.easeInOut(duration: 0.2), value: guidanceText)
+                 .allowsHitTesting(false)
+        }
+        .ignoresSafeArea(.keyboard)
     }
 }
 
