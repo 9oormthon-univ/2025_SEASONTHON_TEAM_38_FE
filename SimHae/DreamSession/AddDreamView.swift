@@ -251,7 +251,8 @@ private struct CalloutBubble: View {
                 RoundedRectangle(cornerRadius: 100, style: .circular)
                   .fill(.ultraThinMaterial)               // 뒤 배경 블러
                 RoundedRectangle(cornerRadius: 100, style: .circular)
-                  .fill(Color.white.opacity(0.3))        // 틴트 강화 → 덜 비침
+                  .fill(Color.white
+                    .opacity(0.28))        // 틴트 강화 → 덜 비침
               }
             )
             .overlay(
