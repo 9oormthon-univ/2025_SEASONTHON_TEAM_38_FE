@@ -91,7 +91,7 @@ struct ContentView: View {
         FloatingTabContainerView(selection: $tabSelection) {
             HomeView()
                 .tabBarItem(tab: .home, selection: $tabSelection)
-            CalendarDetailView(calendarViewModel: calendarVM)
+            CalendarTotalView(calendarViewModel: calendarVM)
                 .tabBarItem(tab: .calendar, selection: $tabSelection)
             AnalyzeView()
                 .tabBarItem(tab: .analisys, selection: $tabSelection)

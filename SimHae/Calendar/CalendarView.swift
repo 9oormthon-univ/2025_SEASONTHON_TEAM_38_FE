@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct CalendarDetailView: View {
+struct CalendarTotalView: View {
     @State private var isShowingDateChangeSheet: Bool = false
     @ObservedObject var calendarViewModel: CalendarViewModel
     @State private var query = ""
@@ -72,7 +72,7 @@ struct CalendarDetailView: View {
                         VStack(spacing: 12) {
                             ForEach(calendarViewModel.dreamsForSelected) { item in
                                 NavigationLink {
-                                    //DetailView(dreamId: item.id)
+                                    DetailView(vm: DreamDetailViewModel(dreamId: item.id))
                                 } label: {
                                     DreamCard(date: item.createdAt.formatted(.dateTime.year().month().day().weekday(.wide).locale(Locale(identifier: "ko_KR"))), title: item.title, summary: item.summary, emoji: item.emoji ?? "🌙")
                                         .contentShape(Rectangle())

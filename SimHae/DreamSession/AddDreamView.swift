@@ -16,6 +16,8 @@ struct AddDreamView: View {
     @State private var showInfo: Bool = false
     @Environment(\.dismiss) private var dismiss
     @State private var showCancelDialog = false
+    @State private var showCalendar = false
+    @State private var tempDate = Date()
     
     var body: some View {
         ZStack(alignment: .top) {
@@ -55,20 +57,38 @@ struct AddDreamView: View {
                 
                 ZStack {
                     
-                    HStack {
-                        Image(systemName: "calendar")
-                            .foregroundStyle(Color(hex: "#843CFF"))
-                        
-                        let style = Date.FormatStyle.dateTime
-                            .year().month().day().weekday(.wide)
-                            .locale(Locale(identifier: "ko_KR"))
-                        
-                        Text("\(vm.input.date.formatted(style))의 꿈")
-                            .foregroundStyle(.white)
-                            .font(.system(size: 20, weight: .bold))
+                    Button {
+                        print("버튼")
+                        tempDate = vm.input.date
+                        showCalendar.toggle()
+                    } label: {
+                        HStack {
+                            Image(systemName: "calendar")
+                                .foregroundStyle(Color(hex: "#843CFF"))
+                            
+                            let style = Date.FormatStyle.dateTime
+                                .year().month().day().weekday(.wide)
+                                .locale(Locale(identifier: "ko_KR"))
+                            
+                            Text("\(vm.input.date.formatted(style))의 꿈")
+                                .foregroundStyle(.white)
+                                .font(.system(size: 20, weight: .bold))
+                        }
+                        .padding(.top, 50)
                     }
-                    .padding(.top, 30)
                     
+
+                    if showCalendar {
+                        CalendarCallout(date: $tempDate,
+                                        onDone: {
+                            vm.input.date = tempDate
+                            showCalendar = false
+                        })
+                        .transition(.opacity)
+                        //.zIndex(1)
+                    }
+                    
+                  
                     if showInfo {
                         CalloutBubble(message: "꿈과 관련해 떠오르는 현실의 기억이나 상황이 있나요?\n함께 입력하면 더 정확한 해몽을 제공할 수 있어요.").offset(y: 15)
                             .transition(.opacity)
@@ -83,7 +103,7 @@ struct AddDreamView: View {
                     .tint(.white)
                     .padding(.horizontal)
                     .padding(.leading, 10)
-                    .padding(.bottom, 110)
+                    .padding(.top, 20)
                 
                 Spacer()
             }
@@ -212,5 +232,37 @@ private struct CalloutBubble: View {
                     .stroke(Color(hex: "#4512A0").opacity(0.8), lineWidth: 1)
             )
             .padding(.horizontal, 24)
+    }
+}
+
+private struct CalendarCallout: View {
+    @Binding var date: Date
+    var onDone: () -> Void
+
+    var body: some View {
+        VStack(spacing: 12) {
+            DatePicker(
+                "",
+                selection: $date,
+                in: ...Date(),                 // 미래 선택 금지 (원하면 지움)
+                displayedComponents: [.date]
+            )
+            .datePickerStyle(.graphical)
+            .labelsHidden()
+            .tint(Color(hex: "#843CFF"))
+            .environment(\.locale, Locale(identifier: "ko_KR"))
+            .environment(\.calendar, Calendar(identifier: .gregorian))
+
+            Button("완료", action: onDone)
+                .font(.headline)
+                .foregroundStyle(.white)
+        }
+        .padding(16)
+        .background(
+            RoundedRectangle(cornerRadius: 20, style: .continuous)
+                .fill(LinearGradient(colors: [Color(hex: "#5F21CC"), Color(hex: "#FFFFFF")], startPoint: .top, endPoint: .bottom))
+        )
+        .padding(.horizontal, 16)
+        .offset(y: 8) // 버튼에서 살짝 띄우기
     }
 }
