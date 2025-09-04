@@ -6,3 +6,306 @@
 //
 
 import Foundation
+import Combine
+
+struct DateValue: Identifiable {
+    var id: String = UUID().uuidString
+    var day: Int
+    var date: Date
+}
+
+private struct DayDreamDTO: Decodable {
+    let dreamId: Int
+    let title: String
+    let emoji: String?
+    let summary: String
+    let category: String
+    let createdAt: String // "2025-08-10T10:00:00"
+}
+
+struct DreamRowUI: Identifiable, Hashable {
+    let id: String
+    let title: String
+    let summary: String
+    let emoji: String?
+    let createdAt: Date
+}
+
+protocol CalendarDreamService {
+    func fetchDreams(for date: Date) -> AnyPublisher<[DreamRowUI], Error>
+    func fetchMonthEmojis(year: Int, month: Int) -> AnyPublisher<[String: String], Error>
+}
+
+final class RealCalendarDreamService: CalendarDreamService {
+    private let client = APIClient.shared
+    
+    // 재사용 가능한 포맷터(생성 비용 ↓)
+    private static let dayDF: DateFormatter = {
+        let f = DateFormatter()
+        f.calendar = .init(identifier: .gregorian)
+        f.locale = .init(identifier: "en_US_POSIX")
+        f.dateFormat = "yyyy-MM-dd"
+        return f
+    }()
+    
+    // yyyy-MM
+    private static let ymDF: DateFormatter = {
+        let f = DateFormatter()
+        f.calendar = .init(identifier: .gregorian)
+        f.locale   = .init(identifier: "en_US_POSIX")
+        f.dateFormat = "yyyy-MM"
+        return f
+    }()
+    
+    private static let iso8601: ISO8601DateFormatter = {
+        let f = ISO8601DateFormatter()
+        return f
+    }()
+    
+    // "2025-08-10T10:00:00" Fallback
+    private static let plainDT: DateFormatter = {
+        let f = DateFormatter()
+        f.calendar = .init(identifier: .gregorian)
+        f.locale   = .init(identifier: "en_US_POSIX")
+        f.timeZone = .init(secondsFromGMT: 0) // 서버 기준 맞추기(필요시 수정)
+        f.dateFormat = "yyyy-MM-dd'T'HH:mm:ss"
+        return f
+    }()
+    
+    func fetchDreams(for date: Date) -> AnyPublisher<[DreamRowUI], Error> {
+        // /dreams/day?dreamDate=yyyy-MM-dd
+        var comps = URLComponents(url: client.baseURL, resolvingAgainstBaseURL: false)!
+        comps.path = "/dreams/day"
+        
+        let dayString = Self.dayDF.string(from: date)
+        comps.queryItems = [URLQueryItem(name: "dreamDate", value: dayString)]
+        let url = comps.url!
+        var req = URLRequest(url: url)
+        req.httpMethod = "GET"
+        req.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        req.setValue(AnonymousId.getOrCreate(), forHTTPHeaderField: "X-Anonymous-Id")
+           
+        return URLSession.shared.dataTaskPublisher(for: req)
+            .map(\.data)
+            .decode(type: Envelope<[DayDreamDTO]>.self, decoder: JSONDecoder())
+            .tryMap { env in
+                guard (200...299).contains(env.status) else {
+                    throw URLError(.badServerResponse)
+                }
+                return env.data.map { dto in
+                    let created = Self.iso8601.date(from: dto.createdAt) ?? Date()
+                    return DreamRowUI(
+                        id: String(dto.dreamId),
+                        title: dto.title,
+                        summary: dto.summary,
+                        emoji: dto.emoji,
+                        createdAt: created
+                    )
+                }
+            }
+            .eraseToAnyPublisher()
+    }
+    
+    func fetchMonthEmojis(year: Int, month: Int) -> AnyPublisher<[String: String], Error> {
+        // yyyy-MM 문자열
+        var comps = DateComponents()
+        comps.calendar = .init(identifier: .gregorian)
+        comps.year = year
+        comps.month = month
+        let baseDate = comps.calendar!.date(from: comps)!
+        let ym = Self.ymDF.string(from: baseDate) // "2025-08"
+        
+        // /dreams/month?yearMonth=yyyy-MM
+        var urlc = URLComponents(url: client.baseURL, resolvingAgainstBaseURL: false)!
+        urlc.path = "/dreams/month"
+        urlc.queryItems = [URLQueryItem(name: "dreamDate", value: ym)]
+        var req = URLRequest(url: urlc.url!)
+        req.httpMethod = "GET"
+        req.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        req.setValue(AnonymousId.getOrCreate(), forHTTPHeaderField: "X-Anonymous-Id")
+         
+        // 서버 응답: { status, message, data: [ { "date":"2025-08-10", "emoji":"📚" }, ... ] }
+        struct DayEmojiDTO: Decodable { let date: String; let emoji: String? }
+        return client.run(Envelope<[DayEmojiDTO]>.self, with: req)
+            .tryMap { env in
+                guard (200...299).contains(env.status) else { throw URLError(.badServerResponse) }
+                // dict: "yyyy-MM-dd" -> "🕊️"
+                return Dictionary(uniqueKeysWithValues: env.data.map { ($0.date, $0.emoji ?? "🌙") })
+            }
+            .eraseToAnyPublisher()
+    }
+    
+    private func makeGET(_ url: URL) -> URLRequest {
+        var r = URLRequest(url: url)
+        r.httpMethod = "GET"
+        r.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        r.setValue(AnonymousId.getOrCreate(), forHTTPHeaderField: "X-Anonymous-Id")
+
+        return r
+    }
+}
+
+final class CalendarViewModel: ObservableObject {
+    
+    @Published var monthEmojiByDay: [String: String] = [:]   // "yyyy-MM-dd" -> emoji
+    private let dayKeyDF: DateFormatter = {
+        let f = DateFormatter()
+        f.locale = .init(identifier: "en_US_POSIX")
+        f.calendar = .init(identifier: .gregorian)
+        f.dateFormat = "yyyy-MM-dd"
+        return f
+    }()
+    
+    // 날짜 → 키
+    private func key(_ d: Date) -> String { dayKeyDF.string(from: d) }
+    
+    // 셀에서 쓸 이모지
+    func emojiForDate(_ date: Date) -> String? {
+        monthEmojiByDay[key(date)]
+    }
+    
+    func hasDream(on date: Date) -> Bool {
+            // 월 이모지 캐시에 있거나, 이미 불러온 일별 데이터가 존재하면 true
+            if monthEmojiByDay[key(date)] != nil { return true }
+            return !(itemsByDate[key(date)]?.isEmpty ?? true)
+        }
+    
+    // 현재 보이는 월(현재 currentDate 기준) 전체 이모지 로드
+    func fetchMonthEmojisForVisibleMonth() {
+        let cal = Calendar(identifier: .gregorian)
+        let y = cal.component(.year, from: currentDate)
+        let m = cal.component(.month, from: currentDate)
+        
+        // 🔎 로그: VM 레벨에서도 YM 확인
+        print("📆 [VM] fetchMonthEmojisForVisibleMonth → \(y)-\(String(format: "%02d", m))")
+        
+        service.fetchMonthEmojis(year: y, month: m)
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] completion in
+                if case .failure(let err) = completion { self?.errorMessage = err.localizedDescription }
+            } receiveValue: { [weak self] dict in
+                self?.monthEmojiByDay = dict
+            }
+            .store(in: &cancellables)
+    }
+    
+    // 월 이동 시 호출해도 됨
+    func didChangeMonth(to offset: Int) {
+        currentDate = getCurrentMonth(addingMonth: offset)
+        fetchMonthEmojisForVisibleMonth()
+    }
+    
+    private let service: CalendarDreamService
+    
+    init(service: CalendarDreamService) {
+        self.service = service
+    }
+    
+    private var cancellables = Set<AnyCancellable>()
+    private let cal = Calendar.current
+    
+    @Published var currentDate: Date = Date()
+    @Published var currentMonth: Int = 0
+    @Published var selectDate: Date = Date()
+    
+    @Published var itemsByDate: [String: [DreamRowUI]] = [:]
+    @Published var isLoading: Bool = false
+    @Published var errorMessage: String?
+    
+    @Published var selectedYear: Int = Calendar.current.component(.year, from: .now)
+    @Published var selectedMonth: Int = Calendar.current.component(.month, from: .now)
+    
+    var dreamsForSelected: [DreamRowUI] {
+        itemsByDate[key(selectDate)] ?? []
+    }
+    
+    // 현재 캘린더에 보이는 month 구하는 함수
+    func getCurrentMonth(addingMonth: Int) -> Date {
+        let calendar = Calendar.current
+        
+        guard let currentMonth = calendar.date(byAdding: .month, value: addingMonth, to: Date()
+        ) else { return Date()}
+        
+        return currentMonth
+    }
+    
+    //해당 월의 모든 날짜들을 DataValue 배열로 만들어주는 함수, 모든 날짜를 배열로 만들어야 Grid에서 보여주기 가능
+    func extractDate(currentMonth: Int) -> [DateValue] {
+        let calendar = Calendar.current
+        
+        //getCurrentMonth 가 리턴한 month 구해서 currentMonth로
+        let currentMonth = getCurrentMonth(addingMonth: currentMonth)
+        
+        //currentMonth가 리턴한 month의 모든 날짜 구하기
+        var days = currentMonth.getAllDates().compactMap { date -> DateValue in
+            let day = calendar.component(.day, from: date)
+            
+            return DateValue(day: day, date: date)
+        }
+        
+        let firstWeekday = calendar.component(.weekday, from: days.first?.date ?? Date())
+        
+        for _ in 0..<firstWeekday - 1 {
+            days.insert(DateValue(day: -1, date: Date()), at: 0)
+        }
+        
+        return days
+    }
+    
+    func isSameDay(date1: Date, date2: Date) -> Bool {
+        let calendar = Calendar.current
+        return calendar.isDate(date1, inSameDayAs: date2)
+    }
+    
+    //
+    func getYearAndMonthString(currentDate: Date) -> [String] {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy MMMM"
+        formatter.locale = Locale(identifier: "ko_KR")
+        
+        let date = formatter.string(from: currentDate)
+        return date.components(separatedBy: " ")
+    }
+    
+    /// 셀 탭 시 호출 (필요하면 여기서 백엔드 fetch)
+    func didTap(date: Date) {
+        selectDate = date
+        fetchIfNeeded(for: date)
+    }
+    
+    func fetchIfNeeded(for date: Date) {
+        let k = key(date)
+        guard itemsByDate[k] == nil else { return } // 이미 가져왔으면 통신 스킵
+        
+        isLoading = true
+        errorMessage = nil
+        
+        service.fetchDreams(for: date)
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] completion in
+                guard let self else { return }
+                self.isLoading = false
+                if case let .failure(err) = completion {
+                    self.errorMessage = err.localizedDescription
+                }
+            } receiveValue: { [weak self] rows in
+                self?.itemsByDate[k] = rows
+            }
+            .store(in: &cancellables)
+    }
+}
+
+extension Date {
+    //현재 월의 날짜를 Date 배열로 만들어주는 함수
+    func getAllDates() -> [Date] {
+        // 현재날짜 캘린더 가져오기
+        let calendar = Calendar.current
+        // 현재 월의 첫 날 구하기 -> 일자를 지정하지 않고 year과 month만 구하기 때문에, 그해, 그달의 첫날을 이렇게 구할 수 있음
+        let startDate = calendar.date(from: Calendar.current.dateComponents([.year, .month], from: self))!
+        // range의 각각의 날짜를 date로 맵핑해서 배열로
+        let range = calendar.range(of: .day, in: .month, for: startDate)!
+        return range.compactMap { day -> Date in
+            calendar.date(byAdding: .day, value: day - 1, to: startDate) ?? Date()
+        }
+    }
+}
