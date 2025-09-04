@@ -21,7 +21,7 @@ struct AddDreamView: View {
     
     private var guidanceText: String {
         if vm.canSubmit {
-            return "듣고 있어요."
+            return ""
         }
         return "20자 이상 입력해주세요."
     }
@@ -108,6 +108,7 @@ struct AddDreamView: View {
                     .textFieldStyle(.plain)
                     .foregroundStyle(.white)
                     .tint(.white)
+                    .frame(height: 400, alignment: .top)
                     .padding(.horizontal)
                     .padding(.leading, 10)
                     .padding(.top, 20)

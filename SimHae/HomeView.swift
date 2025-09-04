@@ -9,13 +9,19 @@ import SwiftUI
 
 struct HomeView: View {
     var body: some View {
-        VStack {
-            Spacer()
-            Image("jellyCha")
+        ZStack {
+            Image("CalendarBackgroundVer2")
                 .resizable()
-                .scaledToFit()
-                .frame(width: 200, height: 200)
-            Spacer()
+                .scaledToFill()
+                .ignoresSafeArea(edges: .top)
+            VStack {
+                Spacer()
+                Image("jellyCha")
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 200, height: 200)
+                Spacer()
+            }
         }
     }
 }

@@ -131,7 +131,7 @@ struct FloatingTabContainerView<Content: View>: View {
             }
             .overlay(alignment: .bottomLeading) {
                 FloatingTabView(tabs: tabs, selection: $selection, localSelection: selection).ignoresSafeArea(.keyboard)
-                    .padding(.leading, 32)
+                    .padding(.leading, 28)
             }
             .overlay(alignment: .bottomTrailing) {
                 FloatingPlusButton(destination:
@@ -144,7 +144,7 @@ struct FloatingTabContainerView<Content: View>: View {
                                         )
                                     )
                 )
-                .padding(.trailing, 32)
+                .padding(.trailing, 20)
                 .padding(.bottom, 12)
                 .ignoresSafeArea(.keyboard)
             }

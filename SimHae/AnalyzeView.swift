@@ -9,10 +9,17 @@ import SwiftUI
 
 struct AnalyzeView: View {
     var body: some View {
-        Text("This is Analyze view")
+        ZStack {
+            
+            Image("CalendarBackgroundVer2")
+                .resizable()
+                .scaledToFill()
+                .ignoresSafeArea(edges: .top)
+            
+            Text("This is Analyze view")
+        }
     }
 }
-
 #Preview {
     AnalyzeView()
 }
