@@ -102,7 +102,7 @@ extension FloatingTabView {
                         startPoint: .topLeading,
                         endPoint: .bottomTrailing
                     ),
-                    lineWidth: 1.5
+                    lineWidth: 0.7
                 )
         )
         .frame(width: 220, alignment: .leading)
@@ -206,14 +206,14 @@ struct FloatingTabContainerView<Content: View>: View {
                             .stroke(
                                 LinearGradient(
                                     gradient: Gradient(colors: [
-                                        Color(hex: "#E8D9FF"),   // purple/100
-                                        Color(hex: "#7534E4"),   // purple/600
-                                        Color(hex: "#E8D9FF")    // purple/100
+                                        Color(hex: "#E8D9FF"),
+                                        Color(hex: "#7534E4"),
+                                        Color(hex: "#E8D9FF")
                                     ]),
                                     startPoint: .topLeading,
                                     endPoint: .bottomTrailing
                                 ),
-                                lineWidth: 1
+                                lineWidth: 0.7
                             )
                     )
             }
