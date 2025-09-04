@@ -82,19 +82,14 @@ final class RealDreamService: DreamService {
 
         let req = client.request("/ai/dreams/overall", method: "POST", body: body)
 
-//        return client.run(Envelope<CreateDreamAllDTO>.self, with: req)
-//            .tryMap { env in
-//                guard (200...201).contains(env.status) else {
-//                    throw URLError(.badServerResponse)
-//                }
-//                return env.data.toDomain()
-//            }
-//            .eraseToAnyPublisher()
-        
-        // ✅ 테스트 서버는 envelope 없이 바로 DTO를 줌
-                return client.run(CreateDreamAllDTO.self, with: req)
-                    .map { $0.toDomain() }
-                    .eraseToAnyPublisher()
+        return client.run(Envelope<CreateDreamAllDTO>.self, with: req)
+            .tryMap { env in
+                guard (200...201).contains(env.status) else {
+                    throw URLError(.badServerResponse)
+                }
+                return env.data.toDomain()
+            }
+            .eraseToAnyPublisher()
     }
 }
 

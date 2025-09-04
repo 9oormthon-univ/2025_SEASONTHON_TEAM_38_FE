@@ -12,11 +12,8 @@ final class APIClient {
     static let shared = APIClient()
     private init() {}
 
-    //var baseURL = URL(string: "https://www.simhae.p-e.kr")!   // ✅ 실제 서버 도메인
+    var baseURL = URL(string: "http://www.simhae.p-e.kr")!   // ✅ 실제 서버 도메인
     
-    //테스트
-    var baseURL = URL(string: "http://13.209.49.150:8000")!   // ✅ 실제 서버 도메인
-
     /// 공통 Request 생성
     func request(_ path: String,
                  method: String = "GET",
