@@ -7,7 +7,6 @@
 
 import SwiftUI
 
-
 struct CalendarDetailView: View {
     @State private var isShowingDateChangeSheet: Bool = false
     @ObservedObject var calendarViewModel: CalendarViewModel
@@ -66,7 +65,7 @@ struct CalendarDetailView: View {
                         .padding(.horizontal, 16)
                     
                     if calendarViewModel.dreamsForSelected.isEmpty {
-                        Text("선택한 날짜의 꿈이 없어요")
+                        Text(calendarViewModel.emptyMessageForSelected)
                             .foregroundStyle(.white.opacity(0.6))
                             .padding(.top, 16)
                     } else {
@@ -108,7 +107,6 @@ struct CalendarDetailView: View {
 }
 
 struct DreamCard: View {
-    //    let dreamImage: String
     let date: String
     let title: String
     let summary: String
@@ -180,7 +178,6 @@ struct DreamCard: View {
         .padding(.horizontal, 4)
     }
 }
-
 
 struct YearMonthHeaderView: View {
     @ObservedObject var calendarViewModel: CalendarViewModel
@@ -335,11 +332,12 @@ struct DateButton: View {
                     Text("\(value.day)")
                         .font(.system(size: 17, weight: .semibold))
                         .foregroundStyle(.white)
-                        .padding(.horizontal, 6)   // 좌우 여백
+                        .padding(.horizontal, 10)   // 좌우 여백
                         .padding(.vertical, 2)                // 동그라미 크기
                         .background(
-                            RoundedRectangle(cornerRadius: 30, style: .circular)
-                                .fill(isSelected ? Color(hex: "#843CFF").opacity(0.6) : .clear)
+                            RoundedRectangle(cornerRadius: 100, style: .circular)
+                                .fill(Color(hex: "#843CFF")
+                                    .opacity(calendarViewModel.highlightOpacity(for: value.date)))
                         )
                     
                     // 꿈이 있으면 이모지, 없으면 빈 공간 유지

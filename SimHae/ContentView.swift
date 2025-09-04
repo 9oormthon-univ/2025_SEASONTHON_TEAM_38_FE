@@ -93,7 +93,7 @@ struct ContentView: View {
                 .tabBarItem(tab: .home, selection: $tabSelection)
             CalendarDetailView(calendarViewModel: calendarVM)
                 .tabBarItem(tab: .calendar, selection: $tabSelection)
-            Color.black
+            AnalyzeView()
                 .tabBarItem(tab: .analisys, selection: $tabSelection)
         }
         

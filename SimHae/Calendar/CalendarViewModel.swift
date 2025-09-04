@@ -62,16 +62,6 @@ final class RealCalendarDreamService: CalendarDreamService {
         return f
     }()
     
-    // "2025-08-10T10:00:00" Fallback
-    private static let plainDT: DateFormatter = {
-        let f = DateFormatter()
-        f.calendar = .init(identifier: .gregorian)
-        f.locale   = .init(identifier: "en_US_POSIX")
-        f.timeZone = .init(secondsFromGMT: 0) // 서버 기준 맞추기(필요시 수정)
-        f.dateFormat = "yyyy-MM-dd'T'HH:mm:ss"
-        return f
-    }()
-    
     func fetchDreams(for date: Date) -> AnyPublisher<[DreamRowUI], Error> {
         // /dreams/day?dreamDate=yyyy-MM-dd
         var comps = URLComponents(url: client.baseURL, resolvingAgainstBaseURL: false)!
@@ -124,7 +114,6 @@ final class RealCalendarDreamService: CalendarDreamService {
         req.setValue("application/json", forHTTPHeaderField: "Content-Type")
         req.setValue(AnonymousId.getOrCreate(), forHTTPHeaderField: "X-Anonymous-Id")
          
-        // 서버 응답: { status, message, data: [ { "date":"2025-08-10", "emoji":"📚" }, ... ] }
         struct DayEmojiDTO: Decodable { let date: String; let emoji: String? }
         return client.run(Envelope<[DayEmojiDTO]>.self, with: req)
             .tryMap { env in
@@ -175,9 +164,6 @@ final class CalendarViewModel: ObservableObject {
         let cal = Calendar(identifier: .gregorian)
         let y = cal.component(.year, from: currentDate)
         let m = cal.component(.month, from: currentDate)
-        
-        // 🔎 로그: VM 레벨에서도 YM 확인
-        print("📆 [VM] fetchMonthEmojisForVisibleMonth → \(y)-\(String(format: "%02d", m))")
         
         service.fetchMonthEmojis(year: y, month: m)
             .receive(on: DispatchQueue.main)
@@ -266,6 +252,41 @@ final class CalendarViewModel: ObservableObject {
         let date = formatter.string(from: currentDate)
         return date.components(separatedBy: " ")
     }
+    
+    func isToday(_ date: Date) -> Bool {
+        Calendar.current.isDateInToday(date)
+    }
+    
+    var isSelectedEmpty: Bool {
+        (itemsByDate[key(selectDate)]?.isEmpty ?? true)
+    }
+    
+    var emptyMessageForSelected: String {
+        if isToday(selectDate) {
+            return "오늘 기록된 꿈이 없어요"
+        } else {
+            return "\(formatKoreanDate(selectDate))에 기록된 꿈이 없어요"
+        }
+    }
+    
+    /// "2025년 8월 13일" 같은 한국어 날짜 포맷
+        func formatKoreanDate(_ date: Date) -> String {
+            let df = DateFormatter()
+            df.calendar = .init(identifier: .gregorian)
+            df.locale = .init(identifier: "ko_KR")
+            df.dateFormat = "yyyy년 M월 d일"
+            return df.string(from: date)
+        }
+    
+    /// 셀 하이라이트에 쓸 보라색 불투명도
+        /// - 선택된 날짜: 0.6
+        /// - 오늘(선택 안됨): 0.2
+        /// - 그 외: 0.0
+        func highlightOpacity(for date: Date) -> Double {
+            if isSameDay(date1: date, date2: selectDate) { return 0.6 }
+            if isToday(date) { return 0.2 }
+            return 0.0
+        }
     
     /// 셀 탭 시 호출 (필요하면 여기서 백엔드 fetch)
     func didTap(date: Date) {
