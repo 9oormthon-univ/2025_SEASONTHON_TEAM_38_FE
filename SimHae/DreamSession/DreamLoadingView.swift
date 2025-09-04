@@ -34,6 +34,7 @@ struct DreamLoadingView: View {
                     .multilineTextAlignment(.center)
                     .foregroundStyle(Color(hex: "#E8D9FF"))
                     .padding()
+                    .padding(.bottom, 40)
                 
                 if let message = vm.errorMessage {
                     Text(message)

@@ -241,9 +241,18 @@ private struct CalloutBubble: View {
             .multilineTextAlignment(.center)
             .padding(.horizontal, 20)
             .padding(.vertical, 12)
+//            .background(
+//                RoundedRectangle(cornerRadius: 100, style: .circular)
+//                    .fill(Color.white.opacity(0.3))
+//            )
+//            .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 100, style: .circular))
             .background(
+              ZStack {
                 RoundedRectangle(cornerRadius: 100, style: .circular)
-                    .fill(Color.white.opacity(0.3))
+                  .fill(.ultraThinMaterial)               // 뒤 배경 블러
+                RoundedRectangle(cornerRadius: 100, style: .circular)
+                  .fill(Color.white.opacity(0.3))        // 틴트 강화 → 덜 비침
+              }
             )
             .overlay(
                 RoundedRectangle(cornerRadius: 100, style: .circular)

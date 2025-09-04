@@ -9,6 +9,7 @@ import SwiftUI
 
 struct DreamSuggestionView: View {
     @ObservedObject var vm: DreamSessionViewModel
+    @EnvironmentObject private var router: AppRouter
     @Environment(\.dismiss) private var dismiss
     
     var body: some View {
@@ -17,7 +18,7 @@ struct DreamSuggestionView: View {
                 .resizable()
                 .scaledToFill()
                 .ignoresSafeArea()
-     
+            
             if vm.actions.isEmpty {
                 VStack {
                     Text("해파리의 제안")
@@ -67,7 +68,7 @@ struct DreamSuggestionView: View {
                                         .fill(Color(hex: "#FFFFFF").opacity(0.1))
                                 )
                                 .overlay(RoundedRectangle(cornerRadius: 24, style: .continuous).stroke(LinearGradient(colors: [Color(hex: "#E8D9FF"), Color(hex: "#5F21CC"), Color(hex: "#E8D9FF")], startPoint: .topLeading, endPoint: .bottomTrailing), lineWidth: 1)
-                                         )
+                                )
                                 .padding(.horizontal, 18)
                                 .padding(.top, 36)
                         }
@@ -76,7 +77,7 @@ struct DreamSuggestionView: View {
                     Spacer()
                     
                     Button("해몽 완료") {
-                        dismiss()
+                        print("tap")
                     }
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 16)
@@ -111,7 +112,7 @@ struct DreamSuggestionView: View {
             
             ToolbarItem(placement: .navigationBarTrailing) {
                 Button {
-                    
+                    router.resetToHome()
                 } label: {
                     Image(systemName: "house.fill")
                         .font(.system(size: 18, weight: .semibold))
