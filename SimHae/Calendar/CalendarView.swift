@@ -22,33 +22,48 @@ struct CalendarDetailView: View {
     var body: some View {
         ZStack {
             
-            Image("CalendarBackgroundImage")
+            Image("CalendarBackgroundVer2")
                 .resizable()
                 .scaledToFill()
+                .ignoresSafeArea(edges: .top)
             
-            // ✅ 살짝 어둡게(텍스트 가독성)
-            LinearGradient(
-                colors: [.black.opacity(0.25), .black.opacity(0.7)],
-                startPoint: .top,
-                endPoint: .bottom
-            )
             ScrollView {
                 VStack {
                     HStack(spacing: 10) {
                         Image(systemName: "magnifyingglass")
-                            .foregroundStyle(.white.opacity(0.7))
+                            .foregroundStyle(Color(hex: "#FFFFFF"))
                         TextField("꿈 내용으로 검색하기", text: $query)
-                            .foregroundStyle(.white)
+                            .foregroundStyle(Color(hex: "#FFFFFF").opacity(0.7))
                             .textInputAutocapitalization(.never)
                             .disableAutocorrection(true)
                     }
-                    .padding()
-                    .background(RoundedRectangle(cornerRadius: 30).fill(.white.opacity(0.08)))
+                    .padding(.vertical, 8)
+                    .padding(.horizontal, 12)
+                    .background(RoundedRectangle(cornerRadius: 30, style: .circular).fill(Color(hex: "#843CFF").opacity(0.1))
+                    )
+                    .overlay(RoundedRectangle(cornerRadius: 30, style: .circular)
+                        .stroke(LinearGradient(
+                            gradient: Gradient(colors:[
+                                Color(hex: "#E8D9FF"),
+                                Color(hex: "#7534E4"),
+                                Color(hex: "#E8D9FF")
+                            ]),
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        ),
+                                lineWidth: 1)
+                    )
+                    .padding(.horizontal, 16)
+                    .padding(.top)
+                    .padding(.bottom)
                     
                     YearMonthHeaderView(calendarViewModel: calendarViewModel, isShowingDateChangeSheet: $isShowingDateChangeSheet)
                         .foregroundStyle(.white)
                         .padding(.top, 8)
+                        .padding(.leading, 16)
+                        .frame(maxWidth: .infinity, alignment: .leading)
                     CalendarView(calendarViewModel: calendarViewModel, weekday: weekday)
+                        .padding(.horizontal, 16)
                     
                     if calendarViewModel.dreamsForSelected.isEmpty {
                         Text("선택한 날짜의 꿈이 없어요")
@@ -88,7 +103,7 @@ struct CalendarDetailView: View {
                     .frame(height: 18)
             }
         }
-
+        
     }
 }
 
@@ -102,12 +117,12 @@ struct DreamCard: View {
     var body: some View {
         HStack(spacing: 24) {
             //이모지 + 글로우
-                Text(emoji)
-                    .font(.system(size: 28))
-                    .shadow(color: .purple.opacity(0.8), radius: 12, x: 0, y: 0)
-                        // 추가로 바깥쪽 부드럽게 퍼짐
-                    .shadow(color: .purple.opacity(0.4), radius: 24, x: 0, y: 0)
-                    .padding(.leading, 12)
+            Text(emoji)
+                .font(.system(size: 28))
+                .shadow(color: .purple.opacity(0.8), radius: 12, x: 0, y: 0)
+            // 추가로 바깥쪽 부드럽게 퍼짐
+                .shadow(color: .purple.opacity(0.4), radius: 24, x: 0, y: 0)
+                .padding(.leading, 12)
             //텍스트 영역
             VStack(alignment: .leading, spacing: 4) {
                 Text(date)
@@ -129,39 +144,39 @@ struct DreamCard: View {
         }
         .padding()
         .background(
+            RoundedRectangle(cornerRadius: 20, style: .continuous)
+            // 1) 어두운 배경 그라데이션 (예: #1A1A1A → #0E0E0E)
+                .fill(
+                    LinearGradient(
+                        gradient: Gradient(colors: [Color(hex: "#1A1A1A"), Color(hex: "#0E0E0E")]),
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    )
+                )
+            // 2) 테두리 그라데이션 (E8D9FF → 5F21CC → E8D9FF)
+                .overlay(
                     RoundedRectangle(cornerRadius: 20, style: .continuous)
-                        // 1) 어두운 배경 그라데이션 (예: #1A1A1A → #0E0E0E)
-                        .fill(
+                        .stroke(
                             LinearGradient(
-                                gradient: Gradient(colors: [Color(hex: "#1A1A1A"), Color(hex: "#0E0E0E")]),
+                                gradient: Gradient(stops: [
+                                    .init(color: Color(hex: "#E8D9FF"), location: 0.0),
+                                    .init(color: Color(hex: "#5F21CC"), location: 0.5),
+                                    .init(color: Color(hex: "#E8D9FF"), location: 1.0),
+                                ]),
                                 startPoint: .topLeading,
                                 endPoint: .bottomTrailing
-                            )
+                            ),
+                            lineWidth: 0.8
                         )
-                        // 2) 테두리 그라데이션 (E8D9FF → 5F21CC → E8D9FF)
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 20, style: .continuous)
-                                .stroke(
-                                    LinearGradient(
-                                        gradient: Gradient(stops: [
-                                            .init(color: Color(hex: "#E8D9FF"), location: 0.0),
-                                            .init(color: Color(hex: "#5F21CC"), location: 0.5),
-                                            .init(color: Color(hex: "#E8D9FF"), location: 1.0),
-                                        ]),
-                                        startPoint: .topLeading,
-                                        endPoint: .bottomTrailing
-                                    ),
-                                    lineWidth: 0.8
-                                )
-                        )
-                        // 3) 얇은 안쪽 하이라이트(유리 느낌)
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 20, style: .continuous)
-                                .inset(by: 1)
-                                .stroke(Color.white.opacity(0.08), lineWidth: 0.8)
-                                .blendMode(.overlay)
-                        )
-                    )
+                )
+            // 3) 얇은 안쪽 하이라이트(유리 느낌)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 20, style: .continuous)
+                        .inset(by: 1)
+                        .stroke(Color.white.opacity(0.08), lineWidth: 0.8)
+                        .blendMode(.overlay)
+                )
+        )
         .padding(.horizontal, 4)
     }
 }
@@ -183,8 +198,6 @@ struct YearMonthHeaderView: View {
                     .foregroundStyle(.white)
             })
         }
-        //        .sheet(isPresented: $isShowingDateChangeSheet, content: { DatePicker(calendarViewModel: calendarViewModel, isShowingDateChangeSheet: $isShowingDateChangeSheet).presentationDetents([.fraction(0.4)])
-        //        })
     }
 }
 
@@ -203,8 +216,8 @@ struct CalendarView: View {
         }
         .padding(.top, 20)
         .onChange(of: calendarViewModel.currentMonth) { newOffset in
-                    calendarViewModel.didChangeMonth(to: newOffset)
-                }
+            calendarViewModel.didChangeMonth(to: newOffset)
+        }
         .gesture(
             DragGesture()
                 .onChanged { gesture in
@@ -254,21 +267,21 @@ struct WeekdayHeaderView: View {
 
 struct DatesGridView: View {
     @ObservedObject var calendarViewModel: CalendarViewModel
-
+    
     // 7열 고정
     private let columns = Array(repeating: GridItem(.flexible(), spacing: 0), count: 7)
-
+    
     // 줄 레이아웃(마음에 맞게 숫자만 조절)
     private let rowHeight: CGFloat = 66   // 한 줄(숫자+이모지)의 고정 높이
     private let rowSpacing: CGFloat = 2  // 줄 사이 간격
-
+    
     var body: some View {
         // days를 한 번만 계산해 쓰자
         let days = calendarViewModel.extractDate(currentMonth: calendarViewModel.currentMonth)
         let rows = Int(ceil(Double(days.count) / 7.0))
-
+        
         ZStack(alignment: .topLeading) {
-
+            
             // 날짜 그리드
             LazyVGrid(columns: columns, spacing: rowSpacing) {
                 ForEach(days) { value in
@@ -276,7 +289,7 @@ struct DatesGridView: View {
                         DateButton(value: value,
                                    calendarViewModel: calendarViewModel,
                                    selectDate: $calendarViewModel.selectDate)
-                            .frame(height: rowHeight)                 // ← 줄 높이 고정
+                        .frame(height: rowHeight)                 // ← 줄 높이 고정
                     } else {
                         // 빈 칸도 같은 높이로 채워 레이아웃 유지
                         Color.clear
@@ -284,13 +297,13 @@ struct DatesGridView: View {
                     }
                 }
             }
-
+            
             // 주 구분선 오버레이
             GeometryReader { geo in
                 ForEach(1..<rows, id: \.self) { i in
                     // i번째 줄 아래에 선을 깔자
                     let y = CGFloat(i) * (rowHeight + rowSpacing) - (rowSpacing / 2)
-
+                    
                     Rectangle()
                         .fill(Color(hex: "#FFFFFF").opacity(0.2))            // 선 색/투명도
                         .frame(height: 0.5)

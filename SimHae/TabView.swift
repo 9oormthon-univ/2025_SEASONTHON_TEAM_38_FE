@@ -67,12 +67,13 @@ struct TabView: View {
         )
         .animation(.spring(response: 0.25, dampingFraction: 0.9), value: tab)
     }
-    
-    func icon(for t: TabItem) -> String {
-        switch t { case .home: "house"; case .calendar: "calendar"; case .analysis: "cloud"}
-    }
-    
-    func label(for t: TabItem) -> String {
-        switch t { case .home: "홈"; case .calendar: "캘린더"; case .analysis: "분석" }
-    }
 }
+
+func icon(for t: TabItem) -> String {
+    switch t { case .home: "house"; case .calendar: "calendar"; case .analysis: "cloud"}
+}
+
+func label(for t: TabItem) -> String {
+    switch t { case .home: "홈"; case .calendar: "캘린더"; case .analysis: "분석" }
+}
+

@@ -9,10 +9,14 @@ import SwiftUI
 
 struct HomeView: View {
     var body: some View {
-        Image("jellyCha")
-            .resizable()
-            .scaledToFit()
-            .frame(width: 200, height: 200)
+        VStack {
+            Spacer()
+            Image("jellyCha")
+                .resizable()
+                .scaledToFit()
+                .frame(width: 200, height: 200)
+            Spacer()
+        }
     }
 }
 
