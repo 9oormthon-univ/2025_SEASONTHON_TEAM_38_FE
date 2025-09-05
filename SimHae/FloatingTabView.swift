@@ -198,6 +198,7 @@ struct FloatingTabContainerView<Content: View>: View {
                 }
             }
         }
+        .ignoresSafeArea(.keyboard)
     }
 }
 

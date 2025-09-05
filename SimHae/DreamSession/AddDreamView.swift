@@ -42,205 +42,208 @@ struct AddDreamView: View {
     }
     
     var body: some View {
-        ZStack(alignment: .top) {
-            Image("AddDreamBackgroundImage")
-                .resizable()
-                .scaledToFill()
-                .ignoresSafeArea()
-            
-            GeometryReader { geo in
-                let w = geo.size.width
-                let d = w * 1.8                 // 원 지름(화면 폭 대비 크기)
-                let exposure: CGFloat = 0.7   // ⬅️ 화면 아래에서 얼마나 올려서 보이게 할지 비율(0~1 추천)
-                
-                Circle()
-                    .fill(Color(hex: "#13052A").opacity(0.8))
-                    .frame(width: d, height: d)
-                // 화면 하단에 원의 바닥을 맞춘 뒤, 'exposure * d' 만큼 위로 끌어올린다
-                    .position(x: w / 2, y: geo.size.height + d * (0.5 - exposure))
+        GeometryReader { _ in
+            ZStack(alignment: .top) {
+                Image("AddDreamBackgroundImage")
+                    .resizable()
+                    .scaledToFill()
                     .ignoresSafeArea()
-                    .overlay(
-                        Circle()
-                            .stroke(Color(hex: "#7534E4").opacity(0.8), lineWidth: 40)
-                            .blur(radius: 200)
-                        
-                    )
-                    .shadow(color: Color(hex:" 843CFF").opacity(0.5),
-                            radius: 78.9, x:0, y: 0)
-                    .background(
-                        Circle()
-                            .fill(Color.clear)
-                            .blur(radius: 50)
-                    )
-            }
-            .allowsHitTesting(false)
-            
-            VStack {
                 
-                ZStack {
+                GeometryReader { geo in
+                    let w = geo.size.width
+                    let d = w * 1.8                 // 원 지름(화면 폭 대비 크기)
+                    let exposure: CGFloat = 0.7   // ⬅️ 화면 아래에서 얼마나 올려서 보이게 할지 비율(0~1 추천)
                     
-                    Button {
-                        print("버튼")
-                        tempDate = vm.input.date
-                        showCalendar.toggle()
-                    } label: {
-                        HStack {
-                            Image(systemName: "calendar")
-                                .foregroundStyle(Color(hex: "#843CFF"))
+                    Circle()
+                        .fill(Color(hex: "#13052A").opacity(0.8))
+                        .frame(width: d, height: d)
+                    // 화면 하단에 원의 바닥을 맞춘 뒤, 'exposure * d' 만큼 위로 끌어올린다
+                        .position(x: w / 2, y: geo.size.height + d * (0.5 - exposure))
+                        .ignoresSafeArea()
+                        .overlay(
+                            Circle()
+                                .stroke(Color(hex: "#7534E4").opacity(0.8), lineWidth: 40)
+                                .blur(radius: 200)
                             
-                            let style = Date.FormatStyle.dateTime
-                                .year().month().day().weekday(.wide)
-                                .locale(Locale(identifier: "ko_KR"))
-                            
-                            Text("\(vm.input.date.formatted(style))의 꿈")
-                                .foregroundStyle(.white)
-                                .font(.system(size: 20, weight: .bold))
-                        }
-                        .padding(.top, 50)
-                    }
-                }
-                .frame(maxWidth: .infinity)
-                .overlay(alignment: .top) {
-                    if showInfo {
-                        CalloutBubble(message: "꿈과 관련해 떠오르는 현실의 기억이나 상황이 있나요?\n함께 입력하면 더 정확한 해몽을 제공할 수 있어요.").offset(y: 15)
-                            .transition(.opacity)
-                    }
-                }
-                .overlay(alignment: .top) {
-                    if showCalendar {
-                       CalendarCallOutView(calendarViewModel: calendarViewModel, weekday: weekday
                         )
-                       .padding(.top , 90)
-                        .transition(.opacity)
-                        .zIndex(1)
-                    }
+                        .shadow(color: Color(hex:" 843CFF").opacity(0.5),
+                                radius: 78.9, x:0, y: 0)
+                        .background(
+                            Circle()
+                                .fill(Color.clear)
+                                .blur(radius: 50)
+                        )
                 }
-                .allowsHitTesting(true)
+                .allowsHitTesting(false)
                 
-                Spacer().frame(height: 120)
-                ZStack(alignment: .top) {
-                    TextField("텍스트로 입력하기...", text: $vm.input.content, axis: .vertical)
-                        .textFieldStyle(.plain)
-                        .foregroundStyle(.white)
-                        .tint(.white)
-                        .frame(height: 400, alignment: .top)
-                        .padding(.horizontal)
-                        .padding(.leading, 10)
-                        .padding(.top, 20)
-                }
-                Spacer()
-            }
-            .overlay(alignment: .bottom) {
-                ZStack {
-                    HStack {
-                        Spacer()
-                        Button { vm.speech.toggleRecording() } label: {
-                            Image(systemName: vm.speech.isRecording ? "stop.fill" : "mic")
-                                .foregroundStyle(.white)
-                                .font(.system(size: 32))
-                                .frame(width: 72, height: 72)
-                                .background(
-                                    Circle()
-                                        .fill(Color.black)
-                                        .overlay(
-                                            Circle()
-                                                .fill(Color(hex: "#843CFF").opacity(0.7)))
-                                )
-                                .overlay(
-                                    Circle()
-                                        .stroke(
-                                            LinearGradient(
-                                                gradient: Gradient(colors: [
-                                                    Color(hex: "#E8D9FF"),
-                                                    Color(hex: "#7534E4"),
-                                                    Color(hex: "#E8D9FF")
-                                                ]),
-                                                startPoint: .topLeading,
-                                                endPoint: .bottomTrailing
-                                            ),
-                                            lineWidth: 1
-                                        )
-                                )
-                        }
-                        Spacer()
-                    }
+                VStack {
                     
-                    HStack {
-                        Spacer()
+                    ZStack {
                         
                         Button {
-                            vm.analyzeDream()
-//                            goToLoading = true
-                            onNext()
+                            print("버튼")
+                            tempDate = vm.input.date
+                            showCalendar.toggle()
                         } label: {
-                            Image(systemName: "arrow.right")
-                                .foregroundStyle(vm.canSubmit ? .white : .gray)
-                                .font(.system(size: 20))
-                                .frame(width: 44, height: 44)
-                                .background(
-                                    Circle().fill(
-                                        vm.canSubmit ? Color(hex: "#843CFF") : Color(hex: "FFFFFF").opacity(0.1)
-                                    )
-                                )
+                            HStack {
+                                Image(systemName: "calendar")
+                                    .foregroundStyle(Color(hex: "#843CFF"))
+                                
+                                let style = Date.FormatStyle.dateTime
+                                    .year().month().day().weekday(.wide)
+                                    .locale(Locale(identifier: "ko_KR"))
+                                
+                                Text("\(vm.input.date.formatted(style))의 꿈")
+                                    .foregroundStyle(.white)
+                                    .font(.system(size: 20, weight: .bold))
+                            }
+                            .padding(.top, 50)
                         }
-                        .disabled(!vm.canSubmit)
                     }
-                    .padding(.trailing, 24)
-                }
-                .padding(.bottom, 24)
-            }
-            .navigationBarTitleDisplayMode(.inline)
-            .navigationBarBackButtonHidden(true)
-            .toolbar {
-                ToolbarItem(placement: .navigationBarLeading) {
-                    Button {
-                        showCancelDialog = true
-                    } label: {
-                        Image(systemName: "xmark")
-                            .font(.system(size: 18, weight: .semibold))
-                            .foregroundStyle(Color(hex: "#B184FF"))
-                            .padding(.leading, 8)
-                    }
-                }
-                ToolbarItem(placement: .principal) {
-                    Text("꿈 기록하기")
-                        .foregroundStyle(.white)
-                }
-                
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Button {
-                        withAnimation(.easeOut(duration: 0.3)) {
-                            showInfo.toggle()
+                    .frame(maxWidth: .infinity)
+                    .overlay(alignment: .top) {
+                        if showInfo {
+                            CalloutBubble(message: "꿈과 관련해 떠오르는 현실의 기억이나 상황이 있나요?\n함께 입력하면 더 정확한 해몽을 제공할 수 있어요.").offset(y: 15)
+                                .transition(.opacity)
                         }
-                    } label: {
-                        Image(systemName: "info.circle")
-                            .font(.system(size: 18, weight: .semibold))
-                            .foregroundStyle(Color(hex: "#B184FF"))
-                            .padding(.trailing, 8)
                     }
-                }
-            }
-            .alert("꿈 입력을 취소하시겠어요?", isPresented: $showCancelDialog) {
-                Button("아니요", role: .cancel) {
+                    .overlay(alignment: .top) {
+                        if showCalendar {
+                            CalendarCallOutView(calendarViewModel: calendarViewModel, weekday: weekday
+                            )
+                            .padding(.top , 90)
+                            .transition(.opacity)
+                            .zIndex(1)
+                        }
+                    }
+                    .allowsHitTesting(true)
                     
+                    Spacer().frame(height: 120)
+                    ZStack(alignment: .top) {
+                        TextField("텍스트로 입력하기...", text: $vm.input.content, axis: .vertical)
+                            .textFieldStyle(.plain)
+                            .foregroundStyle(.white)
+                            .tint(.white)
+                            .frame(height: 400, alignment: .top)
+                            .padding(.horizontal)
+                            .padding(.leading, 10)
+                            .padding(.top, 20)
+                    }
+                    Spacer()
                 }
-                Button("네", role: .destructive) {
-                    dismiss()
+                .overlay(alignment: .bottom) {
+                    ZStack {
+                        HStack {
+                            Spacer()
+                            Button { vm.speech.toggleRecording() } label: {
+                                Image(systemName: vm.speech.isRecording ? "stop.fill" : "mic")
+                                    .foregroundStyle(.white)
+                                    .font(.system(size: 32))
+                                    .frame(width: 72, height: 72)
+                                    .background(
+                                        Circle()
+                                            .fill(Color.black)
+                                            .overlay(
+                                                Circle()
+                                                    .fill(Color(hex: "#843CFF").opacity(0.7)))
+                                    )
+                                    .overlay(
+                                        Circle()
+                                            .stroke(
+                                                LinearGradient(
+                                                    gradient: Gradient(colors: [
+                                                        Color(hex: "#E8D9FF"),
+                                                        Color(hex: "#7534E4"),
+                                                        Color(hex: "#E8D9FF")
+                                                    ]),
+                                                    startPoint: .topLeading,
+                                                    endPoint: .bottomTrailing
+                                                ),
+                                                lineWidth: 1
+                                            )
+                                    )
+                            }
+                            Spacer()
+                        }
+                        
+                        HStack {
+                            Spacer()
+                            
+                            Button {
+                                vm.analyzeDream()
+                                //                            goToLoading = true
+                                onNext()
+                            } label: {
+                                Image(systemName: "arrow.right")
+                                    .foregroundStyle(vm.canSubmit ? .white : .gray)
+                                    .font(.system(size: 20))
+                                    .frame(width: 44, height: 44)
+                                    .background(
+                                        Circle().fill(
+                                            vm.canSubmit ? Color(hex: "#843CFF") : Color(hex: "FFFFFF").opacity(0.1)
+                                        )
+                                    )
+                            }
+                            .disabled(!vm.canSubmit)
+                        }
+                        .padding(.trailing, 24)
+                    }
+                    .padding(.bottom, 24)
                 }
-            } message: {
-                Text("지금까지 입력한 모든 내용이 삭제돼요.")
+                .navigationBarTitleDisplayMode(.inline)
+                .navigationBarBackButtonHidden(true)
+                .toolbar {
+                    ToolbarItem(placement: .navigationBarLeading) {
+                        Button {
+                            showCancelDialog = true
+                        } label: {
+                            Image(systemName: "xmark")
+                                .font(.system(size: 18, weight: .semibold))
+                                .foregroundStyle(Color(hex: "#B184FF"))
+                                .padding(.leading, 8)
+                        }
+                    }
+                    ToolbarItem(placement: .principal) {
+                        Text("꿈 기록하기")
+                            .foregroundStyle(.white)
+                    }
+                    
+                    ToolbarItem(placement: .navigationBarTrailing) {
+                        Button {
+                            withAnimation(.easeOut(duration: 0.3)) {
+                                showInfo.toggle()
+                            }
+                        } label: {
+                            Image(systemName: "info.circle")
+                                .font(.system(size: 18, weight: .semibold))
+                                .foregroundStyle(Color(hex: "#B184FF"))
+                                .padding(.trailing, 8)
+                        }
+                    }
+                }
+                .alert("꿈 입력을 취소하시겠어요?", isPresented: $showCancelDialog) {
+                    Button("아니요", role: .cancel) {
+                        
+                    }
+                    Button("네", role: .destructive) {
+                        dismiss()
+                    }
+                } message: {
+                    Text("지금까지 입력한 모든 내용이 삭제돼요.")
+                }
             }
+            .overlay(alignment: .bottom) {
+                Text(guidanceText)
+                    .font(.footnote)
+                    .foregroundStyle(.white.opacity(0.5))
+                    .padding(.bottom, 120)
+                    .frame(maxWidth: .infinity)
+                    .animation(.easeInOut(duration: 0.2), value: guidanceText)
+                    .allowsHitTesting(false)
+            }
+            
         }
-        .overlay(alignment: .bottom) {
-            Text(guidanceText)
-                 .font(.footnote)
-                 .foregroundStyle(.white.opacity(0.5))
-                 .padding(.bottom, 120)
-                 .frame(maxWidth: .infinity)
-                 .animation(.easeInOut(duration: 0.2), value: guidanceText)
-                 .allowsHitTesting(false)
-        }
-        .ignoresSafeArea(.keyboard)
+        .ignoresSafeArea(.keyboard, edges: .all)
     }
 }
 
