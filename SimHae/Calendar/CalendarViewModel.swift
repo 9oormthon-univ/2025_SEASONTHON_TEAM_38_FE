@@ -16,10 +16,11 @@ struct DateValue: Identifiable {
 
 private struct DayDreamDTO: Decodable {
     let dreamId: Int
+    let dreamDate: String
     let title: String
     let emoji: String?
-    let summary: String
-    let category: String
+    let content: String
+    let category: String?
     let createdAt: String // "2025-08-10T10:00:00"
 }
 
@@ -74,8 +75,18 @@ final class RealCalendarDreamService: CalendarDreamService {
         req.httpMethod = "GET"
         req.setValue("application/json", forHTTPHeaderField: "Content-Type")
         req.setValue(AnonymousId.getOrCreate(), forHTTPHeaderField: "X-Anonymous-Id")
-           
+        
+        print("➡️ [fetchDreams] GET", comps.url!.absoluteString)
+        
+        let decoder = JSONDecoder()
         return URLSession.shared.dataTaskPublisher(for: req)
+            .handleEvents(receiveOutput: { out in
+                    let http = out.response as? HTTPURLResponse
+                    let code = http?.statusCode ?? -1
+                    let raw  = String(data: out.data, encoding: .utf8) ?? "<non-utf8 \(out.data.count) bytes>"
+                    print("⬅️ [fetchDreams] status=\(code)")
+                    print("   raw:", raw)
+                })
             .map(\.data)
             .decode(type: Envelope<[DayDreamDTO]>.self, decoder: JSONDecoder())
             .tryMap { env in
@@ -83,13 +94,17 @@ final class RealCalendarDreamService: CalendarDreamService {
                     throw URLError(.badServerResponse)
                 }
                 return env.data.map { dto in
-                    let created = Self.iso8601.date(from: dto.createdAt) ?? Date()
+                    let date: Date = {
+                                        let f = ISO8601DateFormatter()
+                                        f.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+                                        return f.date(from: dto.createdAt) ?? Date()
+                                    }()
                     return DreamRowUI(
                         id: String(dto.dreamId),
                         title: dto.title,
-                        summary: dto.summary,
+                        summary: dto.content,
                         emoji: dto.emoji,
-                        createdAt: created
+                        createdAt: date
                     )
                 }
             }
@@ -107,19 +122,31 @@ final class RealCalendarDreamService: CalendarDreamService {
         
         // /dreams/month?yearMonth=yyyy-MM
         var urlc = URLComponents(url: client.baseURL, resolvingAgainstBaseURL: false)!
-        urlc.path = "/dreams/month"
+        urlc.path = "/dreams"
         urlc.queryItems = [URLQueryItem(name: "dreamDate", value: ym)]
+        
         var req = URLRequest(url: urlc.url!)
         req.httpMethod = "GET"
         req.setValue("application/json", forHTTPHeaderField: "Content-Type")
         req.setValue(AnonymousId.getOrCreate(), forHTTPHeaderField: "X-Anonymous-Id")
+        
+        print("➡️ [fetchMonthEmojis] GET", urlc.url!.absoluteString)
          
-        struct DayEmojiDTO: Decodable { let date: String; let emoji: String? }
+        struct DayEmojiDTO: Decodable
+        { let dreamDate: String
+            let emoji: String?
+        }
         return client.run(Envelope<[DayEmojiDTO]>.self, with: req)
             .tryMap { env in
                 guard (200...299).contains(env.status) else { throw URLError(.badServerResponse) }
                 // dict: "yyyy-MM-dd" -> "🕊️"
-                return Dictionary(uniqueKeysWithValues: env.data.map { ($0.date, $0.emoji ?? "🌙") })
+                // 중복 키가 있어도 첫 번째 값만 유지
+                       let dict = env.data.reduce(into: [String: String]()) { acc, dto in
+                           if acc[dto.dreamDate] == nil {
+                               acc[dto.dreamDate] = dto.emoji ?? "🌙"
+                           }
+                       }
+                       return dict
             }
             .eraseToAnyPublisher()
     }
@@ -294,9 +321,15 @@ final class CalendarViewModel: ObservableObject {
         fetchIfNeeded(for: date)
     }
     
-    func fetchIfNeeded(for date: Date) {
+    func fetchIfNeeded(for date: Date, force: Bool = false) {
         let k = key(date)
-        guard itemsByDate[k] == nil else { return } // 이미 가져왔으면 통신 스킵
+        if !force {
+                if let cached = itemsByDate[k], !cached.isEmpty {
+                    // 캐시가 있고 비어있지 않으면 스킵
+                    return
+                }
+                // 캐시가 없거나, 캐시가 있지만 비어있으면 내려가서 새로 요청
+            }
         
         isLoading = true
         errorMessage = nil
@@ -328,5 +361,11 @@ extension Date {
         return range.compactMap { day -> Date in
             calendar.date(byAdding: .day, value: day - 1, to: startDate) ?? Date()
         }
+    }
+}
+
+extension CalendarViewModel {
+    var dreamsForSelectedSorted: [DreamRowUI] {
+        (itemsByDate[key(selectDate)] ?? []).sorted { $0.createdAt > $1.createdAt }
     }
 }
