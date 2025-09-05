@@ -74,7 +74,7 @@ struct CalendarTotalView: View {
                                 NavigationLink {
                                     DetailView(vm: DreamDetailViewModel(dreamId: item.id))
                                 } label: {
-                                    DreamCard(date: item.createdAt.formatted(.dateTime.year().month().day().weekday(.wide).locale(Locale(identifier: "ko_KR"))), title: item.title, summary: item.summary, emoji: item.emoji ?? "🌙")
+                                    DreamCard(date: item.dreamDate.formatted(.dateTime.year().month().day().weekday(.wide).locale(Locale(identifier: "ko_KR"))), title: item.title, summary: item.summary, emoji: item.emoji ?? "🌙")
                                         .contentShape(Rectangle())
                                 }
                                 .buttonStyle(.plain)

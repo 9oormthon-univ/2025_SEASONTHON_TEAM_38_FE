@@ -29,6 +29,7 @@ struct DreamRowUI: Identifiable, Hashable {
     let title: String
     let summary: String
     let emoji: String?
+    let dreamDate: Date
     let createdAt: Date
 }
 
@@ -93,17 +94,21 @@ final class RealCalendarDreamService: CalendarDreamService {
                 guard (200...299).contains(env.status) else {
                     throw URLError(.badServerResponse)
                 }
-                return env.data.map { dto in
-                    let date: Date = {
-                                        let f = ISO8601DateFormatter()
-                                        f.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
-                                        return f.date(from: dto.createdAt) ?? Date()
-                                    }()
+                
+                let dayDF = Self.dayDF
+                          let iso   = ISO8601DateFormatter()
+                          iso.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+                
+                return env.data.compactMap { dto in
+                    // dreamDate는 필수로 파싱 실패 시 드롭
+                                  guard let dDate = dayDF.date(from: dto.dreamDate) else { return nil }
+                                  let cAt = iso.date(from: dto.createdAt) // 실패하면 nil
                     return DreamRowUI(
                         id: String(dto.dreamId),
                         title: dto.title,
                         summary: dto.content,
                         emoji: dto.emoji,
+                        dreamDate: dDate,
                         createdAt: date
                     )
                 }
