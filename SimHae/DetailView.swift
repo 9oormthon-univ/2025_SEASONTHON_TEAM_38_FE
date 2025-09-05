@@ -28,25 +28,27 @@ struct DetailView: View {
                                 .locale(Locale(identifier: "ko_KR"))
                             
                             Text(
-                                detail.dreamDate?.formatted(koDateStyle)
-                                ?? "꿈 날짜 미정"
+                                "\(detail.dreamDate?.formatted(koDateStyle) ?? "날짜 없음")의 꿈"
                             )
-                            .font(.headline)
+                            .font(.subheadline)
                             .foregroundStyle(.white)
-                            .padding(.top, 12)
+                            .padding(.top, 32)
                             
                             Text(detail.emoji)
                                 .font(.system(size: 40))
                                 .padding(.top, 48)
                                 .padding(.bottom, 8)
+                                .shadow(color: .purple.opacity(0.8), radius: 12, x: 0, y: 0)
+                            // 추가로 바깥쪽 부드럽게 퍼짐
+                                .shadow(color: .purple.opacity(0.4), radius: 24, x: 0, y: 0)
                             
                             Text(detail.title)
                                 .font(.title3.bold())
                                 .foregroundStyle(Color(hex: "#E8D9FF"))
                                 .multilineTextAlignment(.center)
-                                .padding(.bottom, 24)
+                                .padding(.bottom, 32)
                             
-                            Text(detail.summary)
+                            Text(detail.content)
                                 .font(.body)
                                 .multilineTextAlignment(.center)
                                 .foregroundStyle(Color(hex: "#E8D9FF"))
@@ -58,7 +60,7 @@ struct DetailView: View {
                                 .foregroundStyle(Color(hex: "#9963FF"))
                                 .padding(.top, 32)
                             
-                            Text("일상 반영 꿈")
+                            Text(detail.categoryName)
                                 .font(.caption)
                                 .padding(.horizontal, 8)
                                 .padding(8)
@@ -82,10 +84,11 @@ struct DetailView: View {
                                                 )
                                         )
                                 )
-                                .padding()
+                                .padding(.top, 8)
+                                .padding(.bottom, 12)
                             
-                            Text("낮 동안의 경험이나 생각이 꿈속에 그대로 혹은 부분적으로 재현된 꿈")
-                                .font(.caption)
+                            Text(detail.categoryDescription)
+                                .font(.subheadline)
                                 .multilineTextAlignment(.center)
                                 .foregroundStyle(Color(hex: "FFFFFF").opacity(0.6))
                                 .padding(.horizontal, 100)
@@ -107,33 +110,40 @@ struct DetailView: View {
                                 )
 //                                .overlay(RoundedRectangle(cornerRadius: 24, style: .continuous).stroke(LinearGradient(colors: [Color(hex: "#E8D9FF"), Color(hex: "#5F21CC"), Color(hex: "#E8D9FF")], startPoint: .topLeading, endPoint: .bottomTrailing), lineWidth: 1)
 //                                )
-                                .padding()
+                                .padding(.horizontal, 16)
+                                .padding(.top, 12)
                                 .padding(.bottom, 24)
                             
                             Text("해파리의 제안")
-                                .padding(32)
+                                .padding(.top, 48)
+                                .padding(.bottom, 16)
                             
-                            Image(systemName: "tortoise.fill")
-                                .foregroundStyle(Color(hex: "#E8D9FF"))
+                            Image("jellyCha")
+                                .resizable()
+                                .scaledToFit()
+                                .frame(width: 120, height: 120)
                             
                             Text(detail.suggestion)
-                                .multilineTextAlignment(.leading)
-                                .font(.body)
                                 .foregroundStyle(Color(hex: "#E8D9FF"))
+                                .font(.body)
+                                .multilineTextAlignment(.leading)
                                 .padding(28)
                                 .background(
                                     RoundedRectangle(cornerRadius: 24, style: .continuous)
-                                        .fill(Color(hex: "#7534E4").opacity(0.2))
+                                        .fill(Color(hex: "#FFFFFF").opacity(0.1))
                                 )
 //                                .overlay(RoundedRectangle(cornerRadius: 24, style: .continuous).stroke(LinearGradient(colors: [Color(hex: "#E8D9FF"), Color(hex: "#5F21CC"), Color(hex: "#E8D9FF")], startPoint: .topLeading, endPoint: .bottomTrailing), lineWidth: 1)
 //                                )
-                                .padding(.horizontal, 18)
+                                .padding(.horizontal, 16)
                                 .padding(.top, 36)
                         }
                     }
+                } else {
+                    ProgressView().tint(.white)
                 }
             }
         }
+        .onAppear { vm.fetch() }
         .navigationBarTitleDisplayMode(.inline)
         .navigationBarBackButtonHidden(true)
         .toolbar {
@@ -171,66 +181,18 @@ struct DetailView: View {
                 
             }
             Button("네", role: .destructive) {
-                dismiss() //삭제 기능 추가
+                vm.delete {
+                    dismiss() //삭제 기능 추가
+                    NotificationCenter.default.post(name: .dreamDeleted, object: nil)
+                }
+                
             }
         } message: {
             Text("한 번 삭제하면 되돌릴 수 없어요.")
         }
-
-    }
-    
-}
-
-// MARK: - Preview
-#Preview {
-    NavigationStack {
-        DetailView(vm: .preview())
-    }
-    .preferredColorScheme(.dark)
-}
-
-// MARK: - Dummy Service
-final class DummyDreamDetailService: DreamDetailService {
-    func fetchDreamDetailPublisher(id: String) -> AnyPublisher<DreamDetail, Error> {
-        let dto = DreamDetailDTO(
-            dreamId: "1",
-            dreamDate: "2025-08-26",
-            createdAt: "2025-08-26T10:15:00Z",
-            title: "철판 아이스크림을 만드는 꿈",
-            emoji: "🍦",
-            category: "일상 반영 꿈",
-            summary: "꿈에서 철판 아이스크림을 만들고 있었고, 그 과정에서 즐거움과 함께 압박감을 느꼈습니다.",
-            interpretation: """
-            이 꿈은 당신의 삶에서 즐거움과 스트레스가 동시에 존재하는 복잡한 감정을 반영합니다.
-            """,
-            suggestion: """
-            오늘 하루는 자신을 위한 시간을 조금이라도 가지세요.
-            """
-        )
-        let model = dto.toDomain()
-        return Just(model)
-            .setFailureType(to: Error.self)
-            .eraseToAnyPublisher()
     }
 }
 
-extension DreamDetailViewModel {
-    static func preview() -> DreamDetailViewModel {
-        let vm = DreamDetailViewModel(
-            dreamId: "1",
-            service: DummyDreamDetailService()
-        )
-        vm.detail = DreamDetail(
-            id: "1",
-            dreamDate: Date(),
-            createdAt: Date(),
-            title: "프리뷰 꿈",
-            emoji: "🌙",
-            category: "테스트 카테고리",
-            summary: "이건 프리뷰용 요약이에요",
-            interpretation: "프리뷰용 해석 텍스트입니다.",
-            suggestion: "프리뷰 제안 텍스트입니다."
-        )
-        return vm
-    }
+extension Notification.Name {
+    static let dreamDeleted = Notification.Name("dreamDeleted")
 }

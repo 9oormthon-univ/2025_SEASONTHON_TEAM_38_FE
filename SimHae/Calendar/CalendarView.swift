@@ -95,6 +95,13 @@ struct CalendarTotalView: View {
             .onChange(of: calendarViewModel.selectDate) { newDate in
                 calendarViewModel.fetchIfNeeded(for: newDate, force: calendarViewModel.isToday(newDate))
             }
+            //나중에 이거 없으면 뷰 반영 안되는지 테스트 해보기
+//            .onReceive(NotificationCenter.default.publisher(for: .dreamDeleted)) { _ in
+//                // ✅ 삭제 알림 받으면 해당 날짜 데이터 새로고침
+//                calendarViewModel.itemsByDate.removeValue(forKey: calendarViewModel.selectDateKey)
+//                calendarViewModel.fetchIfNeeded(for: calendarViewModel.selectDate, force: true)
+//                calendarViewModel.fetchMonthEmojisForVisibleMonth()
+//            }
         }
         .navigationBarTitleDisplayMode(.inline)
         .navigationBarBackButtonHidden(true)
