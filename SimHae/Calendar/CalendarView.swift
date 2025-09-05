@@ -145,6 +145,7 @@ struct DreamCard: View {
             Image(systemName: "chevron.right")
                 .foregroundStyle(.white.opacity(0.6))
         }
+        .frame(maxWidth: .infinity, alignment: .leading)
         .padding()
         .background(
             RoundedRectangle(cornerRadius: 20, style: .continuous)
