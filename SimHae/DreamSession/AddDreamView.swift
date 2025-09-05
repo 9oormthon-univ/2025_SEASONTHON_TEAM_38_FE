@@ -19,6 +19,8 @@ struct AddDreamView: View {
     @State private var showCalendar = false
     @State private var tempDate = Date()
     
+    var onNext: () -> Void   // ✅ 추가
+    
     private var guidanceText: String {
         if vm.canSubmit {
             return ""
@@ -155,7 +157,8 @@ struct AddDreamView: View {
                         
                         Button {
                             vm.analyzeDream()
-                            goToLoading = true
+//                            goToLoading = true
+                            onNext()
                         } label: {
                             Image(systemName: "arrow.right")
                                 .foregroundStyle(vm.canSubmit ? .white : .gray)
@@ -167,9 +170,9 @@ struct AddDreamView: View {
                                     )
                                 )
                         }
-                        .navigationDestination(isPresented: $goToLoading) {
-                            DreamLoadingView(vm: vm)
-                        }
+//                        .navigationDestination(isPresented: $goToLoading) {
+//                            DreamLoadingView(vm: vm)
+//                        }
                         .disabled(!vm.canSubmit)
                     }
                     .padding(.trailing, 24)

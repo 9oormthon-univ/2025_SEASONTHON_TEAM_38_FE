@@ -11,6 +11,11 @@ struct DreamSuggestionView: View {
     @ObservedObject var vm: DreamSessionViewModel
     @Environment(\.dismiss) private var dismiss
     
+    // 부모에서 주입
+        var onFinish: () -> Void               // 세션 종료(루트로)
+        var onHome:   (() -> Void)? = nil      // 홈 버튼용 (옵션)
+        var onBack:   (() -> Void)? = nil
+    
     var body: some View {
         ZStack {
             Image("DreamSessionBackgroundImage")
@@ -76,7 +81,7 @@ struct DreamSuggestionView: View {
                     Spacer()
                     
                     Button("해몽 완료") {
-                        dismiss()
+                        onFinish()
                     }
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 16)
@@ -93,7 +98,7 @@ struct DreamSuggestionView: View {
         .toolbar {
             ToolbarItem(placement: .navigationBarLeading) {
                 Button {
-                    dismiss()
+                    
                 } label: {
                     Image(systemName: "arrow.left")
                         .font(.system(size: 18, weight: .semibold))
@@ -111,7 +116,7 @@ struct DreamSuggestionView: View {
             
             ToolbarItem(placement: .navigationBarTrailing) {
                 Button {
-                    
+                    onHome?()
                 } label: {
                     Image(systemName: "house.fill")
                         .font(.system(size: 18, weight: .semibold))

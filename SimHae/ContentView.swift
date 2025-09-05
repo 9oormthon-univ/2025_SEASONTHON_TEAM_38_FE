@@ -27,3 +27,7 @@ struct ContentView: View {
 #Preview {
     ContentView()
 }
+
+enum DreamRoute: Hashable {
+    case add, loading, summary, interpretation, suggestion
+}

@@ -13,6 +13,11 @@ struct DreamInterpretationView: View {
     @State private var goSuggestion = false
     @Environment(\.dismiss) private var dismiss
     
+    // 부모에서 주는 콜백들
+      var onNext: () -> Void                 // 제안 화면으로
+      var onHome: (() -> Void)? = nil        // 홈(루트)로 (옵션)
+      var onBack:  (() -> Void)? = nil
+    
     var body: some View {
         
         ZStack {
@@ -46,7 +51,7 @@ struct DreamInterpretationView: View {
                     Spacer()
                     
                     Button("다음으로") {
-                        goSuggestion = true
+                        onNext()     
                     }
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 16)
@@ -55,9 +60,9 @@ struct DreamInterpretationView: View {
                     .clipShape(RoundedRectangle(cornerRadius: 28, style: .continuous))
                     .padding(.horizontal, 24)
                     .padding(.bottom, 24) // 홈 인디케이터와 간격
-                    .navigationDestination(isPresented: $goSuggestion) {
-                        DreamSuggestionView(vm: vm)
-                    }
+//                    .navigationDestination(isPresented: $goSuggestion) {
+//                        DreamSuggestionView(vm: vm)
+//                    }
                 }
             }
         }
@@ -84,7 +89,7 @@ struct DreamInterpretationView: View {
             
             ToolbarItem(placement: .navigationBarTrailing) {
                 Button {
-                    
+                    onHome?()
                 } label: {
                     Image(systemName: "house.fill")
                         .font(.system(size: 18, weight: .semibold))

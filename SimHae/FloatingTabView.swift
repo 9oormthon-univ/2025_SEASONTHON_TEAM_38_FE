@@ -118,6 +118,12 @@ struct FloatingTabContainerView<Content: View>: View {
     @State private var tabs: [TabBarItem] = []
     let content: Content
     
+    // 🔹 네비게이션 스택 상태
+    //    @State private var path = NavigationPath()
+    @State private var path: [DreamRoute] = []
+    @State private var sessionVM: DreamSessionViewModel?
+    
+    
     init(selection: Binding<TabBarItem>, @ViewBuilder content: () -> Content) {
         //바인딩 프로퍼티라 언더바
         self._selection = selection
@@ -125,8 +131,8 @@ struct FloatingTabContainerView<Content: View>: View {
     }
     
     var body: some View {
-        NavigationStack {
-            ZStack() {
+        NavigationStack(path: $path) {
+            ZStack {
                 content
             }
             .overlay(alignment: .bottomLeading) {
@@ -134,16 +140,9 @@ struct FloatingTabContainerView<Content: View>: View {
                     .padding(.leading, 28)
             }
             .overlay(alignment: .bottomTrailing) {
-                FloatingPlusButton(destination:
-                                    AddDreamView(
-                                        vm: DreamSessionViewModel(
-                                            service: RealDreamService(),
-                                            speech: SpeechInputViewModel(
-                                                speechRecognizer: SpeechRecognizer()
-                                            )
-                                        )
-                                    )
-                )
+                FloatingPlusButton {
+                    path.append(.add)
+                }
                 .padding(.trailing, 20)
                 .padding(.bottom, 12)
                 .ignoresSafeArea(.keyboard)
@@ -152,72 +151,115 @@ struct FloatingTabContainerView<Content: View>: View {
             .onPreferenceChange(TabBarItemsPreferenceKey.self) { value in
                 self.tabs = value
             }
+            .navigationDestination(for: DreamRoute.self) { route in
+                if route == .add {
+                    // ✅ 첫 진입 시 지연 생성
+                    let localVM = sessionVM ?? {
+                        let new = DreamSessionViewModel(
+                            service: RealDreamService(),
+                            speech: SpeechInputViewModel(speechRecognizer: SpeechRecognizer())
+                        )
+                        sessionVM = new
+                        return new
+                    }()
+                    AddDreamView(vm: localVM) {
+                        path.append(.loading)
+                    }
+                    
+                } else if let vm = sessionVM {
+                    switch route {
+                    case .loading:
+                        DreamLoadingView(vm: vm) { path.append(.summary) }
+                    case .summary:
+                        DreamSummaryView(vm: vm,
+                                         onNext: { path.append(.interpretation) },
+                                         onHome: {path = .init(); sessionVM = nil},
+                        )
+                        
+                    case .interpretation:
+                        DreamInterpretationView(vm: vm,
+                                                onNext: { path.append(.suggestion) },
+                                                onHome: { path = .init(); sessionVM = nil })
+                    case .suggestion:
+                        DreamSuggestionView(
+                            vm: vm,
+                            onFinish: { path = .init(); sessionVM = nil },
+                            onHome:   { path = .init(); sessionVM = nil }
+                        )
+                    default:
+                        EmptyView()
+                    }
+                    
+                } else {
+                    // vm 없고 .add도 아닌 경우 방어
+                    Color.clear.task { path = .init() }
+                }
+            }
         }
     }
 }
+
+
+struct TabBarItemsPreferenceKey: PreferenceKey {
+    static var defaultValue: [TabBarItem] = []
     
-    struct TabBarItemsPreferenceKey: PreferenceKey {
-        static var defaultValue: [TabBarItem] = []
-        
-        static func reduce(value: inout [TabBarItem], nextValue: () -> [TabBarItem]) {
-            value += nextValue()
-        }
+    static func reduce(value: inout [TabBarItem], nextValue: () -> [TabBarItem]) {
+        value += nextValue()
     }
+}
+
+struct TabBarItemViewModifier: ViewModifier {
+    let tab: TabBarItem
+    @Binding var selection: TabBarItem
     
-    struct TabBarItemViewModifier: ViewModifier {
-        let tab: TabBarItem
-        @Binding var selection: TabBarItem
-        
-        func body(content: Content) -> some View {
-            content
-                .opacity(selection == tab ? 1.0 : 0.0)
-                .preference(key: TabBarItemsPreferenceKey.self, value: [tab])
-        }
+    func body(content: Content) -> some View {
+        content
+            .opacity(selection == tab ? 1.0 : 0.0)
+            .preference(key: TabBarItemsPreferenceKey.self, value: [tab])
     }
+}
+
+extension View {
     
-    extension View {
-        
-        func tabBarItem(tab: TabBarItem, selection: Binding<TabBarItem>) -> some View {
-            self
-                .modifier(TabBarItemViewModifier(tab: tab, selection: selection))
-        }
+    func tabBarItem(tab: TabBarItem, selection: Binding<TabBarItem>) -> some View {
+        self
+            .modifier(TabBarItemViewModifier(tab: tab, selection: selection))
     }
+}
+
+struct FloatingPlusButton: View {
+    var action: () -> Void
     
-    struct FloatingPlusButton<Destination: View>: View {
-        var destination: Destination
-        
-        var body: some View {
-            NavigationLink  {
-                destination
-            } label: {
-                Image(systemName: "plus")
-                    .font(.system(size: 28, weight: .light))
-                    .foregroundStyle(.white)
-                    .frame(width: 70, height: 70)
-                    .background(
-                        Circle()
-                            .fill(Color.black)
-                            .overlay(
-                                Circle()
-                                    .fill(Color(hex: "#843CFF").opacity(0.7)))
-                    )
-                    .overlay(
-                        Circle()
-                            .stroke(
-                                LinearGradient(
-                                    gradient: Gradient(colors: [
-                                        Color(hex: "#E8D9FF"),
-                                        Color(hex: "#7534E4"),
-                                        Color(hex: "#E8D9FF")
-                                    ]),
-                                    startPoint: .topLeading,
-                                    endPoint: .bottomTrailing
-                                ),
-                                lineWidth: 0.7
-                            )
-                    )
-            }
-            .buttonStyle(.plain)
+    var body: some View {
+        Button(action: action)  {
+            Image(systemName: "plus")
+                .font(.system(size: 28, weight: .light))
+                .foregroundStyle(.white)
+                .frame(width: 70, height: 70)
+                .background(
+                    Circle()
+                        .fill(Color.black)
+                        .overlay(
+                            Circle()
+                                .fill(Color(hex: "#843CFF").opacity(0.7)))
+                )
+                .overlay(
+                    Circle()
+                        .stroke(
+                            LinearGradient(
+                                gradient: Gradient(colors: [
+                                    Color(hex: "#E8D9FF"),
+                                    Color(hex: "#7534E4"),
+                                    Color(hex: "#E8D9FF")
+                                ]),
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            ),
+                            lineWidth: 0.7
+                        )
+                )
         }
+        .buttonStyle(.plain)
     }
+}
 

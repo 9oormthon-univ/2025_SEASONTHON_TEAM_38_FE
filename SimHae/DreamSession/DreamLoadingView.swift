@@ -10,6 +10,8 @@ import SwiftUI
 struct DreamLoadingView: View {
     @ObservedObject var vm: DreamSessionViewModel
     @State private var goSummary = false
+    var onNext: () -> Void
+    @Environment(\.dismiss) private var dismiss
     
     var body: some View {
         ZStack {
@@ -28,7 +30,7 @@ struct DreamLoadingView: View {
                 let style = Date.FormatStyle.dateTime
                     .year().month().day().weekday(.wide)
                     .locale(Locale(identifier: "ko_KR"))
-
+                
                 Text("\(vm.input.date.formatted(style))의 꿈을 \n 해몽중이에요.")
                     .font(.system(size: 20))
                     .multilineTextAlignment(.center)
@@ -44,10 +46,21 @@ struct DreamLoadingView: View {
                 }
             }
             .onChange(of: vm.restate) { new in
-                if new != nil { goSummary = true }
+                if new != nil { onNext() }
             }
-            .navigationDestination(isPresented: $goSummary) {
-                DreamSummaryView(vm: vm)
+        }
+        .navigationBarTitleDisplayMode(.inline)
+        .navigationBarBackButtonHidden(true)
+        .toolbar {
+            ToolbarItem(placement: .navigationBarLeading) {
+                Button {
+                    dismiss()
+                } label: {
+                    Image(systemName: "arrow.left")
+                        .font(.system(size: 18, weight: .semibold))
+                        .foregroundStyle(Color(hex: "#B184FF"))
+                        .padding(.leading, 8)
+                }
             }
         }
     }
