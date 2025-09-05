@@ -16,6 +16,7 @@ struct AddDreamView: View {
     @State private var showCancelDialog = false
     @State private var showCalendar = false
     @State private var tempDate = Date()
+    @FocusState private var isTextFocused: Bool
     
     var onNext: () -> Void   // ✅ 추가
     
@@ -48,6 +49,12 @@ struct AddDreamView: View {
                     .resizable()
                     .scaledToFill()
                     .ignoresSafeArea()
+                
+                Color.clear
+                    .contentShape(Rectangle())
+                    .onTapGesture {
+                        isTextFocused = false
+                    }
                 
                 GeometryReader { geo in
                     let w = geo.size.width
@@ -121,6 +128,7 @@ struct AddDreamView: View {
                     Spacer().frame(height: 120)
                     ZStack(alignment: .top) {
                         TextField("텍스트로 입력하기...", text: $vm.input.content, axis: .vertical)
+                            .focused($isTextFocused)
                             .textFieldStyle(.plain)
                             .foregroundStyle(.white)
                             .tint(.white)
@@ -230,6 +238,12 @@ struct AddDreamView: View {
                     }
                 } message: {
                     Text("지금까지 입력한 모든 내용이 삭제돼요.")
+                }
+            }
+            .toolbar {
+                ToolbarItemGroup(placement: .keyboard) {
+                    Spacer()
+                    Button("완료") { isTextFocused = false}
                 }
             }
             .overlay(alignment: .bottom) {
