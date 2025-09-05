@@ -111,13 +111,24 @@ final class DreamSessionViewModel: ObservableObject {
     let speech: SpeechInputViewModel
 
     private let service: DreamService
+    
     private var bag = Set<AnyCancellable>()
+    private var networkBag = Set<AnyCancellable>()
 
     init(service: DreamService, speech: SpeechInputViewModel) {
         self.service = service
         self.speech = speech
         bindSpeech()
     }
+    
+    // ✅ 편의 이니셜라이저: 처음부터 선택 날짜로 시작
+       convenience init(service: DreamService,
+                        speech: SpeechInputViewModel,
+                        initialDate: Date) {
+           self.init(service: service, speech: speech)
+           self.input.date = initialDate
+       }
+
 
     /// 음성 transcript -> input.text 반영
     private func bindSpeech() {
@@ -171,3 +182,15 @@ final class DreamSessionViewModel: ObservableObject {
         bag.removeAll()
     }
 }
+
+extension DreamSessionViewModel {
+    func startNewSession(for date: Date) {
+        restate = nil
+        interpretation = nil
+        actions = []
+        errorMessage = nil
+        isSubmitting = false
+        input = DreamInput(content: "", date: date)
+    }
+}
+

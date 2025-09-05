@@ -258,6 +258,9 @@ struct AddDreamView: View {
             
         }
         .ignoresSafeArea(.keyboard, edges: .all)
+        .onChange(of: calendarViewModel.selectDate) { newDate in
+            vm.input.date = newDate
+        }
     }
 }
 

@@ -143,6 +143,7 @@ struct FloatingTabContainerView<Content: View>: View {
             }
             .overlay(alignment: .bottomTrailing) {
                 FloatingPlusButton {
+                    sessionVM?.startNewSession(for: calendarViewModel.selectDate)
                     path.append(.add)
                 }
                 .padding(.trailing, 20)
@@ -164,8 +165,14 @@ struct FloatingTabContainerView<Content: View>: View {
                         sessionVM = new
                         return new
                     }()
+                    
+                   
+                    
                     AddDreamView(vm: localVM, calendarViewModel: calendarViewModel) {
                         path.append(.loading)
+                    }
+                    .onAppear {
+                        localVM.startNewSession(for: calendarViewModel.selectDate)
                     }
                     
                 } else if let vm = sessionVM {
@@ -198,7 +205,6 @@ struct FloatingTabContainerView<Content: View>: View {
                 }
             }
         }
-        .ignoresSafeArea(.keyboard)
     }
 }
 
