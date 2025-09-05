@@ -6,12 +6,11 @@
 //
 
 import SwiftUI
-
-import SwiftUI
 import Combine
 
 struct AddDreamView: View {
     @ObservedObject var vm: DreamSessionViewModel
+    @ObservedObject var calendarViewModel: CalendarViewModel
     @State private var showInfo: Bool = false
     @Environment(\.dismiss) private var dismiss
     @State private var showCancelDialog = false
@@ -19,6 +18,21 @@ struct AddDreamView: View {
     @State private var tempDate = Date()
     
     var onNext: () -> Void   // ✅ 추가
+    
+    // ✅ 커스텀 init을 공개(internal)로 명시
+        init(
+            vm: DreamSessionViewModel,
+            calendarViewModel: CalendarViewModel,
+            onNext: @escaping () -> Void
+        ) {
+            // ObservedObject는 wrappedValue로 세팅하는 편이 안전
+            self._vm = ObservedObject(wrappedValue: vm)
+            self._calendarViewModel = ObservedObject(wrappedValue: calendarViewModel)
+            self.onNext = onNext
+        }
+
+    
+    private var weekday: [String] = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"]
     
     private var guidanceText: String {
         if vm.canSubmit {
@@ -84,36 +98,35 @@ struct AddDreamView: View {
                         }
                         .padding(.top, 50)
                     }
-                    
-
-                    if showCalendar {
-                        CalendarCallout(date: $tempDate,
-                                        onDone: {
-                            vm.input.date = tempDate
-                            showCalendar = false
-                        })
-                        .transition(.opacity)
-                        //.zIndex(1)
-                    }
-                    
-                  
+                }
+                .frame(maxWidth: .infinity)
+                .overlay(alignment: .top) {
                     if showInfo {
                         CalloutBubble(message: "꿈과 관련해 떠오르는 현실의 기억이나 상황이 있나요?\n함께 입력하면 더 정확한 해몽을 제공할 수 있어요.").offset(y: 15)
                             .transition(.opacity)
                     }
                 }
+                .overlay(alignment: .top) {
+                    if showCalendar {
+                       CalendarCallOutView(calendarViewModel: calendarViewModel, weekday: weekday
+                        )
+                       .padding(.top , 90)
+                        .transition(.opacity)
+                        .zIndex(1)
+                    }
+                }
                 
                 Spacer().frame(height: 120)
-                
-                TextField("텍스트로 입력하기...", text: $vm.input.content, axis: .vertical)
-                    .textFieldStyle(.plain)
-                    .foregroundStyle(.white)
-                    .tint(.white)
-                    .frame(height: 400, alignment: .top)
-                    .padding(.horizontal)
-                    .padding(.leading, 10)
-                    .padding(.top, 20)
-                
+                ZStack(alignment: .top) {
+                    TextField("텍스트로 입력하기...", text: $vm.input.content, axis: .vertical)
+                        .textFieldStyle(.plain)
+                        .foregroundStyle(.white)
+                        .tint(.white)
+                        .frame(height: 400, alignment: .top)
+                        .padding(.horizontal)
+                        .padding(.leading, 10)
+                        .padding(.top, 20)
+                }
                 Spacer()
             }
             .overlay(alignment: .bottom) {
@@ -254,37 +267,5 @@ private struct CalloutBubble: View {
                     .stroke(Color(hex: "#4512A0").opacity(0.8), lineWidth: 1)
             )
             .padding(.horizontal, 24)
-    }
-}
-
-private struct CalendarCallout: View {
-    @Binding var date: Date
-    var onDone: () -> Void
-
-    var body: some View {
-        VStack(spacing: 12) {
-            DatePicker(
-                "",
-                selection: $date,
-                in: ...Date(),                 // 미래 선택 금지 (원하면 지움)
-                displayedComponents: [.date]
-            )
-            .datePickerStyle(.graphical)
-            .labelsHidden()
-            .tint(Color(hex: "#843CFF"))
-            .environment(\.locale, Locale(identifier: "ko_KR"))
-            .environment(\.calendar, Calendar(identifier: .gregorian))
-
-            Button("완료", action: onDone)
-                .font(.headline)
-                .foregroundStyle(.white)
-        }
-        .padding(16)
-        .background(
-            RoundedRectangle(cornerRadius: 20, style: .continuous)
-                .fill(LinearGradient(colors: [Color(hex: "#5F21CC"), Color(hex: "#FFFFFF")], startPoint: .top, endPoint: .bottom))
-        )
-        .padding(.horizontal, 16)
-        .offset(y: 8) // 버튼에서 살짝 띄우기
     }
 }

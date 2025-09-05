@@ -13,7 +13,7 @@ struct ContentView: View {
     
     @State private var tabSelection: TabBarItem = .home
     var body: some View {
-        FloatingTabContainerView(selection: $tabSelection) {
+        FloatingTabContainerView(selection: $tabSelection, calendarViewModel: calendarVM) {
             HomeView()
                 .tabBarItem(tab: .home, selection: $tabSelection)
             CalendarTotalView(calendarViewModel: calendarVM)

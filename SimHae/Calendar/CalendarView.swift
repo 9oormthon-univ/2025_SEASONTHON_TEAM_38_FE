@@ -7,6 +7,69 @@
 
 import SwiftUI
 
+struct CalendarCallOutView: View {
+    @ObservedObject var calendarViewModel: CalendarViewModel
+    
+    let weekday: [String]
+    
+    var body: some View {
+        VStack {
+            WeekdayHeaderView(weekday: weekday)
+            
+            DatesGridForCalendarCallOutView(calendarViewModel: calendarViewModel)
+        }
+        .padding()
+        .background(
+            RoundedRectangle(cornerRadius: 24, style: .continuous)
+                //.fill(Color(hex: "#7534E4").opacity(0.2))
+                .fill(.ultraThinMaterial)
+        )
+        .padding(.horizontal, 48)
+        
+    }
+}
+
+struct DatesGridForCalendarCallOutView: View {
+    @ObservedObject var calendarViewModel: CalendarViewModel
+    
+    private let columns = Array(repeating: GridItem(.flexible(), spacing: 0), count: 7)
+    
+    // 줄 레이아웃(마음에 맞게 숫자만 조절)
+    private let rowHeight: CGFloat = 38   // 한 줄(숫자+이모지)의 고정 높이
+    private let rowSpacing: CGFloat = 2 // 줄 사이 간격
+    
+    var body: some View {
+        let days = calendarViewModel.extractDate(currentMonth: calendarViewModel.currentMonth)
+        let rows = Int(ceil(Double(days.count) / 7.0))
+        
+        LazyVGrid(columns: columns, spacing: rowSpacing) {
+            ForEach(days) { value in
+                if value.day != -1 {
+                    Button {
+                        withAnimation(.easeInOut(duration: 0.15)) {
+                            calendarViewModel.didTap(date: value.date)
+                        }
+                    } label: {
+                        Text("\(value.day)")
+                            .font(.system(size: 16, weight: .regular))
+                            .foregroundStyle(.white)
+                            .padding(.horizontal, 9)   // 좌우 여백
+                            .padding(.vertical, 2)                // 동그라미 크기
+                            .background(
+                                RoundedRectangle(cornerRadius: 100, style: .circular)
+                                    .fill(Color(hex: "#843CFF")
+                                        .opacity(calendarViewModel.highlightOpacity(for: value.date)))
+                            )
+                            .frame(maxWidth: .infinity)
+                    }
+                    .disabled(value.date > Date())
+                    .frame(height: rowHeight)
+                }
+            }
+        }
+    }
+}
+
 struct CalendarTotalView: View {
     @State private var isShowingDateChangeSheet: Bool = false
     @ObservedObject var calendarViewModel: CalendarViewModel

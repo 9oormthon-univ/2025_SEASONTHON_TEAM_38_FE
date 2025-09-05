@@ -122,11 +122,13 @@ struct FloatingTabContainerView<Content: View>: View {
     //    @State private var path = NavigationPath()
     @State private var path: [DreamRoute] = []
     @State private var sessionVM: DreamSessionViewModel?
+    let calendarViewModel: CalendarViewModel
     
     
-    init(selection: Binding<TabBarItem>, @ViewBuilder content: () -> Content) {
+    init(selection: Binding<TabBarItem>, calendarViewModel: CalendarViewModel, @ViewBuilder content: () -> Content) {
         //바인딩 프로퍼티라 언더바
         self._selection = selection
+        self.calendarViewModel = calendarViewModel
         self.content = content()
     }
     
@@ -162,7 +164,7 @@ struct FloatingTabContainerView<Content: View>: View {
                         sessionVM = new
                         return new
                     }()
-                    AddDreamView(vm: localVM) {
+                    AddDreamView(vm: localVM, calendarViewModel: calendarViewModel) {
                         path.append(.loading)
                     }
                     
@@ -173,7 +175,7 @@ struct FloatingTabContainerView<Content: View>: View {
                     case .summary:
                         DreamSummaryView(vm: vm,
                                          onNext: { path.append(.interpretation) },
-                                         onHome: {path = .init(); sessionVM = nil},
+                                         onHome: {path = .init(); sessionVM = nil}
                         )
                         
                     case .interpretation:
