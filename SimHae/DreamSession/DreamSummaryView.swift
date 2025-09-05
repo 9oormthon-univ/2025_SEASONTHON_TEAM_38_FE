@@ -10,7 +10,6 @@ import Combine
 
 struct DreamSummaryView: View {
     @ObservedObject var vm: DreamSessionViewModel
-    @State private var goInterpret = false
     @Environment(\.dismiss) private var dismiss
     
     /// 부모가 주는 화면 이동 콜백들
@@ -106,9 +105,6 @@ struct DreamSummaryView: View {
                     .clipShape(RoundedRectangle(cornerRadius: 28, style: .continuous))
                     .padding(.horizontal, 24)
                     .padding(.bottom, 24) // 홈 인디케이터와 간격
-//                    .navigationDestination(isPresented: $goInterpret) {
-//                        DreamInterpretationView(vm: vm)
-//                    }
                 }
             }
         }

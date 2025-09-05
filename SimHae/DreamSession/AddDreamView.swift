@@ -12,7 +12,6 @@ import Combine
 
 struct AddDreamView: View {
     @ObservedObject var vm: DreamSessionViewModel
-    @State private var goToLoading: Bool = false
     @State private var showInfo: Bool = false
     @Environment(\.dismiss) private var dismiss
     @State private var showCancelDialog = false
@@ -170,9 +169,6 @@ struct AddDreamView: View {
                                     )
                                 )
                         }
-//                        .navigationDestination(isPresented: $goToLoading) {
-//                            DreamLoadingView(vm: vm)
-//                        }
                         .disabled(!vm.canSubmit)
                     }
                     .padding(.trailing, 24)
@@ -244,11 +240,6 @@ private struct CalloutBubble: View {
             .multilineTextAlignment(.center)
             .padding(.horizontal, 20)
             .padding(.vertical, 12)
-//            .background(
-//                RoundedRectangle(cornerRadius: 100, style: .circular)
-//                    .fill(Color.white.opacity(0.3))
-//            )
-//            .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 100, style: .circular))
             .background(
               ZStack {
                 RoundedRectangle(cornerRadius: 100, style: .circular)

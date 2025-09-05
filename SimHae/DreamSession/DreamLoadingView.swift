@@ -9,7 +9,6 @@ import SwiftUI
 
 struct DreamLoadingView: View {
     @ObservedObject var vm: DreamSessionViewModel
-    @State private var goSummary = false
     var onNext: () -> Void
     @Environment(\.dismiss) private var dismiss
     
