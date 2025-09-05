@@ -10,7 +10,7 @@ import SwiftUI
 struct HomeView: View {
     var body: some View {
         ZStack {
-            Image("CalendarBackgroundVer2")
+            Image("HomeBackgroundImage")
                 .resizable()
                 .scaledToFill()
                 .ignoresSafeArea(edges: .top)
@@ -20,6 +20,7 @@ struct HomeView: View {
                     .resizable()
                     .scaledToFit()
                     .frame(width: 200, height: 200)
+                    .padding(.top, 160)
                 Spacer()
             }
         }

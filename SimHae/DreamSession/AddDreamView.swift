@@ -115,6 +115,7 @@ struct AddDreamView: View {
                         .zIndex(1)
                     }
                 }
+                .allowsHitTesting(true)
                 
                 Spacer().frame(height: 120)
                 ZStack(alignment: .top) {
