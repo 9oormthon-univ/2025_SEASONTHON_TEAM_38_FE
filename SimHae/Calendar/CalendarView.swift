@@ -211,12 +211,57 @@ struct YearMonthHeaderView: View {
     var body: some View {
         HStack {
             
-            Image(systemName: "chevron.left")
+            Button(action: {
+                let cal = Calendar.current
+                let lowerBound = cal.date(from: DateComponents(year: 2024, month: 1, day: 1))!
+                let prevMonth = cal.date(byAdding: .month, value: -1, to: calendarViewModel.currentDate)!
+                
+                // 2024-01 이전으로는 못 가게
+                let isPrevBeforeLower = cal.compare(
+                    cal.date(from: cal.dateComponents([.year, .month], from: prevMonth))!,
+                    to: lowerBound,
+                    toGranularity: .month
+                ) == .orderedAscending
+                
+                guard !isPrevBeforeLower else { return }
+                
+                withAnimation(.easeInOut) {
+                    calendarViewModel.currentMonth -= 1
+                    calendarViewModel.selectedMonth -= 1
+                }
+            }) {
+                Image(systemName: "chevron.left")
+                    .font(.title3.weight(.semibold))
+                    .foregroundStyle(.white)
+            }
             
             Text("\(calendarViewModel.getYearAndMonthString(currentDate: calendarViewModel.currentDate)[0])년 \(calendarViewModel.getYearAndMonthString(currentDate: calendarViewModel.currentDate)[1])")
                 .font(.title3.bold())
             
-            Image(systemName: "chevron.right")
+            // ➡️ 다음 달 버튼
+            Button(action: {
+                let cal = Calendar.current
+                let now = Date()
+                let nextMonth = cal.date(byAdding: .month, value: 1, to: calendarViewModel.currentDate)!
+                
+                // 미래 달로 넘어가지 않도록(다음달이 오늘보다 이후면 막기)
+                let isNextBeyondNow = cal.compare(
+                    cal.date(from: cal.dateComponents([.year, .month], from: nextMonth))!,
+                    to: cal.date(from: cal.dateComponents([.year, .month], from: now))!,
+                    toGranularity: .month
+                ) == .orderedDescending
+                
+                guard !isNextBeyondNow else { return }
+                
+                withAnimation(.easeInOut) {
+                    calendarViewModel.currentMonth += 1
+                    calendarViewModel.selectedMonth += 1
+                }
+            }) {
+                Image(systemName: "chevron.right")
+                    .font(.title3.weight(.semibold))
+                    .foregroundStyle(.white)
+            }
         }
     }
 }
@@ -239,33 +284,93 @@ struct CalendarView: View {
             calendarViewModel.didChangeMonth(to: newOffset)
         }
         .gesture(
-            DragGesture()
-                .onChanged { gesture in
-                    self.offset = gesture.translation
+            DragGesture(minimumDistance: 10, coordinateSpace: .local)
+                .onChanged { value in
+                    self.offset = value.translation
                 }
-                .onEnded { gesture in
-                    let calender = Calendar.current
-                    let selectYear = calender.component(.year, from: calendarViewModel.currentDate)
-                    let selectMonth = calender.component(.month, from: calendarViewModel.currentDate)
-                    let presentMonth = calender.component(.month, from: Date())
+                .onEnded { value in
+                    let cal = Calendar.current
                     
-                    if gesture.translation.width < -20 {
-                        if selectMonth == presentMonth {
+                    // 현재 드래그 vs 예측 종료 지점(=속도 반영)
+                    let dx  = value.translation.width
+                    let pdx = value.predictedEndTranslation.width
+                    // 더 큰 쪽을 최종 제스처로 채택 (속도 강할수록 pdx가 큼)
+                    let finalDx = abs(pdx) > abs(dx) ? pdx : dx
+                    
+                    // 세로 제스처 무시 (가로 우세만 허용)
+                    let dy = value.translation.height
+                    guard abs(finalDx) > abs(dy) else { return }
+                    
+                    // 스와이프 인식 임계값
+                    let threshold: CGFloat = 40
+                    guard abs(finalDx) > threshold else { return }
+                    
+                    // 날짜 경계 계산
+                    let current = calendarViewModel.currentDate
+                    let now = Date() // 오늘
+                    let nextMonth = cal.date(byAdding: .month, value: 1, to: current)!
+                    let prevMonth = cal.date(byAdding: .month, value: -1, to: current)!
+                    let lowerBound = cal.date(from: DateComponents(year: 2024, month: 1, day: 1))!
+                    
+                    withAnimation(.easeInOut) {
+                        // finalDx < 0  == 왼쪽으로 민 제스처(→ 다음 달)
+                        if finalDx < 0 {
+                            // 미래 달로 넘어가지 않도록(다음달이 오늘보다 이후면 막기)
+                            let isNextBeyondNow = cal.compare(
+                                cal.date(from: cal.dateComponents([.year, .month], from: nextMonth))!,
+                                to: cal.date(from: cal.dateComponents([.year, .month], from: now))!,
+                                toGranularity: .month
+                            ) == .orderedDescending
+                            guard !isNextBeyondNow else { return }
                             
-                        } else {
                             calendarViewModel.currentMonth += 1
                             calendarViewModel.selectedMonth += 1
-                        }
-                    } else if gesture.translation.width > 20 {
-                        if selectYear == 2024 && selectMonth == 1 {
-                        } else {
+                            
+                        } else { // finalDx > 0  == 오른쪽으로 민 제스처(→ 이전 달)
+                            // 최소 2024-01 이전으로는 못 가게
+                            let isPrevBeforeLower = cal.compare(
+                                cal.date(from: cal.dateComponents([.year, .month], from: prevMonth))!,
+                                to: lowerBound,
+                                toGranularity: .month
+                            ) == .orderedAscending
+                            guard !isPrevBeforeLower else { return }
+                            
                             calendarViewModel.currentMonth -= 1
                             calendarViewModel.selectedMonth -= 1
                         }
                     }
-                    self.offset = CGSize()
+                    
+                    self.offset = .zero
                 }
         )
+        //        .gesture(
+        //            DragGesture()
+        //                .onChanged { gesture in
+        //                    self.offset = gesture.translation
+        //                }
+        //                .onEnded { gesture in
+        //                    let calender = Calendar.current
+        //                    let selectYear = calender.component(.year, from: calendarViewModel.currentDate)
+        //                    let selectMonth = calender.component(.month, from: calendarViewModel.currentDate)
+        //                    let presentMonth = calender.component(.month, from: Date())
+        //
+        //                    if gesture.translation.width < -20 {
+        //                        if selectMonth == presentMonth {
+        //
+        //                        } else {
+        //                            calendarViewModel.currentMonth += 1
+        //                            calendarViewModel.selectedMonth += 1
+        //                        }
+        //                    } else if gesture.translation.width > 20 {
+        //                        if selectYear == 2024 && selectMonth == 1 {
+        //                        } else {
+        //                            calendarViewModel.currentMonth -= 1
+        //                            calendarViewModel.selectedMonth -= 1
+        //                        }
+        //                    }
+        //                    self.offset = CGSize()
+        //                }
+        //        )
     }
 }
 

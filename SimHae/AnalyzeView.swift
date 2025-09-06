@@ -124,13 +124,12 @@ struct AnalyzeView: View {
                 .padding(.top, 8)
                 .padding(.bottom, 100)
                 .safeAreaPadding(.top)
+                .refreshable {
+                    vm.load()
+                }
             }
             
             
-        }
-        .id(UUID())
-        .task {
-            vm.load()
         }
         .onAppear {
             vm.load()
