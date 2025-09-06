@@ -10,6 +10,7 @@ import Combine
 
 struct DetailView: View {
     @StateObject private var vm: DreamDetailViewModel
+    @EnvironmentObject private var calendarViewModel: CalendarViewModel
     @Environment(\.dismiss) private var dismiss
     @State private var showDeleteDialog = false
     
@@ -186,11 +187,19 @@ struct DetailView: View {
                 
             }
             Button("네", role: .destructive) {
+//                vm.delete {
+//                    dismiss() //삭제 기능 추가
+//                    NotificationCenter.default.post(name: .dreamDeleted, object: nil)
+//                }
+//                 // 삭제 후 다시 조회할 날짜(상세에 있던 날짜가 제일 정확)
+                let dateToReload = vm.detail?.dreamDate ?? calendarViewModel.selectDate
+
                 vm.delete {
-                    dismiss() //삭제 기능 추가
-                    NotificationCenter.default.post(name: .dreamDeleted, object: nil)
+                    Task { @MainActor in
+                        calendarViewModel.reloadDay(dateToReload)  // ← 한 방에 끝
+                        dismiss()
+                    }
                 }
-                
             }
         } message: {
             Text("한 번 삭제하면 되돌릴 수 없어요.")
