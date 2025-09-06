@@ -103,6 +103,8 @@ struct CalendarTotalView: View {
                     }
                 }
             }
+            .padding(.top, 8)
+            .padding(.bottom, 100)
             .scrollIndicators(.never)
             .onAppear {
                 print("📅 CalendarTotalView appeared")

@@ -14,7 +14,7 @@ struct AnalyzeView: View {
             Image("CalendarBackgroundVer2")
                 .resizable()
                 .scaledToFill()
-                .ignoresSafeArea(edges: .top)
+                .ignoresSafeArea()
             ScrollView {
                 VStack {
                     Text("최근 꾼 7개 꿈을 바탕으로 무의식을 분석했어요.")
@@ -92,6 +92,9 @@ struct AnalyzeView: View {
                 }
                 
             }
+            .padding(.top, 8)
+            .padding(.bottom, 100)
+            .safeAreaPadding(.top)
         }
     }
 }
