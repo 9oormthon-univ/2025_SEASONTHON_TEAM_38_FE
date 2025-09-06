@@ -10,14 +10,14 @@ import SwiftUI
 struct AnalyzeView: View {
     @StateObject private var vm = AnalyzeViewModel()
     var body: some View {
-        ZStack {
-            Image("CalendarBackgroundVer2")
-                .resizable()
-                .scaledToFill()
-                .ignoresSafeArea()
-            
+        Group {
             if vm.isLoading {
                 VStack {
+                    Image(.appLogo)
+                        .resizable()
+                        .aspectRatio(contentMode: .fit)
+                        .frame(height: 18)
+                        .padding(.top, 24)
                     Spacer()
                     
                     Image("jellyCha")
@@ -37,29 +37,41 @@ struct AnalyzeView: View {
                     Spacer()
                 }
             } else if vm.notEnoughData {
-                    VStack {
-                        Text("최근 꾼 꿈을 바탕으로\n나의 무의식 상태를 알 수 있어요.")
-                            .font(.system(size: 20))
-                            .multilineTextAlignment(.center)
-                            .foregroundStyle(Color(hex: "#E8D9FF"))
-                            .padding()
-                            .padding(.bottom, 40)
-                        
-                        Image("jellyCha")
-                            .resizable()
-                            .scaledToFit()
-                            .frame(width: 200, height: 200)
-                        
-                        Text("무의식 분석을 위해서는\n최소 7개의 꿈 해석이 필요해요.")
-                            .font(.caption)
-                            .multilineTextAlignment(.center)
-                            .foregroundStyle(.gray)
-                            .padding()
-                            .padding(.bottom, 40)
-                    }
-                } else {
+                VStack {
+                    Image(.appLogo)
+                        .resizable()
+                        .aspectRatio(contentMode: .fit)
+                        .frame(height: 18)
+                        .padding(.top, 24)
+                    
+                    Text("최근 꾼 꿈을 바탕으로\n나의 무의식 상태를 알 수 있어요.")
+                        .font(.system(size: 20))
+                        .multilineTextAlignment(.center)
+                        .foregroundStyle(Color(hex: "#E8D9FF"))
+                        .padding()
+                        .padding(.bottom, 40)
+                    
+                    Image("jellyCha")
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 200, height: 200)
+                    
+                    Text("무의식 분석을 위해서는\n최소 7개의 꿈 해석이 필요해요.")
+                        .font(.caption)
+                        .multilineTextAlignment(.center)
+                        .foregroundStyle(.gray)
+                        .padding()
+                        .padding(.bottom, 40)
+                }
+            } else {
                 ScrollView {
                     VStack {
+                        Image(.appLogo)
+                            .resizable()
+                            .aspectRatio(contentMode: .fit)
+                            .frame(height: 18)
+                            .padding(.top, 24)
+                        
                         Text("최근 꾼 7개 꿈을 바탕으로 무의식을 분석했어요.")
                             .font(.caption)
                             .foregroundStyle(Color(hex: "#B184FF"))
@@ -122,17 +134,19 @@ struct AnalyzeView: View {
                     }
                 }
                 .padding(.top, 8)
-                .padding(.bottom, 100)
+                .padding(.bottom, 70)
                 .safeAreaPadding(.top)
-                .refreshable {
-                    vm.load()
-                }
+                .refreshable { vm.reload() }
             }
-            
-            
         }
-        .onAppear {
-            vm.load()
+        .background{
+            Image("CalendarBackgroundVer2")
+                .resizable()
+                .scaledToFill()
+                .ignoresSafeArea(edges: .top)
+        }
+        .task {
+            vm.loadIfNeeded()
         }
     }
 }
