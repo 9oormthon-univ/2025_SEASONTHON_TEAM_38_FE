@@ -56,6 +56,7 @@ struct AddDreamView: View {
                     .contentShape(Rectangle())
                     .onTapGesture {
                         isTextFocused = false
+                        showInfo = false
                     }
                 
                 GeometryReader { geo in
@@ -112,10 +113,17 @@ struct AddDreamView: View {
                     .frame(maxWidth: .infinity)
                     .overlay(alignment: .top) {
                         if showInfo {
+                            Color.black.opacity(0.001)
+                                .ignoresSafeArea()
+                                .onTapGesture {
+                                        showInfo = false
+                                        isTextFocused = false
+                                }
                             CalloutBubble(message: "꿈과 관련해 떠오르는 현실의 기억이나 상황이 있나요?\n함께 입력하면 더 정확한 해몽을 제공할 수 있어요.").offset(y: 15)
                                 .transition(.opacity)
                         }
                     }
+                    .animation(.easeInOut(duration: 0.28), value: showInfo)
                     .overlay(alignment: .top) {
                         if showCalendar {
                             CalendarCallOutView(calendarViewModel: calendarViewModel, weekday: weekday
