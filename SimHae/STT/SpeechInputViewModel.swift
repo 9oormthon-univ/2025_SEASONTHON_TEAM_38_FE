@@ -52,6 +52,18 @@ final class SpeechInputViewModel: ObservableObject {
            ? speechRecognizer.stopTranscribing()
            : speechRecognizer.startTranscribing()
        }
+    
+    // ✅ 추가: 외부에서 호출 가능한 stop / reset
+       func stop() {
+           if isRecording { speechRecognizer.stopTranscribing() }
+       }
+    
+    func reset() {
+            stop()
+            transcript = ""
+            errorMessage = nil
+        }
+    
     private func startRecording() {
         Task { @MainActor in
             await speechRecognizer.startTranscribing()
