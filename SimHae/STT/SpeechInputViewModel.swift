@@ -15,6 +15,8 @@ final class SpeechInputViewModel: ObservableObject {
     @Published var hasPermission: Bool = false
     @Published var errorMessage: String?
     
+    @Published var isRecordingFlag: Bool = false
+    
     @ObservedObject private(set) var speechRecognizer: SpeechRecognizer
     
     private var bag = Set<AnyCancellable>()
@@ -36,6 +38,11 @@ final class SpeechInputViewModel: ObservableObject {
                 self?.transcript = text
             }
             .store(in: &bag)
+        
+        // ✅ 추가: 녹음 상태 전달
+                speechRecognizer.$isTranscribing
+                    .receive(on: DispatchQueue.main)
+                    .assign(to: &self.$isRecordingFlag)
     }
     
     var isRecording: Bool { speechRecognizer.isTranscribing }
