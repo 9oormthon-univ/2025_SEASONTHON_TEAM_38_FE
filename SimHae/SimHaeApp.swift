@@ -55,9 +55,12 @@ struct SimHaeApp: App {
                                 .environmentObject(route)
                         case .summary: DreamSummaryView(vm: DreamSessionVM)
                                 .environmentObject(route)
+                                .environmentObject(calendarVM)
                         case .interpretation: DreamInterpretationView(vm: DreamSessionVM)
                                 .environmentObject(route)
-                        case .suggestion: DreamSuggestionView(vm: DreamSessionVM).environmentObject(route)
+                                .environmentObject(calendarVM)
+                        case .suggestion: DreamSuggestionView(vm: DreamSessionVM)
+                                .environmentObject(route)
                                 .environmentObject(calendarVM)
                         }
                     })

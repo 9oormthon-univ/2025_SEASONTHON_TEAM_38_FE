@@ -11,11 +11,7 @@ import Combine
 struct DreamSummaryView: View {
     @ObservedObject var vm: DreamSessionViewModel
     @Environment(\.dismiss) private var dismiss
-    
-    /// 부모가 주는 화면 이동 콜백들
-//       var onNext: () -> Void                     // 해석 화면으로
-//       var onHome: (() -> Void)? = nil            // 홈(루트)으로 (옵션)
-//       var onBack:  (() -> Void)? = nil
+    @EnvironmentObject private var calendarViewModel: CalendarViewModel
     
     @EnvironmentObject private var route: NavigationRouter
     
@@ -133,7 +129,12 @@ struct DreamSummaryView: View {
             
             ToolbarItem(placement: .navigationBarTrailing) {
                 Button {
-                    route.removeAll()
+                    let d = Calendar.current.startOfDay(for: vm.input.date)
+                        calendarViewModel.invalidateDay(d)
+                        calendarViewModel.fetchIfNeeded(for: d, force: true)
+                        calendarViewModel.selectDate = d
+                        vm.resetAll(selectedDate: d)
+                        route.removeAll()
                 } label: {
                     Image(systemName: "house.fill")
                         .font(.system(size: 18, weight: .semibold))

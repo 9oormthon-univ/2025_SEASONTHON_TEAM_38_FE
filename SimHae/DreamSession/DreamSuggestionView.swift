@@ -13,11 +13,6 @@ struct DreamSuggestionView: View {
     @EnvironmentObject private var calendarViewModel: CalendarViewModel
     @Environment(\.dismiss) private var dismiss
     
-    // 부모에서 주입
-//        var onFinish: () -> Void               // 세션 종료(루트로)
-//        var onHome:   (() -> Void)? = nil      // 홈 버튼용 (옵션)
-//        var onBack:   (() -> Void)? = nil
-    
     @EnvironmentObject private var route: NavigationRouter
     
     var body: some View {
