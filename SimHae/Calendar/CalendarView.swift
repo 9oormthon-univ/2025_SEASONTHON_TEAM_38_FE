@@ -11,109 +11,123 @@ struct CalendarTotalView: View {
     @State private var isShowingDateChangeSheet: Bool = false
     @ObservedObject var calendarViewModel: CalendarViewModel
     @State private var query = ""
+    @State private var showSearch = false
+    @StateObject private var searchVM: SearchViewModel
     
     init(calendarViewModel: CalendarViewModel) {
         _calendarViewModel = ObservedObject(wrappedValue: calendarViewModel)
+        
+        let repo = APISearchRepository()
+            _searchVM = StateObject(
+                wrappedValue: SearchViewModel(repo: repo) { item in
+                    calendarViewModel.didTap(date: item.date)
+                }
+            )
     }
     
     private var weekday: [String] = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"]
     
     var body: some View {
-        ZStack {
-            
-            Image("CalendarBackgroundVer2")
-                .resizable()
-                .scaledToFill()
-                .ignoresSafeArea(edges: .top)
-            
-            ScrollView {
-                VStack {
-                    HStack(spacing: 10) {
-                        Image(systemName: "magnifyingglass")
-                            .foregroundStyle(Color(hex: "#FFFFFF"))
-                        TextField("꿈 내용으로 검색하기", text: $query)
-                            .foregroundStyle(Color(hex: "#FFFFFF").opacity(0.7))
-                            .textInputAutocapitalization(.never)
-                            .disableAutocorrection(true)
-                    }
-                    .padding(.vertical, 8)
-                    .padding(.horizontal, 12)
-                    .background(RoundedRectangle(cornerRadius: 30, style: .circular).fill(Color(hex: "#843CFF").opacity(0.1))
-                    )
-                    .overlay(RoundedRectangle(cornerRadius: 30, style: .circular)
-                        .stroke(LinearGradient(
-                            gradient: Gradient(colors:[
-                                Color(hex: "#E8D9FF"),
-                                Color(hex: "#7534E4"),
-                                Color(hex: "#E8D9FF")
-                            ]),
-                            startPoint: .topLeading,
-                            endPoint: .bottomTrailing
-                        ),
-                                lineWidth: 1)
-                    )
-                    .padding(.horizontal, 16)
-                    .padding(.top)
-                    .padding(.bottom)
-                    
-                    YearMonthHeaderView(calendarViewModel: calendarViewModel, isShowingDateChangeSheet: $isShowingDateChangeSheet)
-                        .foregroundStyle(.white)
-                        .padding(.top, 8)
-                        .padding(.leading, 16)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                    CalendarView(calendarViewModel: calendarViewModel, weekday: weekday)
-                        .padding(.horizontal, 16)
-                    
-                    if calendarViewModel.dreamsForSelected.isEmpty {
-                        Text(calendarViewModel.emptyMessageForSelected)
-                            .foregroundStyle(.white.opacity(0.6))
-                            .padding(.top, 16)
-                    } else {
-                        VStack(spacing: 12) {
-                            ForEach(calendarViewModel.dreamsForSelected) { item in
-                                NavigationLink {
-                                    DetailView(vm: DreamDetailViewModel(dreamId: item.id))
-                                } label: {
-                                    DreamCard(date: item.dreamDate.formatted(.dateTime.year().month().day().weekday(.wide).locale(Locale(identifier: "ko_KR"))), title: item.title, summary: item.summary, emoji: item.emoji ?? "🌙")
-                                        .contentShape(Rectangle())
-                                }
-                                .buttonStyle(.plain)
+        GeometryReader { _ in
+            ZStack {
+                
+                Image("CalendarBackgroundVer2")
+                    .resizable()
+                    .scaledToFill()
+                    .ignoresSafeArea(edges: .top)
+                
+                ScrollView {
+                    VStack {
+                        Button {
+                            showSearch = true
+                        } label: {
+                            HStack(spacing: 10) {
+                                Image(systemName: "magnifyingglass")
+                                    .foregroundStyle(Color(hex: "#FFFFFF"))
+                                Text("꿈 내용으로 검색하기")
+                                    .foregroundStyle(Color(hex: "#FFFFFF").opacity(0.7))
+                                    .textInputAutocapitalization(.never)
                             }
+                            .padding(.vertical, 8)
+                            .padding(.horizontal, 12)
+                            .background(RoundedRectangle(cornerRadius: 30, style: .circular).fill(Color(hex: "#843CFF").opacity(0.1))
+                            )
+                            .overlay(RoundedRectangle(cornerRadius: 30, style: .circular)
+                                .stroke(LinearGradient(
+                                    gradient: Gradient(colors:[
+                                        Color(hex: "#E8D9FF"),
+                                        Color(hex: "#7534E4"),
+                                        Color(hex: "#E8D9FF")
+                                    ]),
+                                    startPoint: .topLeading,
+                                    endPoint: .bottomTrailing
+                                ),
+                                        lineWidth: 1)
+                            )
+                            .padding(.horizontal, 16)
+                            .padding(.top)
+                            .padding(.bottom)
                         }
-                        .padding(.horizontal, 16)
-                        .padding(.vertical, 16)
+                        
+                        YearMonthHeaderView(calendarViewModel: calendarViewModel, isShowingDateChangeSheet: $isShowingDateChangeSheet)
+                            .foregroundStyle(.white)
+                            .padding(.top, 8)
+                            .padding(.leading, 16)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                        CalendarView(calendarViewModel: calendarViewModel, weekday: weekday)
+                            .padding(.horizontal, 16)
+                        
+                        if calendarViewModel.dreamsForSelected.isEmpty {
+                            Text(calendarViewModel.emptyMessageForSelected)
+                                .foregroundStyle(.white.opacity(0.6))
+                                .padding(.top, 16)
+                        } else {
+                            VStack(spacing: 12) {
+                                ForEach(calendarViewModel.dreamsForSelected) { item in
+                                    NavigationLink {
+                                        DetailView(vm: DreamDetailViewModel(dreamId: item.id))
+                                    } label: {
+                                        DreamCard(date: item.dreamDate.formatted(.dateTime.year().month().day().weekday(.wide).locale(Locale(identifier: "ko_KR"))), title: item.title, summary: item.summary, emoji: item.emoji ?? "🌙")
+                                            .contentShape(Rectangle())
+                                    }
+                                    .buttonStyle(.plain)
+                                }
+                            }
+                            .padding(.horizontal, 16)
+                            .padding(.vertical, 16)
+                        }
                     }
                 }
+                .scrollIndicators(.never)
+                .onAppear {
+                    print("📅 CalendarTotalView appeared")
+                    // ✅ 초기 로딩: 월별 + 선택된 날짜 데이터
+                    calendarViewModel.fetchMonthEmojisForVisibleMonth()
+                    calendarViewModel.fetchIfNeeded(for: calendarViewModel.selectDate, force: calendarViewModel.isToday(calendarViewModel.selectDate))
+                }
+                .onChange(of: calendarViewModel.selectDate) { newDate in
+                    calendarViewModel.fetchIfNeeded(for: newDate, force: calendarViewModel.isToday(newDate))
+                }
+                //나중에 이거 없으면 뷰 반영 안되는지 테스트 해보기
+                //            .onReceive(NotificationCenter.default.publisher(for: .dreamDeleted)) { _ in
+                //                // ✅ 삭제 알림 받으면 해당 날짜 데이터 새로고침
+                //                calendarViewModel.itemsByDate.removeValue(forKey: calendarViewModel.selectDateKey)
+                //                calendarViewModel.fetchIfNeeded(for: calendarViewModel.selectDate, force: true)
+                //                calendarViewModel.fetchMonthEmojisForVisibleMonth()
+                //            }
             }
-            .scrollIndicators(.never)
-            .onAppear {
-                            print("📅 CalendarTotalView appeared")
-                            // ✅ 초기 로딩: 월별 + 선택된 날짜 데이터
-                            calendarViewModel.fetchMonthEmojisForVisibleMonth()
-                calendarViewModel.fetchIfNeeded(for: calendarViewModel.selectDate, force: calendarViewModel.isToday(calendarViewModel.selectDate))
-                        }
-            .onChange(of: calendarViewModel.selectDate) { newDate in
-                calendarViewModel.fetchIfNeeded(for: newDate, force: calendarViewModel.isToday(newDate))
+            .navigationBarTitleDisplayMode(.inline)
+            .navigationBarBackButtonHidden(true)
+            .toolbar {
+                ToolbarItem(placement: .principal) {
+                    Image("AppLogo")
+                        .resizable()
+                        .scaledToFit()
+                        .frame(height: 18)
+                }
             }
-            //나중에 이거 없으면 뷰 반영 안되는지 테스트 해보기
-//            .onReceive(NotificationCenter.default.publisher(for: .dreamDeleted)) { _ in
-//                // ✅ 삭제 알림 받으면 해당 날짜 데이터 새로고침
-//                calendarViewModel.itemsByDate.removeValue(forKey: calendarViewModel.selectDateKey)
-//                calendarViewModel.fetchIfNeeded(for: calendarViewModel.selectDate, force: true)
-//                calendarViewModel.fetchMonthEmojisForVisibleMonth()
-//            }
         }
-        .navigationBarTitleDisplayMode(.inline)
-        .navigationBarBackButtonHidden(true)
-        .toolbar {
-            ToolbarItem(placement: .principal) {
-                Image("AppLogo")
-                    .resizable()
-                    .scaledToFit()
-                    .frame(height: 18)
-            }
-        }
-        
+        .ignoresSafeArea(.keyboard, edges: .all)
     }
 }
 
@@ -256,22 +270,6 @@ struct CalendarView: View {
                     self.offset = CGSize()
                 }
         )
-    }
-}
-
-struct WeekdayHeaderView: View {
-    let weekday: [String]
-    var body: some View {
-        HStack {
-            ForEach(weekday, id: \.self) { day in
-                Text(day)
-                    .font(.caption)
-                    .fontWeight(.semibold)
-                    .frame(maxWidth: .infinity)
-                    .foregroundStyle(.white.opacity(0.2))
-            }
-        }
-        .padding(.bottom, 5)
     }
 }
 

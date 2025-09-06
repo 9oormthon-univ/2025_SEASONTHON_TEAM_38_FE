@@ -296,6 +296,22 @@ private struct CalloutBubble: View {
     }
 }
 
+struct WeekdayHeaderView: View {
+    let weekday: [String]
+    var body: some View {
+        HStack {
+            ForEach(weekday, id: \.self) { day in
+                Text(day)
+                    .font(.caption)
+                    .fontWeight(.semibold)
+                    .frame(maxWidth: .infinity)
+                    .foregroundStyle(.white.opacity(0.2))
+            }
+        }
+        .padding(.bottom, 5)
+    }
+}
+
 struct CalendarCallOutView: View {
     @ObservedObject var calendarViewModel: CalendarViewModel
     
