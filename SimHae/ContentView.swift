@@ -13,7 +13,7 @@ struct ContentView: View {
     
     @State private var sessionVM: DreamSessionViewModel?
     
-    @State private var tabSelection: TabBarItem = .calendar
+    @State private var tabSelection: TabBarItem = .home
     
     @EnvironmentObject var route: NavigationRouter
     
