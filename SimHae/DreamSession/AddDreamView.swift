@@ -57,6 +57,7 @@ struct AddDreamView: View {
                     .onTapGesture {
                         isTextFocused = false
                         showInfo = false
+                        showCalendar = false
                     }
                 
                 GeometryReader { geo in
@@ -133,6 +134,7 @@ struct AddDreamView: View {
                             .zIndex(1)
                         }
                     }
+                    .animation(.easeInOut(duration: 0.28), value: showCalendar)
                     .allowsHitTesting(true)
                     
                     Spacer().frame(height: 120)
