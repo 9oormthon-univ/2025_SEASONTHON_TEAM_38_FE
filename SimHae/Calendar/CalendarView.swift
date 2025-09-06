@@ -9,16 +9,16 @@ import SwiftUI
 
 struct CalendarTotalView: View {
     @State private var isShowingDateChangeSheet: Bool = false
-    
-    @ObservedObject var calendarViewModel: CalendarViewModel
+    @EnvironmentObject var calendarViewModel: CalendarViewModel
+    //@ObservedObject var calendarViewModel: CalendarViewModel
     @StateObject private var searchVM: SearchViewModel
     
     @FocusState private var isSearching
-    @State private var searchQuery: String = ""
+//    @State private var searchQuery: String = ""
     @State private var isbackgroundBlur: Bool = false
     
     init(calendarViewModel: CalendarViewModel) {
-        _calendarViewModel = ObservedObject(wrappedValue: calendarViewModel)
+        //_calendarViewModel = ObservedObject(wrappedValue: calendarViewModel)
         
         let repo = APISearchRepository()
         _searchVM = StateObject(
@@ -31,43 +31,18 @@ struct CalendarTotalView: View {
     private var weekday: [String] = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"]
     
     var body: some View {
-        ZStack {
-            Image("CalendarBackgroundVer2")
+        VStack {
+            Image(.appLogo)
                 .resizable()
-                .scaledToFill()
-                .ignoresSafeArea(edges: .top)
-            
-            ScrollView {
+                .aspectRatio(contentMode: .fit)
+                .frame(height: 18)
+                .padding(.top, 24)
+
+            ScrollView(.vertical,
+                       showsIndicators: false) {
                 VStack {
-                    HStack(spacing: 10) {
-                        Image(systemName: "magnifyingglass")
-                            .foregroundStyle(Color(hex: "#FFFFFF"))
-                        TextField("꿈 내용으로 검색하기", text: $searchQuery)
-                        
-                            .focused($isSearching)
-                            .foregroundStyle(Color(hex: "#FFFFFF").opacity(0.7))
-                            .textInputAutocapitalization(.never)
-                    }
-                    .padding(.vertical, 8)
-                    .padding(.horizontal, 12)
-                    .background(RoundedRectangle(cornerRadius: 30, style: .circular).fill(Color(hex: "#843CFF").opacity(0.1))
-                    )
-                    .overlay(RoundedRectangle(cornerRadius: 30, style: .circular)
-                        .stroke(LinearGradient(
-                            gradient: Gradient(colors:[
-                                Color(hex: "#E8D9FF"),
-                                Color(hex: "#7534E4"),
-                                Color(hex: "#E8D9FF")
-                            ]),
-                            startPoint: .topLeading,
-                            endPoint: .bottomTrailing
-                        ),
-                                lineWidth: 1)
-                    )
-                    .padding(.horizontal, 16)
-                    .padding(.top)
-                }
-                VStack {
+                    searchBar
+                        .padding(.top, 20)
                     YearMonthHeaderView(calendarViewModel: calendarViewModel, isShowingDateChangeSheet: $isShowingDateChangeSheet)
                         .foregroundStyle(.white)
                         .padding(.top, 8)
@@ -85,6 +60,7 @@ struct CalendarTotalView: View {
                             ForEach(calendarViewModel.dreamsForSelected) { item in
                                 NavigationLink {
                                     DetailView(vm: DreamDetailViewModel(dreamId: item.id))
+                                        .environmentObject(calendarViewModel)
                                 } label: {
                                     DreamCard(date: item.dreamDate.formatted(.dateTime.year().month().day().weekday(.wide).locale(Locale(identifier: "ko_KR"))), title: item.title, summary: item.summary, emoji: item.emoji ?? "🌙")
                                         .contentShape(Rectangle())
@@ -96,17 +72,12 @@ struct CalendarTotalView: View {
                         .padding(.vertical, 16)
                     }
                 }
-                .blur(radius: isbackgroundBlur ? 20 : 0)
-                .onChange(of: isSearching) { _, newValue in
-                    withAnimation {
-                        isbackgroundBlur = newValue
-                    }
-                }
             }
-            .padding(.top, 8)
-            .padding(.bottom, 100)
-            .scrollIndicators(.never)
+                       .padding(.bottom, 28)
             .onAppear {
+                // CalendarTotalView.onAppear
+                print("🟣 CalendarTotalView VM:", ObjectIdentifier(calendarViewModel),
+                      "selected:", calendarViewModel.selectDate)
                 print("📅 CalendarTotalView appeared")
                 // ✅ 초기 로딩: 월별 + 선택된 날짜 데이터
                 calendarViewModel.fetchMonthEmojisForVisibleMonth()
@@ -115,17 +86,171 @@ struct CalendarTotalView: View {
             .onChange(of: calendarViewModel.selectDate) { newDate in
                 calendarViewModel.fetchIfNeeded(for: newDate, force: calendarViewModel.isToday(newDate))
             }
+            //.padding(.horizontal, 16) 얘가 뷰를 자꾸 늘었다 줄였다함.
         }
-        .ignoresSafeArea(.keyboard)
-        .navigationBarTitleDisplayMode(.inline)
-        .navigationBarBackButtonHidden(true)
-        .toolbar {
-            ToolbarItem(placement: .principal) {
-                Image("AppLogo")
-                    .resizable()
-                    .scaledToFit()
-                    .frame(height: 18)
+        .background{
+            Image("CalendarBackgroundVer2")
+                .resizable()
+                .scaledToFill()
+                .ignoresSafeArea(edges: .top)
+        }
+        .blur(radius: isbackgroundBlur ? 20 : 0)
+//        .onChange(of: isSearching) {
+//            withAnimation {
+//                DispatchQueue.main.async {
+//                    isbackgroundBlur.toggle()
+//                }
+//            }
+//        }
+        .onChange(of: isSearching) { newValue in
+            withAnimation {
+                isbackgroundBlur = newValue        // ← toggle() 말고 값 그대로 반영
             }
+            if !newValue {
+                calendarViewModel.resetSearch()    // ← 키보드 내려가면 검색어/결과 초기화
+            }
+        }
+        .overlay {
+            if isSearching {
+                Color.black.opacity(0.25)
+                               .ignoresSafeArea()
+                               .onTapGesture { withAnimation { isSearching = false } }
+                               .transition(.opacity)
+                               .zIndex(0)
+
+                
+                VStack(spacing: 0) {
+                    // 헤더
+                    Image(.appLogo)
+                        .resizable()
+                        .aspectRatio(contentMode: .fit)
+                        .frame(height: 18)
+                        .padding(.top, 24)
+
+                    searchBar
+                        .padding(.top, 20)
+
+                    // 🔎 검색 결과만 렌더
+                    ScrollView(showsIndicators: false) {
+                        VStack(spacing: 12) {
+                            if calendarViewModel.isLoading {
+                                ProgressView()
+                                    .tint(.white)
+                                    .padding(.top, 24)
+
+                            } else {
+                                let q = calendarViewModel.searchQuery.trimmingCharacters(in: .whitespacesAndNewlines)
+
+                                if q.isEmpty {
+                                    Text("검색어를 입력해 주세요")
+                                        .foregroundStyle(.white.opacity(0.6))
+                                        .padding(.top, 24)
+
+                                } else if calendarViewModel.isSearchQueryTooShort {
+                                    Text("최소 2자 이상 입력해 주세요")
+                                        .foregroundStyle(.white.opacity(0.6))
+                                        .padding(.top, 24)
+
+                                } else {
+                                    let results = calendarViewModel.searchResultsSorted
+                                    if results.isEmpty {
+                                        Text("검색 결과가 없어요")
+                                            .foregroundStyle(.white.opacity(0.6))
+                                            .padding(.top, 24)
+                                    } else {
+                                        ForEach(results) { item in
+                                            NavigationLink {
+                                                DetailView(vm: DreamDetailViewModel(dreamId: item.id))
+                                            } label: {
+                                                DreamCard(
+                                                    date: item.dreamDate.formatted(
+                                                        .dateTime.year().month().day().weekday(.wide)
+                                                            .locale(Locale(identifier: "ko_KR"))
+                                                    ),
+                                                    title: item.title,
+                                                    summary: item.summary,
+                                                    emoji: item.emoji ?? "🌙"
+                                                )
+                                                .contentShape(Rectangle())
+                                            }
+                                            .buttonStyle(.plain)
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        .padding(.horizontal, 16)
+                        .padding(.top, 12)
+                        .padding(.bottom, 24)
+                    }
+
+                    Spacer(minLength: 0)
+                }
+//                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+                .padding(.top, 8)
+                .transition(.opacity)
+                // 아래 컨텐츠 터치/스크롤 막기 (오버레이 진짜로 덮어쓰기)
+//                .background(Color.black.opacity(0.001).ignoresSafeArea().onTapGesture {
+//                    isSearching = false
+//                })
+                .zIndex(10)
+            }
+        }
+        //.animation(.easeInOut(duration: 0.28), value: isSearching)
+        .toolbar {
+            ToolbarItemGroup(placement: .keyboard) {
+                Spacer()
+                Button("완료") {
+                    isSearching = false   // onChange에서 resetSearch 호출됨
+                }
+            }
+        }
+//        .overlay {
+//            if isSearching {
+//                VStack {
+//                    Image(.appLogo)
+//                        .resizable()
+//                        .aspectRatio(contentMode: .fit)
+//                        .frame(height: 18)
+//                        .padding(.top, 24)
+//                    searchBar
+//                        .padding(.top, 20)
+//                    
+//                    
+//                    Spacer()
+//                }
+//            }
+//        }
+
+    }
+    
+    private var searchBar: some View {
+        VStack {
+            HStack(spacing: 10) {
+                Image(systemName: "magnifyingglass")
+                    .foregroundStyle(Color(hex: "#FFFFFF"))
+                TextField("꿈 내용으로 검색하기", text: $calendarViewModel.searchQuery)
+                    .focused($isSearching)
+                    .foregroundStyle(Color(hex: "#FFFFFF").opacity(0.7))
+                    .textInputAutocapitalization(.never)
+            }
+            .padding(.vertical, 8)
+            .padding(.horizontal, 12)
+            .background(RoundedRectangle(cornerRadius: 30, style: .circular).fill(Color(hex: "#843CFF").opacity(0.1)))
+            .overlay(RoundedRectangle(cornerRadius: 30, style: .circular)
+                .stroke(LinearGradient(
+                    gradient: Gradient(colors:[
+                        Color(hex: "#E8D9FF"),
+                        Color(hex: "#7534E4"),
+                        Color(hex: "#E8D9FF")
+                    ]),
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                ),
+                        lineWidth: 1)
+            )
+            .frame(width: 360)
+            .padding(.top)
         }
     }
 }
@@ -154,6 +279,9 @@ struct DreamCard: View {
                     .font(.headline)
                     .bold()
                     .foregroundStyle(.white)
+                    .lineLimit(1)
+                    .truncationMode(.tail)
+                    
                 Text(summary)
                     .font(.subheadline)
                     .foregroundStyle(.white.opacity(0.7))
@@ -164,7 +292,6 @@ struct DreamCard: View {
             Image(systemName: "chevron.right")
                 .foregroundStyle(.white.opacity(0.6))
         }
-        .frame(maxWidth: .infinity, alignment: .leading)
         .padding()
         .background(
             RoundedRectangle(cornerRadius: 20, style: .continuous)
@@ -200,7 +327,7 @@ struct DreamCard: View {
                         .blendMode(.overlay)
                 )
         )
-        .padding(.horizontal, 4)
+        .frame(width: UIScreen.main.bounds.width - 32)
     }
 }
 
@@ -276,7 +403,6 @@ struct CalendarView: View {
     var body: some View {
         VStack {
             WeekdayHeaderView(weekday: weekday)
-            
             DatesGridView(calendarViewModel: calendarViewModel)
         }
         .padding(.top, 20)
@@ -467,3 +593,23 @@ struct DateButton: View {
 //#Preview {
 //    CalendarView()
 //}
+struct KeyboardObserver: ViewModifier {
+    @State private var isKeyboardVisible = false
+    
+    func body(content: Content) -> some View {
+        content
+            .scrollDisabled(isKeyboardVisible) // 키보드 보이면 스크롤 꺼버림
+            .onReceive(NotificationCenter.default.publisher(for: UIResponder.keyboardWillShowNotification)) { _ in
+                isKeyboardVisible = true
+            }
+            .onReceive(NotificationCenter.default.publisher(for: UIResponder.keyboardWillHideNotification)) { _ in
+                isKeyboardVisible = false
+            }
+    }
+}
+
+extension View {
+    func disableScrollWhenKeyboardVisible() -> some View {
+        self.modifier(KeyboardObserver())
+    }
+}
