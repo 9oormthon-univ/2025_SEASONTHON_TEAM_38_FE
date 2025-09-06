@@ -98,7 +98,7 @@ struct DreamSuggestionView: View {
         .toolbar {
             ToolbarItem(placement: .navigationBarLeading) {
                 Button {
-                    
+                    dismiss()
                 } label: {
                     Image(systemName: "arrow.left")
                         .font(.system(size: 18, weight: .semibold))

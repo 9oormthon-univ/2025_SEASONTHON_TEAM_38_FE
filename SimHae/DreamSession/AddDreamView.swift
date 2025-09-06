@@ -17,6 +17,7 @@ struct AddDreamView: View {
     @State private var showCalendar = false
     @State private var tempDate = Date()
     @FocusState private var isTextFocused: Bool
+    @ObservedObject private var speech: SpeechInputViewModel
     
     var onNext: () -> Void   // ✅ 추가
     
@@ -29,6 +30,7 @@ struct AddDreamView: View {
             // ObservedObject는 wrappedValue로 세팅하는 편이 안전
             self._vm = ObservedObject(wrappedValue: vm)
             self._calendarViewModel = ObservedObject(wrappedValue: calendarViewModel)
+            self._speech = ObservedObject(wrappedValue: vm.speech)
             self.onNext = onNext
         }
 
@@ -143,8 +145,12 @@ struct AddDreamView: View {
                     ZStack {
                         HStack {
                             Spacer()
-                            Button { vm.speech.toggleRecording() } label: {
-                                Image(systemName: vm.speech.isRecording ? "stop.fill" : "mic")
+                            Button {
+                                //  키보드/포커스 먼저 내리고
+                                isTextFocused = false
+                                vm.speech.toggleRecording()
+                            } label: {
+                                Image(systemName: speech.isRecording ? "stop.fill" : "mic")
                                     .foregroundStyle(.white)
                                     .font(.system(size: 32))
                                     .frame(width: 72, height: 72)
@@ -179,7 +185,6 @@ struct AddDreamView: View {
                             
                             Button {
                                 vm.analyzeDream()
-                                //                            goToLoading = true
                                 onNext()
                             } label: {
                                 Image(systemName: "arrow.right")

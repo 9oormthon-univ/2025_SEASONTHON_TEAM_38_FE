@@ -11,29 +11,45 @@ import Combine
 
 final class SpeechInputViewModel: ObservableObject {
     @Published var transcript: String = ""
-    @Published var isRecording: Bool = false
-    @Published var micLevel: Double = 0
+//    @Published var micLevel: Double = 0
     @Published var hasPermission: Bool = false
     @Published var errorMessage: String?
-
-    private let speechRecognizer: SpeechRecognizer
+    
+    @ObservedObject private(set) var speechRecognizer: SpeechRecognizer
+    
     private var bag = Set<AnyCancellable>()
     private var pollCancellable: AnyCancellable?
-
+    
     init(speechRecognizer: SpeechRecognizer) {
         self.speechRecognizer = speechRecognizer
-    }
 
-    func toggleRecording() {
-        isRecording ? stopRecording() : startRecording()
-    }
+        // 🔥 Forward objectWillChange
+        speechRecognizer.objectWillChange
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] _ in self?.objectWillChange.send() }
+            .store(in: &bag)
 
+        // transcript 연동
+        speechRecognizer.$transcript
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] text in
+                self?.transcript = text
+            }
+            .store(in: &bag)
+    }
+    
+    var isRecording: Bool { speechRecognizer.isTranscribing }
+
+       func toggleRecording() {
+           isRecording
+           ? speechRecognizer.stopTranscribing()
+           : speechRecognizer.startTranscribing()
+       }
     private func startRecording() {
-        isRecording = true
         Task { @MainActor in
             await speechRecognizer.startTranscribing()
         }
-
+        
         // transcript 폴링 → transcript 업데이트
         pollCancellable?.cancel()
         pollCancellable = Timer.publish(every: 0.1, on: .main, in: .common)
@@ -45,9 +61,8 @@ final class SpeechInputViewModel: ObservableObject {
                 }
             }
     }
-
+    
     private func stopRecording() {
-        isRecording = false
         pollCancellable?.cancel()
         pollCancellable = nil
         Task { @MainActor in

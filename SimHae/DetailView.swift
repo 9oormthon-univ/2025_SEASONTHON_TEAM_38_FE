@@ -14,10 +14,15 @@ struct DetailView: View {
     @State private var showDeleteDialog = false
     
     // 커스텀 이니셜라이저
-        init(vm: DreamDetailViewModel) {
-            _vm = StateObject(wrappedValue: vm)
-        }
+    init(vm: DreamDetailViewModel) {
+        _vm = StateObject(wrappedValue: vm)
+    }
     var body: some View {
+        ZStack {
+            Image("DetailViewImage")
+                .resizable()
+                .scaledToFill()
+                .ignoresSafeArea()
         ScrollView {
             VStack(spacing: 20) {
                 if let detail = vm.detail {
@@ -108,8 +113,8 @@ struct DetailView: View {
                                     RoundedRectangle(cornerRadius: 24, style: .continuous)
                                         .fill(Color(hex: "#7534E4").opacity(0.2))
                                 )
-//                                .overlay(RoundedRectangle(cornerRadius: 24, style: .continuous).stroke(LinearGradient(colors: [Color(hex: "#E8D9FF"), Color(hex: "#5F21CC"), Color(hex: "#E8D9FF")], startPoint: .topLeading, endPoint: .bottomTrailing), lineWidth: 1)
-//                                )
+                            //                                .overlay(RoundedRectangle(cornerRadius: 24, style: .continuous).stroke(LinearGradient(colors: [Color(hex: "#E8D9FF"), Color(hex: "#5F21CC"), Color(hex: "#E8D9FF")], startPoint: .topLeading, endPoint: .bottomTrailing), lineWidth: 1)
+                            //                                )
                                 .padding(.horizontal, 16)
                                 .padding(.top, 12)
                                 .padding(.bottom, 24)
@@ -132,8 +137,8 @@ struct DetailView: View {
                                     RoundedRectangle(cornerRadius: 24, style: .continuous)
                                         .fill(Color(hex: "#FFFFFF").opacity(0.1))
                                 )
-//                                .overlay(RoundedRectangle(cornerRadius: 24, style: .continuous).stroke(LinearGradient(colors: [Color(hex: "#E8D9FF"), Color(hex: "#5F21CC"), Color(hex: "#E8D9FF")], startPoint: .topLeading, endPoint: .bottomTrailing), lineWidth: 1)
-//                                )
+                            //                                .overlay(RoundedRectangle(cornerRadius: 24, style: .continuous).stroke(LinearGradient(colors: [Color(hex: "#E8D9FF"), Color(hex: "#5F21CC"), Color(hex: "#E8D9FF")], startPoint: .topLeading, endPoint: .bottomTrailing), lineWidth: 1)
+                            //                                )
                                 .padding(.horizontal, 16)
                                 .padding(.top, 36)
                         }
@@ -191,6 +196,7 @@ struct DetailView: View {
             Text("한 번 삭제하면 되돌릴 수 없어요.")
         }
     }
+}
 }
 
 extension Notification.Name {
