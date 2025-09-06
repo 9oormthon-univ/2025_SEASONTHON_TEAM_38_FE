@@ -61,7 +61,7 @@ struct DreamSummaryView: View {
                         .foregroundStyle(Color(hex: "#9963FF"))
                         .padding(.top, 32)
                     
-                    Text("일상 반영 꿈")
+                    Text(restate.category)
                         .font(.caption)
                         .padding(.horizontal, 8)
                         .padding(8)
@@ -86,7 +86,7 @@ struct DreamSummaryView: View {
                                 )
                         )
                     
-                    Text("낮 동안의 경험이나 생각이 꿈속에 그대로 혹은 부분적으로 재현된 꿈")
+                    Text(restate.categoryDescription)
                         .font(.caption)
                         .multilineTextAlignment(.center)
                         .foregroundStyle(Color(hex: "FFFFFF").opacity(0.6))

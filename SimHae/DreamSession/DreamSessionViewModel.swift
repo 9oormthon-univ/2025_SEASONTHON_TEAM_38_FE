@@ -13,6 +13,9 @@ struct CreateDreamAllDTO: Decodable {
         let emoji: String
         let title: String
         let content: String
+        // 🔹 서버 스키마에 맞춘 신규 필드 (현재 도메인에선 미사용)
+        let categoryName: String
+        let categoryDescription: String
     }
     struct Unconscious: Decodable {
         let analysis: String
@@ -34,6 +37,8 @@ struct DreamRestate: Equatable {
     let emoji: String
     let title: String
     let content: String
+    let category: String
+    let categoryDescription: String
 }
 struct DreamInterpretation: Equatable {
     let title: String
@@ -45,7 +50,9 @@ extension CreateDreamAllDTO {
         let restate = DreamRestate(
             emoji: restate.emoji,
             title: restate.title,
-            content: restate.content
+            content: restate.content,
+            category: restate.categoryName,
+            categoryDescription: restate.categoryDescription
         )
         let interp = DreamInterpretation(
             title: "해석",
