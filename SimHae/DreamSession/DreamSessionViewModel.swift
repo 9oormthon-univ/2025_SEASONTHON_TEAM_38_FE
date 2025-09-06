@@ -231,7 +231,19 @@ final class DreamSessionViewModel: ObservableObject {
             }
             .store(in: &bag)
     }
-
+    
+    @MainActor
+    func resetAll(selectedDate: Date? = nil) {
+        // 입력 값 초기화
+        input.content = ""
+        input.date = selectedDate ?? Date()
+        actions = []
+           // 음성 녹음/텍스트 초기화 등도 필요하면 함께
+           if speech.isRecording { speech.toggleRecording() }
+           speech.transcript = ""
+        // 음성 인식/전사 초기화
+        speech.reset()
+    }
     /// 상태 초기화
     func reset() {
         isSubmitting = false

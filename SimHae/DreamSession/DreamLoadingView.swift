@@ -9,8 +9,9 @@ import SwiftUI
 
 struct DreamLoadingView: View {
     @ObservedObject var vm: DreamSessionViewModel
-    var onNext: () -> Void
     @Environment(\.dismiss) private var dismiss
+    
+    @EnvironmentObject private var route: NavigationRouter
     
     var body: some View {
         ZStack {
@@ -45,7 +46,7 @@ struct DreamLoadingView: View {
                 }
             }
             .onChange(of: vm.restate) { new in
-                if new != nil { onNext() }
+                if new != nil { route.push(to: .summary) }
             }
         }
         .navigationBarTitleDisplayMode(.inline)

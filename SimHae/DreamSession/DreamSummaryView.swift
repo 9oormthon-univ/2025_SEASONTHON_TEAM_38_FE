@@ -13,9 +13,11 @@ struct DreamSummaryView: View {
     @Environment(\.dismiss) private var dismiss
     
     /// 부모가 주는 화면 이동 콜백들
-       var onNext: () -> Void                     // 해석 화면으로
-       var onHome: (() -> Void)? = nil            // 홈(루트)으로 (옵션)
-       var onBack:  (() -> Void)? = nil
+//       var onNext: () -> Void                     // 해석 화면으로
+//       var onHome: (() -> Void)? = nil            // 홈(루트)으로 (옵션)
+//       var onBack:  (() -> Void)? = nil
+    
+    @EnvironmentObject private var route: NavigationRouter
     
     var body: some View {
         ZStack {
@@ -95,7 +97,7 @@ struct DreamSummaryView: View {
                     Spacer()
                     
                     Button("다음으로") {
-                        onNext()
+                        route.push(to: .interpretation)
                     }
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 16)
@@ -113,7 +115,7 @@ struct DreamSummaryView: View {
         .toolbar {
             ToolbarItem(placement: .navigationBarLeading) {
                 Button {
-                    dismiss()
+                    route.pop()
                 } label: {
                     Image(systemName: "arrow.left")
                         .font(.system(size: 18, weight: .semibold))
@@ -131,7 +133,7 @@ struct DreamSummaryView: View {
             
             ToolbarItem(placement: .navigationBarTrailing) {
                 Button {
-                    onHome?()
+                    route.removeAll()
                 } label: {
                     Image(systemName: "house.fill")
                         .font(.system(size: 18, weight: .semibold))

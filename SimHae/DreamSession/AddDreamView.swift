@@ -10,7 +10,7 @@ import Combine
 
 struct AddDreamView: View {
     @ObservedObject var vm: DreamSessionViewModel
-    @ObservedObject var calendarViewModel: CalendarViewModel
+  //  @ObservedObject var calendarViewModel: CalendarViewModel
     @State private var showInfo: Bool = false
     @Environment(\.dismiss) private var dismiss
     @State private var showCancelDialog = false
@@ -18,20 +18,22 @@ struct AddDreamView: View {
     @State private var tempDate = Date()
     @FocusState private var isTextFocused: Bool
     @ObservedObject private var speech: SpeechInputViewModel
-    
-    var onNext: () -> Void   // ✅ 추가
+    @Binding var selectedDate: Date
+    @EnvironmentObject var calendarViewModel: CalendarViewModel
+    @EnvironmentObject private var route: NavigationRouter
     
     // ✅ 커스텀 init을 공개(internal)로 명시
         init(
             vm: DreamSessionViewModel,
-            calendarViewModel: CalendarViewModel,
-            onNext: @escaping () -> Void
+            selectedDate: Binding<Date>,
+           // calendarViewModel: CalendarViewModel,
         ) {
             // ObservedObject는 wrappedValue로 세팅하는 편이 안전
             self._vm = ObservedObject(wrappedValue: vm)
-            self._calendarViewModel = ObservedObject(wrappedValue: calendarViewModel)
+            self._selectedDate = selectedDate
+          //  self._calendarViewModel = ObservedObject(wrappedValue: calendarViewModel)
             self._speech = ObservedObject(wrappedValue: vm.speech)
-            self.onNext = onNext
+
         }
 
     
@@ -92,7 +94,6 @@ struct AddDreamView: View {
                     ZStack {
                         
                         Button {
-                            print("버튼")
                             tempDate = vm.input.date
                             showCalendar.toggle()
                         } label: {
@@ -104,7 +105,8 @@ struct AddDreamView: View {
                                     .year().month().day().weekday(.wide)
                                     .locale(Locale(identifier: "ko_KR"))
                                 
-                                Text("\(vm.input.date.formatted(style))의 꿈")
+//                                Text("\(vm.input.date.formatted(style))의 꿈")
+                                Text("\(calendarViewModel.selectDate.formatted(style))의 꿈")
                                     .foregroundStyle(.white)
                                     .font(.system(size: 20, weight: .bold))
                             }
@@ -194,8 +196,8 @@ struct AddDreamView: View {
                             Spacer()
                             
                             Button {
+                                route.push(to: .loading)
                                 vm.analyzeDream()
-                                onNext()
                             } label: {
                                 Image(systemName: "arrow.right")
                                     .foregroundStyle(vm.canSubmit ? .white : .gray)
@@ -249,6 +251,9 @@ struct AddDreamView: View {
                         
                     }
                     Button("네", role: .destructive) {
+//                        vm.resetAll(selectedDate: calendarViewModel.selectDate)
+                        vm.resetAll(selectedDate: Date()) // ← 오늘 날짜로 초기화
+                        calendarViewModel.selectDate = Date() // ← 다음에 들어와도 오늘로 시작하고 싶으면 함께 초기화
                         dismiss()
                     }
                 } message: {
@@ -273,9 +278,14 @@ struct AddDreamView: View {
             
         }
         .ignoresSafeArea(.keyboard, edges: .all)
-        .onChange(of: calendarViewModel.selectDate) { newDate in
-            vm.input.date = newDate
-        }
+        .onAppear { vm.input.date = calendarViewModel.selectDate ;
+            // AddDreamView.onAppear
+            print("🟡 AddDreamView VM:", ObjectIdentifier(calendarViewModel),
+                  "selected:", calendarViewModel.selectDate) }
+        .onChange(of: calendarViewModel.selectDate) { vm.input.date = $0 }
+//        .onChange(of: calendarViewModel.selectDate) { newDate in
+//            vm.input.date = newDate
+//        }
     }
 }
 

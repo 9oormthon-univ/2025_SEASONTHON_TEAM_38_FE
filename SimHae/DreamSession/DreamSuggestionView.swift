@@ -9,12 +9,16 @@ import SwiftUI
 
 struct DreamSuggestionView: View {
     @ObservedObject var vm: DreamSessionViewModel
+//    @ObservedObject var calendarViewModel: CalendarViewModel
+    @EnvironmentObject private var calendarViewModel: CalendarViewModel
     @Environment(\.dismiss) private var dismiss
     
     // 부모에서 주입
-        var onFinish: () -> Void               // 세션 종료(루트로)
-        var onHome:   (() -> Void)? = nil      // 홈 버튼용 (옵션)
-        var onBack:   (() -> Void)? = nil
+//        var onFinish: () -> Void               // 세션 종료(루트로)
+//        var onHome:   (() -> Void)? = nil      // 홈 버튼용 (옵션)
+//        var onBack:   (() -> Void)? = nil
+    
+    @EnvironmentObject private var route: NavigationRouter
     
     var body: some View {
         ZStack {
@@ -81,7 +85,12 @@ struct DreamSuggestionView: View {
                     Spacer()
                     
                     Button("해몽 완료") {
-                        onFinish()
+                        let d = Calendar.current.startOfDay(for: vm.input.date) // ✨ 기록한 날짜
+                        calendarViewModel.invalidateDay(d)                      // 1) 캐시 무효화
+                        calendarViewModel.fetchIfNeeded(for: d, force: true)    // 2) 강제 리프레시
+                        calendarViewModel.selectDate = d                        // 3) (선택) 해당 날짜로 유지
+                        vm.resetAll(selectedDate: d)
+                        route.removeAll()
                     }
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 16)
@@ -98,7 +107,7 @@ struct DreamSuggestionView: View {
         .toolbar {
             ToolbarItem(placement: .navigationBarLeading) {
                 Button {
-                    dismiss()
+                    route.pop()
                 } label: {
                     Image(systemName: "arrow.left")
                         .font(.system(size: 18, weight: .semibold))
@@ -116,7 +125,12 @@ struct DreamSuggestionView: View {
             
             ToolbarItem(placement: .navigationBarTrailing) {
                 Button {
-                    onHome?()
+                    let d = Calendar.current.startOfDay(for: vm.input.date)
+                        calendarViewModel.invalidateDay(d)
+                        calendarViewModel.fetchIfNeeded(for: d, force: true)
+                        calendarViewModel.selectDate = d
+                        vm.resetAll(selectedDate: d)
+                        route.removeAll()
                 } label: {
                     Image(systemName: "house.fill")
                         .font(.system(size: 18, weight: .semibold))

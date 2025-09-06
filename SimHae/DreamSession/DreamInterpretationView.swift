@@ -13,9 +13,11 @@ struct DreamInterpretationView: View {
     @Environment(\.dismiss) private var dismiss
     
     // 부모에서 주는 콜백들
-      var onNext: () -> Void                 // 제안 화면으로
-      var onHome: (() -> Void)? = nil        // 홈(루트)로 (옵션)
-      var onBack:  (() -> Void)? = nil
+//      var onNext: () -> Void                 // 제안 화면으로
+//      var onHome: (() -> Void)? = nil        // 홈(루트)로 (옵션)
+//      var onBack:  (() -> Void)? = nil
+    
+    @EnvironmentObject private var route: NavigationRouter
     
     var body: some View {
         
@@ -50,7 +52,7 @@ struct DreamInterpretationView: View {
                     Spacer()
                     
                     Button("다음으로") {
-                        onNext()     
+                        route.push(to: .suggestion)
                     }
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 16)
@@ -67,7 +69,7 @@ struct DreamInterpretationView: View {
         .toolbar {
             ToolbarItem(placement: .navigationBarLeading) {
                 Button {
-                    dismiss()
+                    route.pop()
                 } label: {
                     Image(systemName: "arrow.left")
                         .font(.system(size: 18, weight: .semibold))
@@ -85,7 +87,7 @@ struct DreamInterpretationView: View {
             
             ToolbarItem(placement: .navigationBarTrailing) {
                 Button {
-                    onHome?()
+                    route.removeAll()
                 } label: {
                     Image(systemName: "house.fill")
                         .font(.system(size: 18, weight: .semibold))
