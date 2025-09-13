@@ -1,5 +1,6 @@
 import Combine
 import Foundation
+
 final class AuthService {
     private let client = APIClient.shared
     struct Resp: Decodable { let status: Int; let message: String? }

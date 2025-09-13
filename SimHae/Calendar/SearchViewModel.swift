@@ -22,7 +22,7 @@ struct DreamDTO: Codable {
     let emoji: String?
     let summary: String
     let category: String
-    let createdAt: String // e.g. "2025-08-10T10:00:00"
+    let createdAt: String
 }
 
 // MARK: - UI 모델
@@ -30,15 +30,14 @@ struct DreamDTO: Codable {
 struct SearchItem: Identifiable {
     let id: Int              // dreamId
     let title: String
-    let subtitle: String     // 날짜 + 요약
-    let date: Date           // createdAt 파싱 값
+    let subtitle: String
+    let date: Date
     let emoji: String?
 }
 
 // MARK: - Repository Protocol
 
 protocol SearchRepositoryProtocol {
-    /// keyword 기반 검색
     func search(keyword: String, completion: @escaping (Result<[SearchItem], Error>) -> Void)
 }
 

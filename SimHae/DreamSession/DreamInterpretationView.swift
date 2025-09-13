@@ -40,8 +40,6 @@ struct DreamInterpretationView: View {
                             RoundedRectangle(cornerRadius: 24, style: .continuous)
                                 .fill(Color(hex: "#7534E4").opacity(0.2))
                         )
-//                        .overlay(RoundedRectangle(cornerRadius: 24, style: .continuous).stroke(LinearGradient(colors: [Color(hex: "#E8D9FF"), Color(hex: "#5F21CC"), Color(hex: "#E8D9FF")], startPoint: .topLeading, endPoint: .bottomTrailing), lineWidth: 1)
-//                                 )
                         .padding(.horizontal, 18)
                         .padding(.top, 36)
                     
@@ -56,7 +54,7 @@ struct DreamInterpretationView: View {
                     .overlay(RoundedRectangle(cornerRadius: 28, style: .continuous).stroke(Color(hex: "4312A0"), lineWidth: 1.5))
                     .clipShape(RoundedRectangle(cornerRadius: 28, style: .continuous))
                     .padding(.horizontal, 24)
-                    .padding(.bottom, 24) // 홈 인디케이터와 간격
+                    .padding(.bottom, 24)
                 }
             }
         }

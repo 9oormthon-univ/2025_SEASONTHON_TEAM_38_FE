@@ -9,7 +9,6 @@ import SwiftUI
 
 struct DreamSuggestionView: View {
     @ObservedObject var vm: DreamSessionViewModel
-//    @ObservedObject var calendarViewModel: CalendarViewModel
     @EnvironmentObject private var calendarViewModel: CalendarViewModel
     @Environment(\.dismiss) private var dismiss
     
@@ -93,7 +92,7 @@ struct DreamSuggestionView: View {
                     .overlay(RoundedRectangle(cornerRadius: 28, style: .continuous).stroke(Color(hex: "4312A0"), lineWidth: 1.5))
                     .clipShape(RoundedRectangle(cornerRadius: 28, style: .continuous))
                     .padding(.horizontal, 24)
-                    .padding(.bottom, 24) // 홈 인디케이터와 간격
+                    .padding(.bottom, 24)
                 }
             }
         }

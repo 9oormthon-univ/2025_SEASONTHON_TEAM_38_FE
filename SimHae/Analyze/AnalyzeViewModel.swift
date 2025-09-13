@@ -44,7 +44,7 @@ extension UnconsciousAnalyzeResponseDTO {
     }
 }
 
-// 🔹 에러 바디 파싱용(400일 때)
+// 에러 바디 파싱용(400일 때)
 private struct ErrorEnvelope: Decodable {
     let status: Int
     let message: String
@@ -84,11 +84,10 @@ final class AnalyzeViewModel: ObservableObject {
     }
 
     func load() {
-        guard !isLoading else { return }        // ✅ 중복 방지
+        guard !isLoading else { return }        // 중복 방지
         isLoading = true
         errorMessage = nil
-        // notEnoughData = false  // reload에서 초기화하므로 여기서는 유지
-
+        
         let req = client.request(endpointPath, method: "POST")
 
         URLSession.shared.dataTaskPublisher(for: req)

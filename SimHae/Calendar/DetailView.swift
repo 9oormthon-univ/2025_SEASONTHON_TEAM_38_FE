@@ -114,8 +114,6 @@ struct DetailView: View {
                                     RoundedRectangle(cornerRadius: 24, style: .continuous)
                                         .fill(Color(hex: "#7534E4").opacity(0.2))
                                 )
-                            //                                .overlay(RoundedRectangle(cornerRadius: 24, style: .continuous).stroke(LinearGradient(colors: [Color(hex: "#E8D9FF"), Color(hex: "#5F21CC"), Color(hex: "#E8D9FF")], startPoint: .topLeading, endPoint: .bottomTrailing), lineWidth: 1)
-                            //                                )
                                 .padding(.horizontal, 16)
                                 .padding(.top, 12)
                                 .padding(.bottom, 24)
@@ -138,8 +136,6 @@ struct DetailView: View {
                                     RoundedRectangle(cornerRadius: 24, style: .continuous)
                                         .fill(Color(hex: "#FFFFFF").opacity(0.1))
                                 )
-                            //                                .overlay(RoundedRectangle(cornerRadius: 24, style: .continuous).stroke(LinearGradient(colors: [Color(hex: "#E8D9FF"), Color(hex: "#5F21CC"), Color(hex: "#E8D9FF")], startPoint: .topLeading, endPoint: .bottomTrailing), lineWidth: 1)
-                            //                                )
                                 .padding(.horizontal, 16)
                                 .padding(.top, 36)
                         }
@@ -187,16 +183,11 @@ struct DetailView: View {
                 
             }
             Button("네", role: .destructive) {
-//                vm.delete {
-//                    dismiss() //삭제 기능 추가
-//                    NotificationCenter.default.post(name: .dreamDeleted, object: nil)
-//                }
-//                 // 삭제 후 다시 조회할 날짜(상세에 있던 날짜가 제일 정확)
                 let dateToReload = vm.detail?.dreamDate ?? calendarViewModel.selectDate
 
                 vm.delete {
                     Task { @MainActor in
-                        calendarViewModel.reloadDay(dateToReload)  // ← 한 방에 끝
+                        calendarViewModel.reloadDay(dateToReload)
                         dismiss()
                     }
                 }

@@ -10,28 +10,29 @@ import Combine
 
 struct AddDreamView: View {
     @ObservedObject var vm: DreamSessionViewModel
-  //  @ObservedObject var calendarViewModel: CalendarViewModel
-    @State private var showInfo: Bool = false
+    @ObservedObject private var speech: SpeechInputViewModel
+    @EnvironmentObject var calendarViewModel: CalendarViewModel
+    
+    @EnvironmentObject private var route: NavigationRouter
+    
     @Environment(\.dismiss) private var dismiss
+    
+    @State private var showInfo: Bool = false
     @State private var showCancelDialog = false
     @State private var showCalendar = false
     @State private var tempDate = Date()
     @FocusState private var isTextFocused: Bool
-    @ObservedObject private var speech: SpeechInputViewModel
+
     @Binding var selectedDate: Date
-    @EnvironmentObject var calendarViewModel: CalendarViewModel
-    @EnvironmentObject private var route: NavigationRouter
-    
-    // ✅ 커스텀 init을 공개(internal)로 명시
+
+    // 커스텀 init을 공개(internal)로 명시
         init(
             vm: DreamSessionViewModel,
             selectedDate: Binding<Date>,
-           // calendarViewModel: CalendarViewModel,
         ) {
             // ObservedObject는 wrappedValue로 세팅하는 편이 안전
             self._vm = ObservedObject(wrappedValue: vm)
             self._selectedDate = selectedDate
-          //  self._calendarViewModel = ObservedObject(wrappedValue: calendarViewModel)
             self._speech = ObservedObject(wrappedValue: vm.speech)
 
         }
@@ -251,7 +252,6 @@ struct AddDreamView: View {
                         
                     }
                     Button("네", role: .destructive) {
-//                        vm.resetAll(selectedDate: calendarViewModel.selectDate)
                         vm.resetAll(selectedDate: Date()) // ← 오늘 날짜로 초기화
                         calendarViewModel.selectDate = Date() // ← 다음에 들어와도 오늘로 시작하고 싶으면 함께 초기화
                         dismiss()
@@ -283,9 +283,6 @@ struct AddDreamView: View {
             print("🟡 AddDreamView VM:", ObjectIdentifier(calendarViewModel),
                   "selected:", calendarViewModel.selectDate) }
         .onChange(of: calendarViewModel.selectDate) { vm.input.date = $0 }
-//        .onChange(of: calendarViewModel.selectDate) { newDate in
-//            vm.input.date = newDate
-//        }
     }
 }
 

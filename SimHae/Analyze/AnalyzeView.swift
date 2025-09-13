@@ -37,34 +37,6 @@ struct AnalyzeView: View {
                     Spacer()
                 }
             }
-//            else if vm.notEnoughData {
-//                VStack {
-//                    Image(.appLogo)
-//                        .resizable()
-//                        .aspectRatio(contentMode: .fit)
-//                        .frame(height: 18)
-//                        .padding(.top, 24)
-//
-//                    Text("최근 꾼 꿈을 바탕으로\n나의 무의식 상태를 알 수 있어요.")
-//                        .font(.system(size: 20))
-//                        .multilineTextAlignment(.center)
-//                        .foregroundStyle(Color(hex: "#E8D9FF"))
-//                        .padding()
-//                        .padding(.bottom, 40)
-//
-//                    Image("jellyCha")
-//                        .resizable()
-//                        .scaledToFit()
-//                        .frame(width: 200, height: 200)
-//
-//                    Text("무의식 분석을 위해서는\n최소 7개의 꿈 해석이 필요해요.")
-//                        .font(.caption)
-//                        .multilineTextAlignment(.center)
-//                        .foregroundStyle(.gray)
-//                        .padding()
-//                        .padding(.bottom, 40)
-//                }
-//            }
              else {
                 ScrollView {
                     VStack {
@@ -195,7 +167,6 @@ private struct DreamChip: View {
     let text: String
     
     var body: some View {
-        // 네온 느낌 칩
         Text(text)
             .lineLimit(1)
             .truncationMode(.tail)

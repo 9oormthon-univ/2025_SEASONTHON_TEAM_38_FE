@@ -13,7 +13,6 @@ struct CreateDreamAllDTO: Decodable {
         let emoji: String
         let title: String
         let content: String
-        // 🔹 서버 스키마에 맞춘 신규 필드 (현재 도메인에선 미사용)
         let categoryName: String
         let categoryDescription: String
     }
@@ -129,7 +128,7 @@ final class DreamSessionViewModel: ObservableObject {
         bindSpeech()
     }
     
-    // ✅ 편의 이니셜라이저: 처음부터 선택 날짜로 시작
+    //편의 이니셜라이저: 처음부터 선택 날짜로 시작
        convenience init(service: DreamService,
                         speech: SpeechInputViewModel,
                         initialDate: Date) {
@@ -137,25 +136,9 @@ final class DreamSessionViewModel: ObservableObject {
            self.input.date = initialDate
        }
 
-
-//    /// 음성 transcript -> input.text 반영
-//    private func bindSpeech() {
-//        
-//        
-//        speech.$transcript
-//            .removeDuplicates()
-//            .receive(on: DispatchQueue.main)
-//            .sink { [weak self] t in
-//                guard let self else { return }
-//                if self.speech.isRecording {
-//                    self.input.content = t
-//                }
-//            }
-//            .store(in: &bag)
-//    }
     
     private func bindSpeech() {
-            // ✅ 1) 녹음 상태 전이 감지: 시작할 때 준비
+            // 1) 녹음 상태 전이 감지: 시작할 때 준비
             speech.$isRecordingFlag
                 .removeDuplicates()
                 .sink { [weak self] isRecording in
@@ -174,7 +157,7 @@ final class DreamSessionViewModel: ObservableObject {
                 }
                 .store(in: &bag)
 
-            // ✅ 2) transcript가 변할 때 "새로 추가된 부분"만 이어붙이기
+            // 2) transcript가 변할 때 "새로 추가된 부분"만 이어붙이기
             speech.$transcript
                 .removeDuplicates()
                 .receive(on: DispatchQueue.main)
@@ -201,7 +184,7 @@ final class DreamSessionViewModel: ObservableObject {
             errorMessage = nil
             isSubmitting = false
             input = DreamInput(content: "", date: date)
-            // ✅ 새로운 기록 세션 시작 시 카운터도 리셋
+            // 새로운 기록 세션 시작 시 카운터도 리셋
             lastTranscriptCount = 0
         }
 

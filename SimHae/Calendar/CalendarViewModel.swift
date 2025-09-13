@@ -21,7 +21,7 @@ private struct DayDreamDTO: Decodable {
     let emoji: String?
     let content: String
     let category: String?
-    let createdAt: String // "2025-08-10T10:00:00"
+    let createdAt: String
 }
 
 struct DreamRowUI: Identifiable, Hashable {
@@ -108,7 +108,7 @@ final class RealCalendarDreamService: CalendarDreamService {
                                     summary: dto.content,
                                     emoji: dto.emoji,
                                     dreamDate: dDate,
-                                    createdAt: cAt          // ← ✅ 여기!
+                                    createdAt: cAt
                                 )
                             }
                         }
@@ -122,7 +122,7 @@ final class RealCalendarDreamService: CalendarDreamService {
         comps.year = year
         comps.month = month
         let baseDate = comps.calendar!.date(from: comps)!
-        let ym = Self.ymDF.string(from: baseDate) // "2025-08"
+        let ym = Self.ymDF.string(from: baseDate)
         
         // /dreams/month?yearMonth=yyyy-MM
         var urlc = URLComponents(url: client.baseURL, resolvingAgainstBaseURL: false)!
@@ -143,7 +143,6 @@ final class RealCalendarDreamService: CalendarDreamService {
         return client.run(Envelope<[DayEmojiDTO]>.self, with: req)
             .tryMap { env in
                 guard (200...299).contains(env.status) else { throw URLError(.badServerResponse) }
-                // dict: "yyyy-MM-dd" -> "🕊️"
                 // 중복 키가 있어도 첫 번째 값만 유지
                        let dict = env.data.reduce(into: [String: String]()) { acc, dto in
                            if acc[dto.dreamDate] == nil {
@@ -164,7 +163,7 @@ final class RealCalendarDreamService: CalendarDreamService {
         return r
     }
     
-    // ✅ ISO8601 + fractional seconds 공용 포맷터
+    // ISO8601 + fractional seconds 공용 포맷터
         private static let iso8601Frac: ISO8601DateFormatter = {
             let f = ISO8601DateFormatter()
             f.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
@@ -175,7 +174,7 @@ final class RealCalendarDreamService: CalendarDreamService {
         let dreamId: Int
         let title: String
         let emoji: String?
-        let summary: String?     // 서버가 summary 또는 content 둘 중 하나를 내려줌
+        let summary: String?
         let content: String?
         let category: String?
         let createdAt: String
@@ -185,7 +184,7 @@ final class RealCalendarDreamService: CalendarDreamService {
             summary ?? content ?? ""
         }
     }
-    // ✅ 날짜 없이 /dreams?keyword=...
+    //날짜 없이 /dreams?keyword=...
         func searchDreams(keyword: String) -> AnyPublisher<[DreamRowUI], Error> {
             var urlc = URLComponents(url: client.baseURL, resolvingAgainstBaseURL: false)!
             urlc.path = "/dreams"
@@ -209,7 +208,7 @@ final class RealCalendarDreamService: CalendarDreamService {
                         return DreamRowUI(
                             id: String(dto.dreamId),
                             title: dto.title,
-                            summary: dto.summaryText,     // ✅ 여기!
+                            summary: dto.summaryText,
                             emoji: dto.emoji,
                             dreamDate: created,           // 검색 응답엔 dreamDate가 없으니 createdAt 기준
                             createdAt: created
@@ -257,7 +256,7 @@ final class CalendarViewModel: ObservableObject {
         itemsByDate[key(selectDate)] ?? []
     }
 
-    // ✅ NEW: 검색 파이프라인(디바운스)
+    // NEW: 검색 파이프라인(디바운스)
     private func bindSearch() {
         $searchQuery
             .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) } // 선택
@@ -312,25 +311,6 @@ final class CalendarViewModel: ObservableObject {
                }
                .store(in: &cancellables)
        }
-
-//    func search(keyword: String) {
-//        isLoading = true
-//        errorMessage = nil
-//
-//        service.searchDreams(keyword: keyword)
-//            .receive(on: DispatchQueue.main)
-//            .sink { [weak self] completion in
-//                guard let self else { return }
-//                self.isLoading = false
-//                if case .failure(let err) = completion {
-//                    self.errorMessage = err.localizedDescription
-//                    self.searchResults = []   // 에러여도 폴백 없이 빈 결과
-//                }
-//            } receiveValue: { [weak self] rows in
-//                self?.searchResults = rows
-//            }
-//            .store(in: &cancellables)
-//    }
     
     // 날짜 → 키
     private func key(_ d: Date) -> String { dayKeyDF.string(from: d) }
@@ -372,7 +352,7 @@ final class CalendarViewModel: ObservableObject {
     
     init(service: CalendarDreamService) {
         self.service = service
-        bindSearch()   // ✅ NEW
+        bindSearch()   //NEW
     }
     
     private var cancellables = Set<AnyCancellable>()
@@ -388,10 +368,6 @@ final class CalendarViewModel: ObservableObject {
     
     @Published var selectedYear: Int = Calendar.current.component(.year, from: .now)
     @Published var selectedMonth: Int = Calendar.current.component(.month, from: .now)
-    
-//    var dreamsForSelected: [DreamRowUI] {
-//        itemsByDate[key(selectDate)] ?? []
-//    }
     
     // 현재 캘린더에 보이는 month 구하는 함수
     func getCurrentMonth(addingMonth: Int) -> Date {
@@ -467,20 +443,12 @@ final class CalendarViewModel: ObservableObject {
         }
     
     /// 셀 하이라이트에 쓸 보라색 불투명도
-        /// - 선택된 날짜: 0.6
-        /// - 오늘(선택 안됨): 0.2
-        /// - 그 외: 0.0
         func highlightOpacity(for date: Date) -> Double {
             if isSameDay(date1: date, date2: selectDate) { return 0.6 }
             if isToday(date) { return 0.2 }
             return 0.0
         }
     
-//    /// 셀 탭 시 호출 (필요하면 여기서 백엔드 fetch)
-//    func didTap(date: Date) {
-//        selectDate = date
-//        fetchIfNeeded(for: date)
-//    }
     func didTap(date: Date) {
         selectDate = date
         let q = searchQuery.trimmingCharacters(in: .whitespacesAndNewlines)

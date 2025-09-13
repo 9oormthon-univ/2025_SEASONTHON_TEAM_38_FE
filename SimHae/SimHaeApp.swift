@@ -49,8 +49,6 @@ struct SimHaeApp: App {
                         case .add: AddDreamView(vm: DreamSessionVM, selectedDate: $calendarVM.selectDate)
                                 .environmentObject(route)
                                 .environmentObject(calendarVM)
-                       // case .add: AddDreamView(vm: DreamSessionVM, selectedDate: $calendarVM.selectDate, calendarViewModel: calendarVM)
-                                //.environmentObject(route)
                         case .loading: DreamLoadingView(vm: DreamSessionVM)
                                 .environmentObject(route)
                         case .summary: DreamSummaryView(vm: DreamSessionVM)
