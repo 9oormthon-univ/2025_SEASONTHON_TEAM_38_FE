@@ -139,8 +139,7 @@ final class CalendarViewModel: ObservableObject {
     }
     
     private var cancellables = Set<AnyCancellable>()
-    private let cal = Calendar.current
-    
+
     @Published var currentDate: Date = Date()
     @Published var currentMonth: Int = 0
     @Published var selectDate: Date = Date()
