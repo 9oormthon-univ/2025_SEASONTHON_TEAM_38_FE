@@ -10,20 +10,16 @@ import SwiftUI
 struct CalendarTotalView: View {
     @State private var isShowingDateChangeSheet: Bool = false
     @EnvironmentObject var calendarViewModel: CalendarViewModel
-    //@ObservedObject var calendarViewModel: CalendarViewModel
     @StateObject private var searchVM: SearchViewModel
     
     @FocusState private var isSearching
-//    @State private var searchQuery: String = ""
     @State private var isbackgroundBlur: Bool = false
     
     init(calendarViewModel: CalendarViewModel) {
-        //_calendarViewModel = ObservedObject(wrappedValue: calendarViewModel)
-        
         let repo = APISearchRepository()
         _searchVM = StateObject(
             wrappedValue: SearchViewModel(repo: repo) { item in
-                calendarViewModel.didTap(date: item.date)
+                calendarViewModel.didTap(date: item.dreamDate)
             }
         )
     }
@@ -62,7 +58,7 @@ struct CalendarTotalView: View {
                                     DetailView(vm: DreamDetailViewModel(dreamId: item.id))
                                         .environmentObject(calendarViewModel)
                                 } label: {
-                                    DreamCard(date: item.dreamDate.formatted(.dateTime.year().month().day().weekday(.wide).locale(Locale(identifier: "ko_KR"))), title: item.title, summary: item.summary, emoji: item.emoji ?? "🌙")
+                                    DreamCard(date: item.dreamDate.formatted(.dateTime.year().month().day().weekday(.wide).locale(Locale(identifier: "ko_KR"))), title: item.title, summary: item.content, emoji: item.emoji ?? "🌙")
                                         .contentShape(Rectangle())
                                 }
                                 .buttonStyle(.plain)
@@ -75,11 +71,10 @@ struct CalendarTotalView: View {
             }
                        .padding(.bottom, 28)
             .onAppear {
-                // CalendarTotalView.onAppear
                 print("🟣 CalendarTotalView VM:", ObjectIdentifier(calendarViewModel),
                       "selected:", calendarViewModel.selectDate)
                 print("📅 CalendarTotalView appeared")
-                // ✅ 초기 로딩: 월별 + 선택된 날짜 데이터
+                // 초기 로딩: 월별 + 선택된 날짜 데이터
                 calendarViewModel.fetchMonthEmojisForVisibleMonth()
                 calendarViewModel.fetchIfNeeded(for: calendarViewModel.selectDate, force: calendarViewModel.isToday(calendarViewModel.selectDate))
             }
@@ -95,13 +90,6 @@ struct CalendarTotalView: View {
                 .ignoresSafeArea(edges: .top)
         }
         .blur(radius: isbackgroundBlur ? 20 : 0)
-//        .onChange(of: isSearching) {
-//            withAnimation {
-//                DispatchQueue.main.async {
-//                    isbackgroundBlur.toggle()
-//                }
-//            }
-//        }
         .onChange(of: isSearching) { newValue in
             withAnimation {
                 isbackgroundBlur = newValue        // ← toggle() 말고 값 그대로 반영
@@ -130,7 +118,7 @@ struct CalendarTotalView: View {
                     searchBar
                         .padding(.top, 20)
 
-                    // 🔎 검색 결과만 렌더
+                    // 검색 결과만 렌더
                     ScrollView(showsIndicators: false) {
                         VStack(spacing: 12) {
                             if calendarViewModel.isLoading {
@@ -168,7 +156,7 @@ struct CalendarTotalView: View {
                                                             .locale(Locale(identifier: "ko_KR"))
                                                     ),
                                                     title: item.title,
-                                                    summary: item.summary,
+                                                    summary: item.content,
                                                     emoji: item.emoji ?? "🌙"
                                                 )
                                                 .contentShape(Rectangle())
@@ -186,17 +174,11 @@ struct CalendarTotalView: View {
 
                     Spacer(minLength: 0)
                 }
-//                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
                 .padding(.top, 8)
                 .transition(.opacity)
-                // 아래 컨텐츠 터치/스크롤 막기 (오버레이 진짜로 덮어쓰기)
-//                .background(Color.black.opacity(0.001).ignoresSafeArea().onTapGesture {
-//                    isSearching = false
-//                })
                 .zIndex(10)
             }
         }
-        //.animation(.easeInOut(duration: 0.28), value: isSearching)
         .toolbar {
             ToolbarItemGroup(placement: .keyboard) {
                 Spacer()
@@ -205,23 +187,6 @@ struct CalendarTotalView: View {
                 }
             }
         }
-//        .overlay {
-//            if isSearching {
-//                VStack {
-//                    Image(.appLogo)
-//                        .resizable()
-//                        .aspectRatio(contentMode: .fit)
-//                        .frame(height: 18)
-//                        .padding(.top, 24)
-//                    searchBar
-//                        .padding(.top, 20)
-//                    
-//                    
-//                    Spacer()
-//                }
-//            }
-//        }
-
     }
     
     private var searchBar: some View {
@@ -255,6 +220,7 @@ struct CalendarTotalView: View {
     }
 }
 
+// MARK: 꿈 기록 카드
 struct DreamCard: View {
     let date: String
     let title: String
@@ -263,14 +229,11 @@ struct DreamCard: View {
     
     var body: some View {
         HStack(spacing: 24) {
-            //이모지 + 글로우
             Text(emoji)
                 .font(.system(size: 28))
                 .shadow(color: .purple.opacity(0.8), radius: 12, x: 0, y: 0)
-            // 추가로 바깥쪽 부드럽게 퍼짐
                 .shadow(color: .purple.opacity(0.4), radius: 24, x: 0, y: 0)
                 .padding(.leading, 12)
-            //텍스트 영역
             VStack(alignment: .leading, spacing: 6) {
                 Text(date)
                     .font(.caption)
@@ -295,7 +258,6 @@ struct DreamCard: View {
         .padding()
         .background(
             RoundedRectangle(cornerRadius: 20, style: .continuous)
-            // 1) 어두운 배경 그라데이션
                 .fill(
                     LinearGradient(
                         gradient: Gradient(colors: [Color(hex: "#1A1A1A"), Color(hex: "#0E0E0E")]),
@@ -303,7 +265,6 @@ struct DreamCard: View {
                         endPoint: .bottomTrailing
                     )
                 )
-            // 2) 테두리 그라데이션
                 .overlay(
                     RoundedRectangle(cornerRadius: 20, style: .continuous)
                         .stroke(
@@ -319,7 +280,6 @@ struct DreamCard: View {
                             lineWidth: 0.8
                         )
                 )
-            // 3) 얇은 안쪽 하이라이트
                 .overlay(
                     RoundedRectangle(cornerRadius: 20, style: .continuous)
                         .inset(by: 1)
@@ -331,6 +291,9 @@ struct DreamCard: View {
     }
 }
 
+// MARK: 달력 커스텀
+
+// 달력 상단 연월 표시
 struct YearMonthHeaderView: View {
     @ObservedObject var calendarViewModel: CalendarViewModel
     @Binding var isShowingDateChangeSheet: Bool
@@ -365,7 +328,7 @@ struct YearMonthHeaderView: View {
             Text("\(calendarViewModel.getYearAndMonthString(currentDate: calendarViewModel.currentDate)[0])년 \(calendarViewModel.getYearAndMonthString(currentDate: calendarViewModel.currentDate)[1])")
                 .font(.title3.bold())
             
-            // ➡️ 다음 달 버튼
+            // 다음 달 버튼
             Button(action: {
                 let cal = Calendar.current
                 let now = Date()
@@ -393,6 +356,7 @@ struct YearMonthHeaderView: View {
     }
 }
 
+// 달력
 struct CalendarView: View {
     
     @State private var offset: CGSize = CGSize()
@@ -439,7 +403,6 @@ struct CalendarView: View {
                     let lowerBound = cal.date(from: DateComponents(year: 2024, month: 1, day: 1))!
                     
                     withAnimation(.easeInOut) {
-                        // finalDx < 0  == 왼쪽으로 민 제스처(→ 다음 달)
                         if finalDx < 0 {
                             // 미래 달로 넘어가지 않도록(다음달이 오늘보다 이후면 막기)
                             let isNextBeyondNow = cal.compare(
@@ -452,7 +415,7 @@ struct CalendarView: View {
                             calendarViewModel.currentMonth += 1
                             calendarViewModel.selectedMonth += 1
                             
-                        } else { // finalDx > 0  == 오른쪽으로 민 제스처(→ 이전 달)
+                        } else {
                             // 최소 2024-01 이전으로는 못 가게
                             let isPrevBeforeLower = cal.compare(
                                 cal.date(from: cal.dateComponents([.year, .month], from: prevMonth))!,
@@ -465,41 +428,30 @@ struct CalendarView: View {
                             calendarViewModel.selectedMonth -= 1
                         }
                     }
-                    
                     self.offset = .zero
                 }
         )
-        //        .gesture(
-        //            DragGesture()
-        //                .onChanged { gesture in
-        //                    self.offset = gesture.translation
-        //                }
-        //                .onEnded { gesture in
-        //                    let calender = Calendar.current
-        //                    let selectYear = calender.component(.year, from: calendarViewModel.currentDate)
-        //                    let selectMonth = calender.component(.month, from: calendarViewModel.currentDate)
-        //                    let presentMonth = calender.component(.month, from: Date())
-        //
-        //                    if gesture.translation.width < -20 {
-        //                        if selectMonth == presentMonth {
-        //
-        //                        } else {
-        //                            calendarViewModel.currentMonth += 1
-        //                            calendarViewModel.selectedMonth += 1
-        //                        }
-        //                    } else if gesture.translation.width > 20 {
-        //                        if selectYear == 2024 && selectMonth == 1 {
-        //                        } else {
-        //                            calendarViewModel.currentMonth -= 1
-        //                            calendarViewModel.selectedMonth -= 1
-        //                        }
-        //                    }
-        //                    self.offset = CGSize()
-        //                }
-        //        )
     }
 }
 
+// 월화수목금토일
+struct WeekdayHeaderView: View {
+    let weekday: [String]
+    var body: some View {
+        HStack {
+            ForEach(weekday, id: \.self) { day in
+                Text(day)
+                    .font(.caption)
+                    .fontWeight(.semibold)
+                    .frame(maxWidth: .infinity)
+                    .foregroundStyle(.white.opacity(0.2))
+            }
+        }
+        .padding(.bottom, 5)
+    }
+}
+
+// 날짜 그리드
 struct DatesGridView: View {
     @ObservedObject var calendarViewModel: CalendarViewModel
     
@@ -540,7 +492,7 @@ struct DatesGridView: View {
                     let y = CGFloat(i) * (rowHeight + rowSpacing) - (rowSpacing / 2)
                     
                     Rectangle()
-                        .fill(Color(hex: "#FFFFFF").opacity(0.2))            // 선 색/투명도
+                        .fill(Color(hex: "#FFFFFF").opacity(0.2))
                         .frame(height: 0.5)
                         .offset(x: 0, y: y)
                 }
@@ -550,6 +502,7 @@ struct DatesGridView: View {
     }
 }
 
+// 날짜 버튼
 struct DateButton: View {
     var value: DateValue
     @ObservedObject var calendarViewModel: CalendarViewModel
@@ -570,8 +523,8 @@ struct DateButton: View {
                     Text("\(value.day)")
                         .font(.system(size: 17, weight: .semibold))
                         .foregroundStyle(.white)
-                        .padding(.horizontal, 10)   // 좌우 여백
-                        .padding(.vertical, 2)                // 동그라미 크기
+                        .padding(.horizontal, 10)
+                        .padding(.vertical, 2)
                         .background(
                             RoundedRectangle(cornerRadius: 100, style: .circular)
                                 .fill(Color(hex: "#843CFF")
@@ -590,9 +543,6 @@ struct DateButton: View {
     }
 }
 
-//#Preview {
-//    CalendarView()
-//}
 struct KeyboardObserver: ViewModifier {
     @State private var isKeyboardVisible = false
     

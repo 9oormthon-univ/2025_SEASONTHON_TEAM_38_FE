@@ -10,7 +10,6 @@ import Combine
 
 struct DreamInterpretationView: View {
     @ObservedObject var vm: DreamSessionViewModel
-    @Environment(\.dismiss) private var dismiss
     @EnvironmentObject private var calendarViewModel: CalendarViewModel
     
     @EnvironmentObject private var route: NavigationRouter

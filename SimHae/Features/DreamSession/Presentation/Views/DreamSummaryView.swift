@@ -10,7 +10,6 @@ import Combine
 
 struct DreamSummaryView: View {
     @ObservedObject var vm: DreamSessionViewModel
-    @Environment(\.dismiss) private var dismiss
     @EnvironmentObject private var calendarViewModel: CalendarViewModel
     
     @EnvironmentObject private var route: NavigationRouter
@@ -102,7 +101,7 @@ struct DreamSummaryView: View {
                     .foregroundStyle(Color(hex: "B184FF"))
                     .clipShape(RoundedRectangle(cornerRadius: 28, style: .continuous))
                     .padding(.horizontal, 24)
-                    .padding(.bottom, 24) // 홈 인디케이터와 간격
+                    .padding(.bottom, 24)
                 }
             }
         }

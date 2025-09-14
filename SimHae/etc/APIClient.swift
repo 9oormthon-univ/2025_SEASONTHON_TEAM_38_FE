@@ -12,8 +12,7 @@ final class APIClient {
     static let shared = APIClient()
     private init() {}
 
-    var baseURL = URL(string: "https://www.simhae.p-e.kr")!   // ✅ 실제 서버 도메인
-    
+    var baseURL = URL(string: "https://www.simhae.p-e.kr")!
     /// 공통 Request 생성
     func request(_ path: String,
                  method: String = "GET",
@@ -30,8 +29,6 @@ final class APIClient {
             req.httpBody = try? JSONEncoder().encode(AnyEncodable(body))
         }
         
-        // ⭐️ 디버그 로그 출력
-           //if DEBUG
            print("➡️ Request to:", url.absoluteString)
            print("Method:", method)
            print("Headers:", req.allHTTPHeaderFields ?? [:])
@@ -39,14 +36,13 @@ final class APIClient {
               let json = String(data: body, encoding: .utf8) {
                print("Body:", json)
            }
-           //endif
         return req
     }
 
     /// 응답 실행
     func run<T: Decodable>(_ type: T.Type, with request: URLRequest) -> AnyPublisher<T, Error> {
         let decoder = JSONDecoder()
-        decoder.dateDecodingStrategy = .iso8601   // ✅ createdAt 같은 ISO 날짜 지원
+        decoder.dateDecodingStrategy = .iso8601
 
         
         return URLSession.shared.dataTaskPublisher(for: request)
@@ -61,7 +57,7 @@ final class APIClient {
                         if output.data.isEmpty {
                             throw URLError(.zeroByteResource) // “data is missing” 원인 파악 쉬움
                         }
-                        // 4xx/5xx면 에러로 올림 (원문도 로그에 찍힘)
+                        // 4xx/5xx면 에러로 올림
                         if !(200...299).contains(code) {
                             throw URLError(.badServerResponse)
                         }
@@ -69,10 +65,6 @@ final class APIClient {
                     }
                     .decode(type: T.self, decoder: decoder)
                     .eraseToAnyPublisher()
-//        return URLSession.shared.dataTaskPublisher(for: request)
-//            .map(\.data)
-//            .decode(type: T.self, decoder: decoder)
-//            .eraseToAnyPublisher()
     }
 }
 

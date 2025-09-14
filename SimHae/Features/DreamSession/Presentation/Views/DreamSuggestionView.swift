@@ -10,7 +10,6 @@ import SwiftUI
 struct DreamSuggestionView: View {
     @ObservedObject var vm: DreamSessionViewModel
     @EnvironmentObject private var calendarViewModel: CalendarViewModel
-    @Environment(\.dismiss) private var dismiss
     
     @EnvironmentObject private var route: NavigationRouter
     
@@ -79,7 +78,7 @@ struct DreamSuggestionView: View {
                     Spacer()
                     
                     Button("해몽 완료") {
-                        let d = Calendar.current.startOfDay(for: vm.input.date) // ✨ 기록한 날짜
+                        let d = Calendar.current.startOfDay(for: vm.input.date) // 기록한 날짜
                         calendarViewModel.invalidateDay(d)                      // 1) 캐시 무효화
                         calendarViewModel.fetchIfNeeded(for: d, force: true)    // 2) 강제 리프레시
                         calendarViewModel.selectDate = d                        // 3) (선택) 해당 날짜로 유지
@@ -135,8 +134,3 @@ struct DreamSuggestionView: View {
         }
     }
 }
-
-//#Preview {
-//    DreamSuggestionView()
-//}
-

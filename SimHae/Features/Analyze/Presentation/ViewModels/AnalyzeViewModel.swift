@@ -8,50 +8,7 @@
 import Foundation
 import Combine
 
-// MARK: - DTO (서버 응답)
-
-struct UnconsciousAnalyzeResponseDTO: Decodable {
-    let status: Int
-    let message: String
-    let data: Payload
-    
-    struct Payload: Decodable {
-        let title: String
-        let analysis: String
-        let suggestion: String
-        let recentDreams: [String]
-    }
-}
-
-
-// MARK: - Domain Model
-
-struct UnconsciousAnalyzeSummary: Equatable {
-    let title: String
-    let analysis: String
-    let suggestion: String
-    let recentDreams: [String]
-}
-
-extension UnconsciousAnalyzeResponseDTO {
-    func toDomain() -> UnconsciousAnalyzeSummary {
-        .init(
-            title: data.title,
-            analysis: data.analysis,
-            suggestion: data.suggestion,
-            recentDreams: data.recentDreams
-        )
-    }
-}
-
-// 에러 바디 파싱용(400일 때)
-private struct ErrorEnvelope: Decodable {
-    let status: Int
-    let message: String
-}
-
 // MARK: - ViewModel
-
 @MainActor
 final class AnalyzeViewModel: ObservableObject {
     @Published var summary: UnconsciousAnalyzeSummary?
@@ -93,7 +50,7 @@ final class AnalyzeViewModel: ObservableObject {
         URLSession.shared.dataTaskPublisher(for: req)
             .tryMap { output -> (Int, Data) in
                 let code = (output.response as? HTTPURLResponse)?.statusCode ?? -1
-                // ✅ 응답 로깅
+                // 응답 로깅
                 print("⬅️ Response \(code) from \(self.endpointPath)")
                 if let raw = String(data: output.data, encoding: .utf8) {
                     print("Raw body:", raw)

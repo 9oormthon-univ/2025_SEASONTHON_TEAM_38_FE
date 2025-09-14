@@ -124,10 +124,9 @@ struct AnalyzeView: View {
         }
     }
 }
-#Preview {
-    AnalyzeView()
-}
 
+
+// MARK: 둥둥 떠나니는 꿈 요약 카드
 struct DreamRibbonCloud: View {
     let items: [String]              // recentDreams (최대 7개 사용 가정)
     var angle: Double = -28          // 모든 칩에 같은 기울기

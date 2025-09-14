@@ -36,7 +36,6 @@ struct AddDreamView: View {
             self._speech = ObservedObject(wrappedValue: vm.speech)
 
         }
-
     
     private var weekday: [String] = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"]
     
@@ -66,7 +65,7 @@ struct AddDreamView: View {
                 GeometryReader { geo in
                     let w = geo.size.width
                     let d = w * 1.8                 // 원 지름(화면 폭 대비 크기)
-                    let exposure: CGFloat = 0.7   // ⬅️ 화면 아래에서 얼마나 올려서 보이게 할지 비율(0~1 추천)
+                    let exposure: CGFloat = 0.7   //화면 아래에서 얼마나 올려서 보이게 할지 비율(0~1 추천)
                     
                     Circle()
                         .fill(Color(hex: "#13052A").opacity(0.8))
@@ -105,8 +104,6 @@ struct AddDreamView: View {
                                 let style = Date.FormatStyle.dateTime
                                     .year().month().day().weekday(.wide)
                                     .locale(Locale(identifier: "ko_KR"))
-                                
-//                                Text("\(vm.input.date.formatted(style))의 꿈")
                                 Text("\(calendarViewModel.selectDate.formatted(style))의 꿈")
                                     .foregroundStyle(.white)
                                     .font(.system(size: 20, weight: .bold))
@@ -278,14 +275,12 @@ struct AddDreamView: View {
             
         }
         .ignoresSafeArea(.keyboard, edges: .all)
-        .onAppear { vm.input.date = calendarViewModel.selectDate ;
-            // AddDreamView.onAppear
-            print("🟡 AddDreamView VM:", ObjectIdentifier(calendarViewModel),
-                  "selected:", calendarViewModel.selectDate) }
+        .onAppear { vm.input.date = calendarViewModel.selectDate }
         .onChange(of: calendarViewModel.selectDate) { vm.input.date = $0 }
     }
 }
 
+// MARK: 꿈 기록하기 화면 '상단 팁 말풍선'
 private struct CalloutBubble: View {
     let message: String
     
@@ -313,22 +308,7 @@ private struct CalloutBubble: View {
     }
 }
 
-struct WeekdayHeaderView: View {
-    let weekday: [String]
-    var body: some View {
-        HStack {
-            ForEach(weekday, id: \.self) { day in
-                Text(day)
-                    .font(.caption)
-                    .fontWeight(.semibold)
-                    .frame(maxWidth: .infinity)
-                    .foregroundStyle(.white.opacity(0.2))
-            }
-        }
-        .padding(.bottom, 5)
-    }
-}
-
+// MARK: 꿈 기록하기 화면 '달력'
 struct CalendarCallOutView: View {
     @ObservedObject var calendarViewModel: CalendarViewModel
     
@@ -343,7 +323,6 @@ struct CalendarCallOutView: View {
         .padding()
         .background(
             RoundedRectangle(cornerRadius: 24, style: .continuous)
-                //.fill(Color(hex: "#7534E4").opacity(0.2))
                 .fill(.ultraThinMaterial)
         )
         .padding(.horizontal, 48)

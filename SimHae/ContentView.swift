@@ -151,10 +151,19 @@ struct ContentView: View {
     }
 }
 
-#Preview {
-    ContentView()
-}
-
 enum DreamRoute: Hashable {
     case add, loading, summary, interpretation, suggestion
+}
+
+enum TabBarItem: Hashable {
+    case home, calendar, analysis, addDream
+    
+    var iconName: String {
+        switch self {
+        case .home: return "house"
+        case .calendar: return "calendar"
+        case .analysis: return "cloud"
+        case .addDream: return "plus"
+        }
+    }
 }

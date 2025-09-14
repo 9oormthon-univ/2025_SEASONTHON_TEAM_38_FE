@@ -8,96 +8,6 @@
 import Foundation
 import Combine
 
-struct CreateDreamAllDTO: Decodable {
-    struct Restate: Decodable {
-        let emoji: String
-        let title: String
-        let content: String
-        let categoryName: String
-        let categoryDescription: String
-    }
-    struct Unconscious: Decodable {
-        let analysis: String
-    }
-    struct Suggestion: Decodable {
-        let suggestion: String
-    }
-    let restate: Restate
-    let unconscious: Unconscious
-    let suggestion: Suggestion
-}
-
-struct DreamInput: Equatable {
-    var content: String
-    var date: Date // UI 표시에만 사용, 서버 전송 x
-}
-
-struct DreamRestate: Equatable {
-    let emoji: String
-    let title: String
-    let content: String
-    let category: String
-    let categoryDescription: String
-}
-struct DreamInterpretation: Equatable {
-    let title: String
-    let detail: String
-}
-
-extension CreateDreamAllDTO {
-    func toDomain() -> (DreamRestate, DreamInterpretation, [String]) {
-        let restate = DreamRestate(
-            emoji: restate.emoji,
-            title: restate.title,
-            content: restate.content,
-            category: restate.categoryName,
-            categoryDescription: restate.categoryDescription
-        )
-        let interp = DreamInterpretation(
-            title: "해석",
-            detail: unconscious.analysis
-        )
-        let actions = [suggestion.suggestion]
-        return (restate, interp, actions)
-    }
-}
-
-protocol DreamService {
-    func analyze(input: DreamInput) -> AnyPublisher<(DreamRestate, DreamInterpretation, [String]), Error>
-}
-
-final class RealDreamService: DreamService {
-    private let client = APIClient.shared
-
-    struct CreateReq: Encodable {
-        let content: String
-        let dreamDate: String
-    }
-
-    func analyze(input: DreamInput) -> AnyPublisher<(DreamRestate, DreamInterpretation, [String]), Error> {
-        // 날짜 포맷
-        let df = DateFormatter()
-        df.calendar = .init(identifier: .gregorian)
-        df.locale   = .init(identifier: "en_US_POSIX")
-        df.dateFormat = "yyyy-MM-dd"
-
-        let body = CreateReq(
-                   content: input.content,
-                   dreamDate: df.string(from: input.date)
-               )
-
-        let req = client.request("/ai/dreams/overall", method: "POST", body: body)
-
-        return client.run(Envelope<CreateDreamAllDTO>.self, with: req)
-            .tryMap { env in
-                guard (200...201).contains(env.status) else {
-                    throw URLError(.badServerResponse)
-                }
-                return env.data.toDomain()
-            }
-            .eraseToAnyPublisher()
-    }
-}
 
 @MainActor
 final class DreamSessionViewModel: ObservableObject {
@@ -136,7 +46,6 @@ final class DreamSessionViewModel: ObservableObject {
            self.input.date = initialDate
        }
 
-    
     private func bindSpeech() {
             // 1) 녹음 상태 전이 감지: 시작할 때 준비
             speech.$isRecordingFlag
@@ -188,12 +97,12 @@ final class DreamSessionViewModel: ObservableObject {
             lastTranscriptCount = 0
         }
 
-    /// 제출 가능 조건
+    // 20글자 이상 조건
     var canSubmit: Bool {
         input.content.trimmingCharacters(in: .whitespacesAndNewlines).count >= 20
     }
 
-    /// 꿈 분석 요청 → 한 번에 모든 데이터 수신
+    /// 꿈 분석 요청 --> 한 번에 모든 데이터 수신
     func analyzeDream() {
         guard canSubmit else { return }
         errorMessage = nil
