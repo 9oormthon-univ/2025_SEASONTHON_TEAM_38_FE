@@ -30,7 +30,8 @@ struct ContentView: View {
                     .navigationBarBackButtonHidden()
             }
             else if tabSelection == .calendar {
-                CalendarTotalView(calendarViewModel: calendarVM)
+                CalendarTotalView()
+                    .environmentObject(calendarVM)
                     .ignoresSafeArea(.keyboard)
                     .navigationBarBackButtonHidden()
             }

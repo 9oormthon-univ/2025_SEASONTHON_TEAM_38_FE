@@ -12,16 +12,18 @@ final class CalendarViewModel: ObservableObject {
     
     @Published var monthEmojiByDay: [String: String] = [:]   // "yyyy-MM-dd" -> emoji
     
+    @Published private(set) var searchIsLoading: Bool = false
+    @Published private(set) var searchError: String?
     @Published var searchQuery: String = ""
+    private var searchCancellable: AnyCancellable?
     @Published private(set) var searchResults: [DreamRowUI] = []   // 전역 검색 결과
-    private var lastIssuedQuery: String?   // ← 늦게 도착한 응답 무시용
     
     func resetSearch() {
-            lastIssuedQuery = nil
+            searchCancellable?.cancel()
             searchQuery = ""
             searchResults = []
-            isLoading = false
-            errorMessage = nil
+            searchIsLoading = false
+            searchError = nil
         }
 
     private let minSearchLength = 2  // 서버가 1자에서 400 주므로 2자로 제한
@@ -48,57 +50,49 @@ final class CalendarViewModel: ObservableObject {
     // NEW: 검색 파이프라인(디바운스)
     private func bindSearch() {
         $searchQuery
-            .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) } // 선택
+            .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
+            .removeDuplicates()
             .debounce(for: .milliseconds(250), scheduler: DispatchQueue.main)
-            .sink { [weak self] q in
-                self?.handleSearchInput(q)
+            .sink { [weak self] trimmed in
+                self?.handleSearchInput(trimmed)
             }
             .store(in: &cancellables)
     }
     
-    private func handleSearchInput(_ q: String) {
-        let trimmed = q.trimmingCharacters(in: .whitespacesAndNewlines)
-
-        // 입력 없음 → 결과 비움 (폴백 없음)
+    private func handleSearchInput(_ trimmed: String) {
         guard !trimmed.isEmpty else {
+            searchCancellable?.cancel()
             searchResults = []
+            searchIsLoading = false
+            searchError = nil
             return
         }
-
-        // 너무 짧으면 호출하지 않고 결과 비움
         guard trimmed.count >= minSearchLength else {
+            searchCancellable?.cancel()
             searchResults = []
+            searchIsLoading = false
+            searchError = nil
             return
         }
-
-        // 정상 검색
         search(keyword: trimmed)
     }
     
     func search(keyword: String) {
-           isLoading = true
-           errorMessage = nil
-           let issued = keyword
-           lastIssuedQuery = issued
+           searchIsLoading = true
+           searchError = nil
 
-           service.searchDreams(keyword: keyword)
+           searchCancellable = service.searchDreams(keyword: keyword)
                .receive(on: DispatchQueue.main)
                .sink { [weak self] completion in
                    guard let self else { return }
-                   self.isLoading = false
+                   self.searchIsLoading = false
                    if case .failure(let err) = completion {
-                       // 현재 쿼리와 다르면(이미 리셋/변경) 무시
-                       guard self.lastIssuedQuery == issued else { return }
-                       self.errorMessage = err.localizedDescription
+                       self.searchError = err.localizedDescription
                        self.searchResults = []
                    }
                } receiveValue: { [weak self] rows in
-                   guard let self else { return }
-                   // 현재 쿼리와 다르면(이미 리셋/변경) 무시
-                   guard self.lastIssuedQuery == issued else { return }
-                   self.searchResults = rows
+                   self?.searchResults = rows
                }
-               .store(in: &cancellables)
        }
     
     // 날짜 → 키

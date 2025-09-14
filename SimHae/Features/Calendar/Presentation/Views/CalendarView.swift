@@ -10,19 +10,9 @@ import SwiftUI
 struct CalendarTotalView: View {
     @State private var isShowingDateChangeSheet: Bool = false
     @EnvironmentObject var calendarViewModel: CalendarViewModel
-    @StateObject private var searchVM: SearchViewModel
     
     @FocusState private var isSearching
     @State private var isbackgroundBlur: Bool = false
-    
-    init(calendarViewModel: CalendarViewModel) {
-        let repo = APISearchRepository()
-        _searchVM = StateObject(
-            wrappedValue: SearchViewModel(repo: repo) { item in
-                calendarViewModel.didTap(date: item.dreamDate)
-            }
-        )
-    }
     
     private var weekday: [String] = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"]
     
@@ -121,13 +111,13 @@ struct CalendarTotalView: View {
                     // 검색 결과만 렌더
                     ScrollView(showsIndicators: false) {
                         VStack(spacing: 12) {
-                            if calendarViewModel.isLoading {
+                            if calendarViewModel.searchIsLoading {
                                 ProgressView()
                                     .tint(.white)
                                     .padding(.top, 24)
 
                             } else {
-                                let q = calendarViewModel.searchQuery.trimmingCharacters(in: .whitespacesAndNewlines)
+                                let q = calendarViewModel.searchQuery
 
                                 if q.isEmpty {
                                     Text("검색어를 입력해 주세요")
