@@ -25,7 +25,7 @@ final class SpeechInputViewModel: ObservableObject {
     init(speechRecognizer: SpeechRecognizer) {
         self.speechRecognizer = speechRecognizer
 
-        // 🔥 Forward objectWillChange
+        // Forward objectWillChange
         speechRecognizer.objectWillChange
             .receive(on: DispatchQueue.main)
             .sink { [weak self] _ in self?.objectWillChange.send() }
@@ -39,7 +39,7 @@ final class SpeechInputViewModel: ObservableObject {
             }
             .store(in: &bag)
         
-        // ✅ 추가: 녹음 상태 전달
+        // 추가: 녹음 상태 전달
                 speechRecognizer.$isTranscribing
                     .receive(on: DispatchQueue.main)
                     .assign(to: &self.$isRecordingFlag)
@@ -53,7 +53,7 @@ final class SpeechInputViewModel: ObservableObject {
            : speechRecognizer.startTranscribing()
        }
     
-    // ✅ 추가: 외부에서 호출 가능한 stop / reset
+    // 추가: 외부에서 호출 가능한 stop / reset
        func stop() {
            if isRecording { speechRecognizer.stopTranscribing() }
        }
@@ -63,31 +63,6 @@ final class SpeechInputViewModel: ObservableObject {
             transcript = ""
             errorMessage = nil
         }
-    
-    private func startRecording() {
-        Task { @MainActor in
-            await speechRecognizer.startTranscribing()
-        }
-        
-        // transcript 폴링 → transcript 업데이트
-        pollCancellable?.cancel()
-        pollCancellable = Timer.publish(every: 0.1, on: .main, in: .common)
-            .autoconnect()
-            .sink { [weak self] _ in
-                guard let self else { return }
-                Task { @MainActor in
-                    self.transcript = self.speechRecognizer.transcript
-                }
-            }
-    }
-    
-    private func stopRecording() {
-        pollCancellable?.cancel()
-        pollCancellable = nil
-        Task { @MainActor in
-            await speechRecognizer.stopTranscribing()
-        }
-    }
 }
 
 // 추후 필요하면 추가
