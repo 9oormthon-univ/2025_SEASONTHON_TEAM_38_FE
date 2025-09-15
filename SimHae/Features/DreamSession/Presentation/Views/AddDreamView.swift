@@ -194,6 +194,7 @@ struct AddDreamView: View {
                             Spacer()
                             
                             Button {
+                                vm.speech.stop()
                                 route.push(to: .loading)
                                 vm.analyzeDream()
                             } label: {
