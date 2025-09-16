@@ -10,6 +10,7 @@ import SwiftUI
 struct ContentView: View {
     @State private var showingAdd = false
     @StateObject private var calendarVM = CalendarViewModel(service: RealCalendarDreamService())
+    @StateObject private var analyzeVM = AnalyzeViewModel()
     
     @State private var sessionVM: DreamSessionViewModel?
     
@@ -25,7 +26,7 @@ struct ContentView: View {
                     .navigationBarBackButtonHidden()
             }
             else if tabSelection == .analysis {
-                AnalyzeView()
+                AnalyzeView(vm: analyzeVM)
                     .ignoresSafeArea(.keyboard)
                     .navigationBarBackButtonHidden()
             }
