@@ -18,11 +18,7 @@ struct CalendarTotalView: View {
     
     var body: some View {
         VStack {
-            Image(.appLogo)
-                .resizable()
-                .aspectRatio(contentMode: .fit)
-                .frame(height: 18)
-                .padding(.top, 24)
+            TopBarView(tokenCount: 10)
 
             ScrollView(.vertical,
                        showsIndicators: false) {

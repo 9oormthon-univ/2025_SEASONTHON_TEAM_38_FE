@@ -11,23 +11,7 @@ struct HomeView: View {
     var body: some View {
         
         VStack {
-            HStack {
-                Spacer()
-                Image(.appLogo)
-                    .resizable()
-                    .aspectRatio(contentMode: .fit)
-                    .frame(height: 18)
-                    .padding(.top, 24)
-                
-                Spacer()
-                
-               
-                NavigationLink(destination: MyPageView()) {
-                    Image(systemName: "person.circle")
-                        .foregroundStyle(.white)
-                }
-                .padding(.top, 24)
-            }
+            TopBarView(tokenCount: 10)
             Spacer()
             Spacer()
             
