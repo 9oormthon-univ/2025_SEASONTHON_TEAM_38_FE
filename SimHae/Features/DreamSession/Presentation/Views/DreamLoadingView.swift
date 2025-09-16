@@ -21,7 +21,7 @@ struct DreamLoadingView: View {
                 .ignoresSafeArea()
             
             VStack {
-                Image("jellyCha")
+                Image(.thinkingJelly)
                     .resizable()
                     .scaledToFit()
                     .frame(width: 200, height: 200)
