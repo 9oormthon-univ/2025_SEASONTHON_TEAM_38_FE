@@ -8,7 +8,7 @@
 import Foundation
 
 // MARK: - Domain Model
-struct UnconsciousAnalyzeSummary: Equatable {
+struct UnconsciousAnalyzeSummary: Codable, Equatable {
     let title: String
     let analysis: String
     let suggestion: String
@@ -25,4 +25,3 @@ extension UnconsciousAnalyzeResponseDTO {
         )
     }
 }
-

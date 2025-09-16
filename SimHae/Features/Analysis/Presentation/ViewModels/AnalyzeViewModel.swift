@@ -7,6 +7,7 @@
 
 import Foundation
 import Combine
+import SwiftUI
 
 // MARK: - ViewModel
 @MainActor
@@ -16,18 +17,40 @@ final class AnalyzeViewModel: ObservableObject {
     @Published var errorMessage: String?
     @Published var notEnoughData = false
     let minimumCount = 7
-
+    
+    
+    @AppStorage("hasAnalyzedOnce") private var hasAnalyzedOnce: Bool = false
+    @Published var showIntro = false
+    
     private let client = APIClient.shared
     private var bag = Set<AnyCancellable>()
     private let endpointPath: String
 
     init(endpointPath: String = "/ai/dreams/unconscious") {
         self.endpointPath = endpointPath
+        
+        // ✅ 앱 시작 시 디스크 캐시 복원
+                if let cached = AnalyzeDiskCache.load() {
+                    self.summary = cached
+                    self.hasAnalyzedOnce = true
+                    self.showIntro = false
+                }
     }
 
     // 최초 진입 시 한 번만
     func loadIfNeeded() {
+        if !hasAnalyzedOnce {
+            showIntro = true
+            return
+        }
+        
         guard !isLoading, summary == nil, !notEnoughData else { return }
+        
+        if let cached = AnalyzeDiskCache.load() {
+                  self.summary = cached
+                  return
+              }
+        
         load()
     }
 
@@ -80,7 +103,11 @@ final class AnalyzeViewModel: ObservableObject {
                             self.errorMessage = dto.message
                             return
                         }
-                        self.summary = dto.toDomain()
+                        let domain = dto.toDomain()
+                        self.summary = domain
+                        AnalyzeDiskCache.save(domain)
+                        self.hasAnalyzedOnce = true
+                        self.showIntro = false
                     } catch {
                         self.errorMessage = "응답 해석 실패: \(error.localizedDescription)"
                     }
@@ -88,6 +115,7 @@ final class AnalyzeViewModel: ObservableObject {
                     if let err = try? decoder.decode(ErrorEnvelope.self, from: data) {
                         if err.message.contains("최소 7개") || err.message.contains("최소 7개의 꿈") {
                             self.notEnoughData = true
+                            self.showIntro = true
                         } else {
                             self.errorMessage = err.message
                         }
@@ -103,5 +131,32 @@ final class AnalyzeViewModel: ObservableObject {
                 }
             }
             .store(in: &bag)
+    }
+    
+    func startAnalyze() {
+        showIntro = false
+        reload()
+    }
+}
+
+enum AnalyzeDiskCache {
+    static var fileURL: URL {
+        let dir = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask).first!
+        return dir.appendingPathComponent("unconscious_summary.json")
+    }
+
+    static func save(_ summary: UnconsciousAnalyzeSummary) {
+        if let data = try? JSONEncoder().encode(summary) {
+            try? data.write(to: fileURL, options: .atomic)
+        }
+    }
+
+    static func load() -> UnconsciousAnalyzeSummary? {
+        guard let data = try? Data(contentsOf: fileURL) else { return nil }
+        return try? JSONDecoder().decode(UnconsciousAnalyzeSummary.self, from: data)
+    }
+
+    static func clear() {
+        try? FileManager.default.removeItem(at: fileURL)
     }
 }
