@@ -10,6 +10,9 @@ import Combine
 
 @main
 struct SimHaeApp: App {
+    init() {
+        NotificationManager.shared.configure()
+    }
     
     @State private var bag = Set<AnyCancellable>()
     private let auth = AuthService()

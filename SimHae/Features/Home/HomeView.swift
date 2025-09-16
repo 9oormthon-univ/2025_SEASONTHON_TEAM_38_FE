@@ -11,13 +11,25 @@ struct HomeView: View {
     var body: some View {
         
         VStack {
-            Image(.appLogo)
-                .resizable()
-                .aspectRatio(contentMode: .fit)
-                .frame(height: 18)
+            HStack {
+                Spacer()
+                Image(.appLogo)
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .frame(height: 18)
+                    .padding(.top, 24)
+                
+                Spacer()
+                
+               
+                NavigationLink(destination: MyPageView()) {
+                    Image(systemName: "person.circle")
+                        .foregroundStyle(.white)
+                }
                 .padding(.top, 24)
-                Spacer()
-                Spacer()
+            }
+            Spacer()
+            Spacer()
             
                 Text("상어는 잠재의식에 있는 탐욕을 상징해요.\n상어가 나오는 꿈을 꾸신 적이 있나요?")
                 .foregroundStyle(Color(hex: "#E8D9FF"))
