@@ -42,81 +42,104 @@ struct AnalyzeView: View {
                         .padding()
                         .padding(.bottom, 40)
                     
-                    ProgressView()
-                    
                     Spacer()
                 }
             }
             else {
-                ScrollView {
-                    VStack {
-                        TopBarView(tokenCount: 10)
-                        
-                        Text("최근 꾼 7개 꿈을 바탕으로 무의식을 분석했어요.")
-                            .font(.caption)
-                            .foregroundStyle(Color(hex: "#B184FF"))
-                            .padding(.top, 32)
-                            .padding(.bottom, 12)
-                        
-                        DreamRibbonCloud(items: vm.summary?.recentDreams ?? [] )
-                        
-                        if let title = vm.summary?.title {
-                            Text(title)
-                                .font(.headline)
-                                .foregroundStyle(.white)
-                                .padding(.top, 36)
-                                .padding(.bottom, 12)
-                        }
-                        
-                        if let sections = vm.summary?.analysis {
-                            ScrollView(.horizontal, showsIndicators: false) {
-                                HStack(spacing: 12) {
-                                    ForEach(sections.indices, id: \.self) { i in
-                                        AnalysisSectionCard(
-                                            title: sections[i].title,
-                                            text: sections[i].content
+                VStack {
+                    TopBarView(tokenCount: 10)
+                    ScrollView {
+                        VStack {
+                            
+                            
+                            HStack {
+                                Spacer()
+                                
+                                Text("최근 꾼 7개 꿈을 바탕으로\n무의식을 분석했어요.")
+                                    .font(.caption)
+                                    .multilineTextAlignment(.center)
+                                    .foregroundStyle(Color(hex: "#B184FF"))
+                                    .padding(.leading, 40)
+                                    .padding(.top, 32)
+                                    .padding(.bottom, 12)
+                                
+                                Spacer()
+                                
+                                Button {
+                                    vm.reload()
+                                } label: {
+                                    Image(systemName: "arrow.clockwise")
+                                        .padding(12)
+                                        .foregroundStyle(Color(hex: "#843CFF"))
+                                        .background(
+                                            Circle()
+                                                .fill(Color(hex: "#FFFFFF").opacity(0.6))
                                         )
-                                    }
+                                        .padding(.trailing, 16)
+                                        .padding(.top, 32)
+                                        .padding(.bottom, 12)
                                 }
-                                .padding(.vertical, 8)
                             }
-                            .padding(.horizontal, 16)
-                        }
-        
-                        Text("해파리의 제안")
-                            .padding(.top, 48)
-                            .padding(.bottom, 24)
-                        
-                        Image("jellyCha")
-                            .resizable()
-                            .scaledToFit()
-                            .frame(width: 120, height: 120)
-                        
-                        if let suggestion = vm.summary?.suggestion {
-                            Text(suggestion)
-                                .foregroundStyle(Color(hex: "#E8D9FF"))
-                                .font(.body)
-                                .multilineTextAlignment(.leading)
-                                .padding(28)
-                                .background(
-                                    RoundedRectangle(cornerRadius: 24, style: .continuous)
-                                        .fill(Color(hex: "#FFFFFF").opacity(0.1))
-                                )
+                            
+                            DreamRibbonCloud(items: vm.summary?.recentDreams ?? [] )
+                            
+                            if let title = vm.summary?.title {
+                                Text(title)
+                                    .font(.headline)
+                                    .foregroundStyle(.white)
+                                    .padding(.top, 36)
+                                    .padding(.bottom, 12)
+                            }
+                            
+                            if let sections = vm.summary?.analysis {
+                                ScrollView(.horizontal, showsIndicators: false) {
+                                    HStack(spacing: 12) {
+                                        ForEach(sections.indices, id: \.self) { i in
+                                            AnalysisSectionCard(
+                                                title: sections[i].title,
+                                                text: sections[i].content
+                                            )
+                                        }
+                                    }
+                                    .padding(.vertical, 8)
+                                }
                                 .padding(.horizontal, 16)
-                                .padding(.top, 24)
-                        }
-                        
-                        
-                        if let err = vm.errorMessage {
-                            Text(err)
-                                .foregroundStyle(.red)
-                                .font(.footnote)
-                                .padding(.bottom, 40)
+                            }
+                            
+                            Text("해파리의 제안")
+                                .padding(.top, 48)
+                                .padding(.bottom, 24)
+                            
+                            Image("jellyCha")
+                                .resizable()
+                                .scaledToFit()
+                                .frame(width: 120, height: 120)
+                            
+                            if let suggestion = vm.summary?.suggestion {
+                                Text(suggestion.splitWord())
+                                    .foregroundStyle(Color(hex: "#E8D9FF"))
+                                    .font(.body)
+                                    .multilineTextAlignment(.leading)
+                                    .padding(28)
+                                    .background(
+                                        RoundedRectangle(cornerRadius: 24, style: .continuous)
+                                            .fill(Color(hex: "#FFFFFF").opacity(0.1))
+                                    )
+                                    .padding(.horizontal, 16)
+                                    .padding(.top, 24)
+                            }
+                            
+                            
+                            if let err = vm.errorMessage {
+                                Text(err)
+                                    .foregroundStyle(.red)
+                                    .font(.footnote)
+                                    .padding(.bottom, 40)
+                            }
                         }
                     }
+                    .padding(.bottom, 70)
                 }
-                .padding(.bottom, 70)
-                .refreshable { vm.reload() }
             }
         }
         .background{
@@ -131,38 +154,6 @@ struct AnalyzeView: View {
     }
 }
 
-private struct AnalysisSectionCard: View {
-    let title: String
-    let text: String
-    
-    var body: some View {
-        VStack(spacing: 16) {
-            Text(title)
-                .font(.headline)
-                .foregroundStyle(Color(hex: "#E8D9FF"))
-                .padding(.vertical, 8)
-                .padding(.horizontal, 12)
-                .background(
-                    RoundedRectangle(cornerRadius: 100, style: .circular)
-                        .fill(Color(hex: "#843CFF").opacity(0.2))
-                )
-            
-            ScrollView(.vertical, showsIndicators: false) {
-                Text(text)
-                    .font(.body)
-                    .foregroundStyle(Color(hex: "#E8D9FF"))
-                    .multilineTextAlignment(.leading)
-            }
-            
-        }
-        .padding(20)
-        .frame(width: 250, height: 220)
-        .background(
-            RoundedRectangle(cornerRadius: 24, style: .continuous)
-                .fill(Color(hex: "#7534E4").opacity(0.2))
-        )
-    }
-}
 
 struct DreamRibbonCloud: View {
     let items: [String]
@@ -219,7 +210,7 @@ struct DreamRibbonCloud: View {
                 let dist  = Double(i) - center                    // -2,-1,0,1,2 ...
                 let phase = dist * phaseStep                      // 슬롯별 위상(대칭)
                 
-                // --- 🔑 진폭 스케일 ---
+                // 진폭 스케일
                 // 1) 가장자리 부스트: 중앙 0, 가장자리 1 → 1 + edgeBoost * ratio
                 let edgeRatio = (center == 0) ? 0 : abs(dist) / center
                 // 2) 인덱스 기반 지터: [-1, +1] → ±ampJitter
@@ -281,7 +272,6 @@ private struct FirstAnalyzeIntro: View {
                 .multilineTextAlignment(.center)
                 .padding()
             
-            
             Spacer()
             
             Image("jellyCha")
@@ -320,60 +310,6 @@ private struct FirstAnalyzeIntro: View {
                 .resizable()
                 .scaledToFill()
                 .ignoresSafeArea(edges: .top)
-        }
-    }
-}
-
-
-struct TopBarView: View {
-    var tokenCount: Int
-    
-    var body: some View {
-        HStack {
-            // 왼쪽 프로필 버튼
-            NavigationLink(destination: MyPageView()) {
-                Image(systemName: "person.circle")
-                    .resizable()
-                    .scaledToFit()
-                    .frame(width: 24, height: 24)
-                    .foregroundStyle(Color(hex: "#B184FF"))
-            }
-            .padding(.top, 24)
-            .padding(.leading, 16)
-            
-            Spacer()
-            
-            // 중앙 로고
-            Image(.appLogo)
-                .resizable()
-                .aspectRatio(contentMode: .fit)
-                .frame(height: 18)
-                .padding(.top, 24)
-                .padding(.leading, 28)
-            
-            Spacer()
-            
-            // 오른쪽 토큰 박스
-            HStack {
-                NavigationLink(destination: MyPageView()) {
-                    Image(.token1)
-                        .resizable()
-                        .scaledToFit()
-                        .frame(width: 24, height: 24)
-                        .foregroundStyle(Color(hex: "#B184FF"))
-                }
-                
-                Text("\(tokenCount)")
-                    .foregroundStyle(Color(hex: "#B184FF"))
-            }
-            .padding(4)
-            .background(
-                RoundedRectangle(cornerRadius: 100)
-                    .fill(Color(hex: "#843CFF").opacity(0.2))
-                    .stroke(Color(hex: "B184FF"))
-            )
-            .padding(.top, 24)
-            .padding(.trailing, 16)
         }
     }
 }
