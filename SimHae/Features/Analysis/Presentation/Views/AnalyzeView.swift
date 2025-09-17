@@ -341,7 +341,8 @@ struct TopBarView: View {
                 .resizable()
                 .aspectRatio(contentMode: .fit)
                 .frame(height: 18)
-                .padding(.top, 12)
+                .padding(.top, 24)
+                .padding(.leading, 28)
             
             Spacer()
             
