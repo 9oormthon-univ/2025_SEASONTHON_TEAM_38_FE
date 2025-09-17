@@ -59,7 +59,7 @@ struct DreamSuggestionView: View {
                     
                     ForEach(vm.actions, id: \.self) { suggestion in
                         HStack(alignment: .top, spacing: 10) {
-                            Text(suggestion)
+                            Text(suggestion.splitWord())
                                 .multilineTextAlignment(.center)
                                 .font(.body)
                                 .foregroundStyle(Color(hex: "#E8D9FF"))
