@@ -301,9 +301,6 @@ private struct CalloutBubble: View {
                     .opacity(0.28))        // 틴트 강화 → 덜 비침
               }
             )
-            .overlay(
-                RoundedRectangle(cornerRadius: 100, style: .circular)
-            )
             .padding(.horizontal, 24)
     }
 }
