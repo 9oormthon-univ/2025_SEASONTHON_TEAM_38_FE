@@ -21,11 +21,17 @@ struct DreamLoadingView: View {
                 .ignoresSafeArea()
             
             VStack {
-                Image(.thinkingJelly)
-                    .resizable()
-                    .scaledToFit()
-                    .frame(width: 200, height: 200)
-                    .padding()
+                ZStack {
+                    Image(.thinkingJelly)
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 200, height: 200)
+                        .padding()
+                    
+                    LottieView(name: "thinking", loopMode: .loop)
+                        .frame(width: 90, height: 90)
+                        .offset(x: 85, y: -130)
+                }
                 
                 let style = Date.FormatStyle.dateTime
                     .year().month().day().weekday(.wide)
