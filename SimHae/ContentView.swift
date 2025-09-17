@@ -106,8 +106,8 @@ struct ContentView: View {
                                         Color(hex: "#7534E4"),
                                         Color(hex: "#E8D9FF")
                                     ]),
-                                    startPoint: .topLeading,
-                                    endPoint: .bottomTrailing
+                                    startPoint: .topTrailing,
+                                    endPoint: .bottomLeading
                                 ),
                                 lineWidth: 0.7
                             )
