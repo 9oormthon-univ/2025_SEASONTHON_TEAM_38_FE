@@ -17,7 +17,7 @@ struct AnalyzeView: View {
                     vm.startAnalyze()
                 }
             }
-           else if vm.isLoading {
+            else if vm.isLoading {
                 VStack {
                     TopBarView(tokenCount: 10)
                     
@@ -40,7 +40,7 @@ struct AnalyzeView: View {
                     Spacer()
                 }
             }
-             else {
+            else {
                 ScrollView {
                     VStack {
                         TopBarView(tokenCount: 10)
@@ -58,23 +58,24 @@ struct AnalyzeView: View {
                                 .font(.headline)
                                 .foregroundStyle(.white)
                                 .padding(.top, 36)
+                                .padding(.bottom, 12)
                         }
                         
-                        if let analysis = vm.summary?.analysis {
-                            Text(analysis)
-                                .font(.body)
-                                .foregroundStyle(Color(hex: "#E8D9FF"))
-                                .multilineTextAlignment(.leading)
-                                .padding(28)
-                                .background(
-                                    RoundedRectangle(cornerRadius: 24, style: .continuous)
-                                        .fill(Color(hex: "#7534E4").opacity(0.2))
-                                )
-                                .padding(.horizontal, 16)
-                                .padding(.top, 20)
-                                .padding(.bottom, 24)
+                        if let sections = vm.summary?.analysis {
+                            ScrollView(.horizontal, showsIndicators: false) {
+                                HStack(spacing: 12) {
+                                    ForEach(sections.indices, id: \.self) { i in
+                                        AnalysisSectionCard(
+                                            title: sections[i].title,
+                                            text: sections[i].content
+                                        )
+                                    }
+                                }
+                                .padding(.vertical, 8)
+                            }
+                            .padding(.horizontal, 16)
                         }
-                        
+        
                         Text("해파리의 제안")
                             .padding(.top, 48)
                             .padding(.bottom, 24)
@@ -123,36 +124,69 @@ struct AnalyzeView: View {
     }
 }
 
+private struct AnalysisSectionCard: View {
+    let title: String
+    let text: String
+    
+    var body: some View {
+        VStack(spacing: 16) {
+            Text(title)
+                .font(.headline)
+                .foregroundStyle(Color(hex: "#E8D9FF"))
+                .padding(.vertical, 8)
+                .padding(.horizontal, 12)
+                .background(
+                    RoundedRectangle(cornerRadius: 100, style: .circular)
+                        .fill(Color(hex: "#843CFF").opacity(0.2))
+                )
+            
+            ScrollView(.vertical, showsIndicators: false) {
+                Text(text)
+                    .font(.body)
+                    .foregroundStyle(Color(hex: "#E8D9FF"))
+                    .multilineTextAlignment(.leading)
+            }
+            
+        }
+        .padding(20)
+        .frame(width: 250, height: 220)
+        .background(
+            RoundedRectangle(cornerRadius: 24, style: .continuous)
+                .fill(Color(hex: "#7534E4").opacity(0.2))
+        )
+    }
+}
+
 struct DreamRibbonCloud: View {
     let items: [String]
     var spacing: CGFloat = 120
     var widthFactor: CGFloat = 0.30
-
+    
     // 가로 흐름
     var flowSpeed: CGFloat = 36
-
+    
     // 세로 파동(공통)
     var baseAmpY: Double = 24
     var waveSpeed: Double = 2.0
     var phaseStep: Double = .pi/8   // 슬롯 한 칸당 위상차(대칭)
-
+    
     // 🔧 붙어 보이는 느낌을 깨는 파라미터
     var edgeBoost: Double = 0.28    // 가장자리로 갈수록 진폭을 최대 +18%
     var ampJitter: Double = 0.1    // 칩별 미세 지터(±6%)
-
+    
     var body: some View {
         GeometryReader { geo in
             let chipW = min(geo.size.width * widthFactor, 420)
             let count = min(items.count, 7)
             let contentWidth = max(CGFloat(count) * spacing, geo.size.width)
-
+            
             if count == 0 {
                 Color.clear
             } else {
                 TimelineView(.animation) { timeline in
                     let t = timeline.date.timeIntervalSinceReferenceDate
                     let cycle = CGFloat(fmod(t * flowSpeed, contentWidth))
-
+                    
                     ZStack {
                         sequenceView(chipW: chipW, count: count, time: t)
                             .offset(x: cycle - contentWidth)
@@ -167,17 +201,17 @@ struct DreamRibbonCloud: View {
         }
         .frame(height: 120)
     }
-
+    
     @ViewBuilder
     private func sequenceView(chipW: CGFloat, count: Int, time t: TimeInterval) -> some View {
         let startX = -spacing * CGFloat(max(count - 1, 0)) / 2
         let center = (Double(count) - 1.0) / 2.0   // 5칩이면 2.0
-
+        
         ZStack {
             ForEach(0..<count, id: \.self) { i in
                 let dist  = Double(i) - center                    // -2,-1,0,1,2 ...
                 let phase = dist * phaseStep                      // 슬롯별 위상(대칭)
-
+                
                 // --- 🔑 진폭 스케일 ---
                 // 1) 가장자리 부스트: 중앙 0, 가장자리 1 → 1 + edgeBoost * ratio
                 let edgeRatio = (center == 0) ? 0 : abs(dist) / center
@@ -185,9 +219,9 @@ struct DreamRibbonCloud: View {
                 let jitter    = (pseudoRand(i) * 2 - 1) * ampJitter
                 // 최종 스케일
                 let ampScale  = 1.0 + edgeBoost * edgeRatio + jitter
-
+                
                 let dy = (baseAmpY * ampScale) * sin(t * waveSpeed + phase)
-
+                
                 DreamChip(text: items[i])
                     .frame(width: chipW, height: 56)
                     .offset(x: startX + CGFloat(i) * spacing,
@@ -197,7 +231,7 @@ struct DreamRibbonCloud: View {
             }
         }
     }
-
+    
     /// 인덱스 -> 0..1 사이 고정 난수(프레임마다 변하지 않음)
     private func pseudoRand(_ i: Int) -> Double {
         let x = sin(Double(i) * 12.9898) * 43758.5453
