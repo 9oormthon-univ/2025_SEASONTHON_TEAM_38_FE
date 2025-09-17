@@ -57,17 +57,5 @@ struct DreamLoadingView: View {
         }
         .navigationBarTitleDisplayMode(.inline)
         .navigationBarBackButtonHidden(true)
-        .toolbar {
-            ToolbarItem(placement: .navigationBarLeading) {
-                Button {
-                    dismiss()
-                } label: {
-                    Image(systemName: "arrow.left")
-                        .font(.system(size: 18, weight: .semibold))
-                        .foregroundStyle(Color(hex: "#B184FF"))
-                        .padding(.leading, 8)
-                }
-            }
-        }
     }
 }
