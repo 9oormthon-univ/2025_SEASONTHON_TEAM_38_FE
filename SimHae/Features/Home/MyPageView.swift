@@ -19,30 +19,101 @@ struct MyPageView: View {
     
     var body: some View {
         Form {
-            Section(header: Text("꿈 기록 리마인더")) {
+            Section {
+                Text("내정보")
+                    .fontWeight(.bold)
+                    .foregroundStyle(.white)
+                Text("user_138132")
+                    .foregroundStyle(.white)
+            }
+            .padding(.horizontal, -16)
+            .listRowBackground(Color.clear)
+            .listRowSeparator(.hidden)
+            
+            Section(header: Text("꿈 기록 리마인더 설정").font(.headline).foregroundStyle(.white)        .padding(.horizontal, -22)) {
                 Toggle(isOn: $reminderEnabled) {
                     Text("리마인더 활성화")
+                        .foregroundStyle(.white)
                 }
+                .tint(Color(hex: "#9963FF"))
+                
                 .onChange(of: reminderEnabled) { enabled in
                     Task { await handleEnableToggle(enabled: enabled) }
                 }
                 
-                DatePicker("시간", selection: $time, displayedComponents: .hourAndMinute)
-                    .disabled(!reminderEnabled)
-                    .onChange(of: time) { _ in
-                        if reminderEnabled {
-                            Task { await reschedule() }
+                VStack {
+                    DatePicker("알림 시간 설정", selection: $time, displayedComponents: .hourAndMinute)
+                        .foregroundStyle(.white)
+                        .disabled(!reminderEnabled)
+                        .onChange(of: time) { _ in
+                            if reminderEnabled {
+                                Task { await reschedule() }
+                            }
                         }
+                    
+                    HStack {
+                        if reminderEnabled {
+                            Text("*매일 \(formatted(time))에 꿈 기록을 위해 \n알림을 보내드릴게요.")
+                                .font(.footnote)
+                                .foregroundStyle(.secondary)
+                        }
+                        Spacer()
                     }
+                }
                 
-                if reminderEnabled {
-                    Text("매일 \(formatted(time))에 알림이 울려요.")
-                        .font(.footnote)
-                        .foregroundStyle(.secondary)
+            }
+            .padding(4)
+            .listRowBackground(
+                RoundedRectangle(cornerRadius: 16, style: .continuous)
+                    .fill(Color(hex: "7534E4").opacity(0.1))
+            )
+            
+            Section {
+                Text("결제 내역")
+                    .foregroundStyle(.white)
+                
+                HStack(alignment: .top) {
+                    Text("2025.09.11")
+                        .foregroundStyle(Color(hex: "FFFFFF").opacity(0.5))
+                    Spacer()
+                    VStack(alignment: .trailing, spacing: 8) {
+                        Text("조개 한 주먹 (5개)")
+                            .foregroundStyle(.white)
+                        Text("900원")
+                            .foregroundStyle(Color(hex: "#843CFF"))
+                    }
+                }
+                HStack(alignment: .top) {
+                    Text("2025.09.13")
+                        .foregroundStyle(Color(hex: "FFFFFF").opacity(0.5))
+                    Spacer()
+                    VStack(alignment: .trailing, spacing: 8) {
+                        Text("조개 한 주먹 (5개)")
+                            .foregroundStyle(.white)
+                        Text("900원")
+                            .foregroundStyle(Color(hex: "#843CFF"))
+                    }
+                }
+                HStack(alignment: .top) {
+                    Text("2025.09.14")
+                        .foregroundStyle(Color(hex: "FFFFFF").opacity(0.5))
+                    Spacer()
+                    VStack(alignment: .trailing, spacing: 8) {
+                        Text("조개 한 주먹 (5개)")
+                            .foregroundStyle(.white)
+                        Text("900원")
+                            .foregroundStyle(Color(hex: "#843CFF"))
+                    }
                 }
             }
+            .padding(.horizontal, -16)
+            .listRowBackground(Color.clear)
+            //.listRowSeparator(.hidden)
             
         }
+        .padding(.horizontal, -8)
+        .navigationTitle("마이페이지")
+        .navigationBarTitleDisplayMode(.inline)
         .onAppear {
             var comps = DateComponents()
             comps.hour = reminderHour
@@ -116,4 +187,5 @@ struct MyPageView: View {
 }
 #Preview {
     MyPageView()
+        .preferredColorScheme(.dark)
 }
