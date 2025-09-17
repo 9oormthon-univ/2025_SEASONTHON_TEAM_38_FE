@@ -7,8 +7,6 @@
 
 import Foundation
 
-//디테일 뷰 모델에 있던거
-
 struct DreamDetailDTO: Decodable {
     let dreamId: Int
     let dreamDate: String          // "yyyy-MM-dd"
@@ -18,8 +16,13 @@ struct DreamDetailDTO: Decodable {
     let content: String
     let categoryName: String
     let categoryDescription: String
-    let interpretation: String
+    let interpretation: [InterpretationSectionDTO]
     let suggestion: String
+    
+    struct InterpretationSectionDTO: Decodable {
+        let title: String
+        let content: String
+    }
 }
 
 
@@ -43,7 +46,7 @@ extension DreamDetailDTO {
             content: content,
             categoryName: categoryName,
             categoryDescription: categoryDescription,
-            interpretation: interpretation,
+            interpretation: interpretation.map { InterpretationSection(title: $0.title, content: $0.content)},
             suggestion: suggestion
         )
     }

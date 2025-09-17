@@ -17,6 +17,11 @@ struct DreamDetail: Equatable {
     let content: String
     let categoryName: String
     let categoryDescription: String
-    let interpretation: String
+    let interpretation: [InterpretationSection]
     let suggestion: String
+}
+
+struct InterpretationSection: Equatable {
+    let title: String
+    let content: String
 }
