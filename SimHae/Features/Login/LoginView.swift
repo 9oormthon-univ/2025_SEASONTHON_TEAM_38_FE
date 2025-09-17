@@ -9,7 +9,7 @@ import SwiftUI
 import AuthenticationServices
 
 struct LoginView: View {
-    @StateObject private var appleViewModel = AuthViewModel()
+    @EnvironmentObject private var appleViewModel: AuthViewModel
     
     var body: some View {
         
@@ -84,10 +84,6 @@ struct LoginView: View {
             Image(.detailView)
                 .resizable()
                 .scaledToFill()
-        }
-        .onChange(of: appleViewModel.isAuthenticated) { ok in
-            
-            
         }
     }
     

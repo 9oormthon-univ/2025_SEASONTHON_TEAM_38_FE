@@ -61,3 +61,58 @@ enum AnonymousId {
         return newId
     }
 }
+
+// MARK: Apple 로그인
+enum TokenStore {
+    private static let service = "com.simhae.auth"
+    private static let accountAccess = "access"
+    private static let accountRefresh = "refresh"
+
+    static var accessToken: String? {
+        get { read(key: accountAccess) }
+        set { _ = write(key: accountAccess, value: newValue) }
+    }
+
+    static var refreshToken: String? {
+        get { read(key: accountRefresh) }
+        set { _ = write(key: accountRefresh, value: newValue) }
+    }
+
+    static func clear() {
+        _ = write(key: accountAccess, value: nil)
+        _ = write(key: accountRefresh, value: nil)
+    }
+
+    // MARK: - Keychain helpers
+    private static func write(key: String, value: String?) -> Bool {
+        let query: [String: Any] = [
+            kSecClass as String: kSecClassGenericPassword,
+            kSecAttrService as String: service,
+            kSecAttrAccount as String: key
+        ]
+        SecItemDelete(query as CFDictionary)
+
+        guard let value = value, let data = value.data(using: .utf8) else { return true }
+
+        var attrs = query
+        attrs[kSecValueData as String] = data
+        return SecItemAdd(attrs as CFDictionary, nil) == errSecSuccess
+    }
+
+    private static func read(key: String) -> String? {
+        let query: [String: Any] = [
+            kSecClass as String: kSecClassGenericPassword,
+            kSecAttrService as String: service,
+            kSecAttrAccount as String: key,
+            kSecReturnData as String: kCFBooleanTrue!,
+            kSecMatchLimit as String: kSecMatchLimitOne
+        ]
+        var ref: AnyObject?
+        guard SecItemCopyMatching(query as CFDictionary, &ref) == errSecSuccess,
+              let data = ref as? Data,
+              let str = String(data: data, encoding: .utf8) else { return nil }
+        return str
+    }
+}
+
+

@@ -65,3 +65,9 @@ extension Font {
         return Font.custom("\(familyName)-\(weightString)", size: fontSize)
     }
 }
+
+extension String {
+    func splitWord() -> String {
+        return self.split(separator: "").joined(separator: "\u{200B}")
+    }
+}
