@@ -25,8 +25,6 @@ struct DreamDetailDTO: Decodable {
     }
 }
 
-
-
 extension DreamDetailDTO {
     func toDomain() -> DreamDetail {
         // 날짜 파서

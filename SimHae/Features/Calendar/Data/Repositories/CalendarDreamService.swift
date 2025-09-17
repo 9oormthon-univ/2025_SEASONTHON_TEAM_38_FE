@@ -41,66 +41,50 @@ final class RealCalendarDreamService: CalendarDreamService {
     }()
     
     func fetchDreams(for date: Date) -> AnyPublisher<[DreamRowUI], Error> {
-        // /dreams/day?dreamDate=yyyy-MM-dd
-        var comps = URLComponents(url: client.baseURL, resolvingAgainstBaseURL: false)!
-        comps.path = "/dreams/day"
-        
-        let dayString = Self.dayDF.string(from: date)
-        comps.queryItems = [URLQueryItem(name: "dreamDate", value: dayString)]
-        let url = comps.url!
-        var req = URLRequest(url: url)
-        req.httpMethod = "GET"
-        req.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        req.setValue(AnonymousId.getOrCreate(), forHTTPHeaderField: "X-Anonymous-Id")
-        
-        return URLSession.shared.dataTaskPublisher(for: req)
-                    .map(\.data)
-                    .decode(type: Envelope<[DreamCardDTO]>.self, decoder: JSONDecoder())
-                    .tryMap { env in
-                        guard (200...299).contains(env.status) else { throw URLError(.badServerResponse) }
-                        return try env.data.map { try $0.toRowUI() }   // 공통 매핑
-                    }
-                    .eraseToAnyPublisher()
-    }
+            var comps = URLComponents(url: client.baseURL, resolvingAgainstBaseURL: false)!
+            comps.path = "/dreams/day"
+            comps.queryItems = [URLQueryItem(name: "dreamDate", value: Self.dayDF.string(from: date))]
+            let url = comps.url!
+
+            // ✅ APIClient로 요청 생성 → Authorization 자동
+            let req = client.request(url, method: "GET", authorized: true)
+
+            return client.run(Envelope<[DreamCardDTO]>.self, with: req)
+                .tryMap { env in
+                    guard (200...299).contains(env.status) else { throw URLError(.badServerResponse) }
+                    return try env.data.map { try $0.toRowUI() }
+                }
+                .eraseToAnyPublisher()
+        }
     
     func fetchMonthEmojis(year: Int, month: Int) -> AnyPublisher<[String: String], Error> {
-        // yyyy-MM 문자열
-        var comps = DateComponents()
-        comps.calendar = .init(identifier: .gregorian)
-        comps.year = year
-        comps.month = month
-        let baseDate = comps.calendar!.date(from: comps)!
-        let ym = Self.ymDF.string(from: baseDate)
-        
-        // /dreams/month?yearMonth=yyyy-MM
-        var urlc = URLComponents(url: client.baseURL, resolvingAgainstBaseURL: false)!
-        urlc.path = "/dreams"
-        urlc.queryItems = [URLQueryItem(name: "dreamDate", value: ym)]
-        
-        var req = URLRequest(url: urlc.url!)
-        req.httpMethod = "GET"
-        req.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        req.setValue(AnonymousId.getOrCreate(), forHTTPHeaderField: "X-Anonymous-Id")
-        
-        print("➡️ [fetchMonthEmojis] GET", urlc.url!.absoluteString)
-         
-        struct DayEmojiDTO: Decodable
-        { let dreamDate: String
-            let emoji: String?
+            var comps = DateComponents()
+            comps.calendar = .init(identifier: .gregorian)
+            comps.year = year
+            comps.month = month
+            let baseDate = comps.calendar!.date(from: comps)!
+            let ym = Self.ymDF.string(from: baseDate)
+
+            var urlc = URLComponents(url: client.baseURL, resolvingAgainstBaseURL: false)!
+            // 백엔드 스펙에 맞춰 경로/파라미터 사용 (예시는 dreamDate=yyyy-MM)
+            urlc.path = "/dreams"
+            urlc.queryItems = [URLQueryItem(name: "dreamDate", value: ym)]
+            let req = client.request(urlc.url!, method: "GET", authorized: true)
+
+            struct DayEmojiDTO: Decodable { let dreamDate: String; let emoji: String? }
+
+            return client.run(Envelope<[DayEmojiDTO]>.self, with: req)
+                .tryMap { env in
+                    guard (200...299).contains(env.status) else { throw URLError(.badServerResponse) }
+                    // 중복 키 생겨도 최초 값 유지
+                    return env.data.reduce(into: [String: String]()) { acc, dto in
+                        if acc[dto.dreamDate] == nil {
+                            acc[dto.dreamDate] = dto.emoji ?? "🌙"
+                        }
+                    }
+                }
+                .eraseToAnyPublisher()
         }
-        return client.run(Envelope<[DayEmojiDTO]>.self, with: req)
-            .tryMap { env in
-                guard (200...299).contains(env.status) else { throw URLError(.badServerResponse) }
-                // 중복 키가 있어도 첫 번째 값만 유지
-                       let dict = env.data.reduce(into: [String: String]()) { acc, dto in
-                           if acc[dto.dreamDate] == nil {
-                               acc[dto.dreamDate] = dto.emoji ?? "🌙"
-                           }
-                       }
-                       return dict
-            }
-            .eraseToAnyPublisher()
-    }
     
     private func makeGET(_ url: URL) -> URLRequest {
         var r = URLRequest(url: url)
@@ -120,24 +104,18 @@ final class RealCalendarDreamService: CalendarDreamService {
 
 
     //날짜 없이 키워드로
-        func searchDreams(keyword: String) -> AnyPublisher<[DreamRowUI], Error> {
+    func searchDreams(keyword: String) -> AnyPublisher<[DreamRowUI], Error> {
             var urlc = URLComponents(url: client.baseURL, resolvingAgainstBaseURL: false)!
             urlc.path = "/dreams"
-            urlc.queryItems = [
-                URLQueryItem(name: "keyword", value: keyword)
-            ]
+            urlc.queryItems = [URLQueryItem(name: "keyword", value: keyword)]
 
-            var req = URLRequest(url: urlc.url!)
-            req.httpMethod = "GET"
-            req.setValue("application/json", forHTTPHeaderField: "Content-Type")
-            req.setValue(AnonymousId.getOrCreate(), forHTTPHeaderField: "X-Anonymous-Id")
+            let req = client.request(urlc.url!, method: "GET", authorized: true)
 
-            
             return client.run(Envelope<[DreamCardDTO]>.self, with: req)
-                       .tryMap { env in
-                           guard (200...299).contains(env.status) else { throw URLError(.badServerResponse) }
-                           return try env.data.map { try $0.toRowUI() }   // 공통 매핑
-                       }
-                       .eraseToAnyPublisher()
+                .tryMap { env in
+                    guard (200...299).contains(env.status) else { throw URLError(.badServerResponse) }
+                    return try env.data.map { try $0.toRowUI() }
+                }
+                .eraseToAnyPublisher()
         }
 }
