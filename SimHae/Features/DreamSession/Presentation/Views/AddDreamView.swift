@@ -41,7 +41,7 @@ struct AddDreamView: View {
     
     private var guidanceText: String {
         if vm.canSubmit {
-            return ""
+            return "듣고 있어요..."
         }
         return "20자 이상 입력해주세요."
     }
