@@ -26,11 +26,10 @@ struct MyPageView: View {
                 Text("user_138132")
                     .foregroundStyle(.white)
             }
-            .padding(.horizontal, -16)
             .listRowBackground(Color.clear)
             .listRowSeparator(.hidden)
             
-            Section(header: Text("꿈 기록 리마인더 설정").font(.headline).foregroundStyle(.white)        .padding(.horizontal, -22)) {
+            Section(header: Text("꿈 기록 리마인더 설정").font(.headline).foregroundStyle(.white)        .padding(.horizontal, -16)) {
                 Toggle(isOn: $reminderEnabled) {
                     Text("리마인더 활성화")
                         .foregroundStyle(.white)
@@ -106,10 +105,8 @@ struct MyPageView: View {
                     }
                 }
             }
-            .padding(.horizontal, -16)
+            .padding(.horizontal, -4)
             .listRowBackground(Color.clear)
-            //.listRowSeparator(.hidden)
-            
         }
         .padding(.horizontal, -8)
         .navigationTitle("마이페이지")
