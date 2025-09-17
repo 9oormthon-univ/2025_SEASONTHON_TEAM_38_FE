@@ -105,19 +105,20 @@ struct DetailView: View {
                                 .foregroundStyle(.white)
                                 .padding(.top, 36)
                             
-                            Text(detail.interpretation)
-                                .font(.body)
-                                .foregroundStyle(Color(hex: "#E8D9FF"))
-                                .multilineTextAlignment(.leading)
-                                .padding(28)
-                                .background(
-                                    RoundedRectangle(cornerRadius: 24, style: .continuous)
-                                        .fill(Color(hex: "#7534E4").opacity(0.2))
-                                )
+                           
+                                ScrollView(.horizontal, showsIndicators: false) {
+                                    HStack(spacing: 12) {
+                                        ForEach(detail.interpretation.indices, id: \.self) { i in
+                                            AnalysisSectionCard(
+                                                title: detail.interpretation[i].title,
+                                                text: detail.interpretation[i].content
+                                            )
+                                        }
+                                    }
+                                    .padding(.vertical, 8)
+                                }
                                 .padding(.horizontal, 16)
-                                .padding(.top, 12)
-                                .padding(.bottom, 24)
-                            
+                        
                             Text("해파리의 제안")
                                 .padding(.top, 48)
                                 .padding(.bottom, 16)
@@ -199,6 +200,41 @@ struct DetailView: View {
 }
 }
 
+private struct AnalysisSectionCard: View {
+    let title: String
+    let text: String
+    
+    var body: some View {
+        VStack(spacing: 16) {
+            Text(title)
+                .font(.headline)
+                .foregroundStyle(Color(hex: "#E8D9FF"))
+                .padding(.vertical, 8)
+                .padding(.horizontal, 12)
+                .background(
+                    RoundedRectangle(cornerRadius: 100, style: .circular)
+                        .fill(Color(hex: "#843CFF").opacity(0.2))
+                )
+            
+            ScrollView(.vertical, showsIndicators: false) {
+                Text(text)
+                    .font(.body)
+                    .foregroundStyle(Color(hex: "#E8D9FF"))
+                    .multilineTextAlignment(.leading)
+            }
+            
+        }
+        .padding(20)
+        .frame(width: 250, height: 220)
+        .background(
+            RoundedRectangle(cornerRadius: 24, style: .continuous)
+                .fill(Color(hex: "#7534E4").opacity(0.2))
+        )
+    }
+}
+
+
 extension Notification.Name {
     static let dreamDeleted = Notification.Name("dreamDeleted")
 }
+
