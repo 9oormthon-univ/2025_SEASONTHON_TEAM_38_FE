@@ -23,18 +23,17 @@ struct AnalyzeView: View {
                     
                     Spacer()
                     
-                    VStack {
-                        ZStack {
-                            Image(.thinkingJelly)
-                                .resizable()
-                                .scaledToFit()
-                                .frame(width: 200, height: 200)
-                                .padding()
-                            
-                            LottieView(name: "thinking", loopMode: .loop)
-                                .frame(width: 90, height: 90)
-                                .offset(x: 85, y: -130)
-                        }
+                    ZStack {
+                        Image(.thinkingJelly)
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 200, height: 200)
+                            .padding()
+                        
+                        LottieView(name: "thinking", loopMode: .loop)
+                            .frame(width: 90, height: 90)
+                            .offset(x: 85, y: -130)
+                    }
                     
                     Text("나의 무의식 상태를\n분석중이에요.")
                         .font(.system(size: 20))
