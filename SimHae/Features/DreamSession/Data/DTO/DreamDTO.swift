@@ -16,11 +16,16 @@ struct CreateDreamAllDTO: Decodable {
         let categoryDescription: String
     }
     struct Unconscious: Decodable {
-        let analysis: String
+        let analysis: [AnalysisSectionDTO]
     }
     struct Suggestion: Decodable {
         let suggestion: String
     }
+    struct AnalysisSectionDTO: Decodable {
+        let title: String
+        let content: String
+    }
+    
     let restate: Restate
     let unconscious: Unconscious
     let suggestion: Suggestion
@@ -33,9 +38,13 @@ struct CreateDreamAllDTO: Decodable {
             category: restate.categoryName,
             categoryDescription: restate.categoryDescription
         )
+        let sections = unconscious.analysis.map {
+            DreamInterpretation.Section(title: $0.title, content: $0.content)
+        }
+        
         let interp = DreamInterpretation(
             title: "해석",
-            detail: unconscious.analysis
+            sections: sections
         )
         let actions = [suggestion.suggestion]
         return (restate, interp, actions)

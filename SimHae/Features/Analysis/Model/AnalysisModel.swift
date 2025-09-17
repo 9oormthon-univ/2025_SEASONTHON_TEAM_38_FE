@@ -8,20 +8,25 @@
 import Foundation
 
 // MARK: - Domain Model
+struct AnalysisSection: Codable, Equatable {
+    let title: String
+    let content: String
+}
+
 struct UnconsciousAnalyzeSummary: Codable, Equatable {
     let title: String
-    let analysis: String
     let suggestion: String
     let recentDreams: [String]
+    let analysis: [AnalysisSection]
 }
 
 extension UnconsciousAnalyzeResponseDTO {
     func toDomain() -> UnconsciousAnalyzeSummary {
         .init(
             title: data.title,
-            analysis: data.analysis,
             suggestion: data.suggestion,
-            recentDreams: data.recentDreams
+            recentDreams: data.recentDreams,
+            analysis: data.analysis.map { AnalysisSection(title: $0.title, content: $0.content)}
         )
     }
 }

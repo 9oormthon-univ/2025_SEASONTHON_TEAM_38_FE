@@ -25,5 +25,10 @@ struct DreamRestate: Equatable {
 // 꿈 해몽
 struct DreamInterpretation: Equatable {
     let title: String
-    let detail: String
+    let sections: [Section]
+    
+    struct Section: Equatable {
+        let title: String
+        let content: String
+    }
 }

@@ -16,8 +16,13 @@ struct UnconsciousAnalyzeResponseDTO: Decodable {
     
     struct Payload: Decodable {
         let title: String
-        let analysis: String
         let suggestion: String
         let recentDreams: [String]
+        let analysis: [AnalysisSectionDTO]
+    }
+    
+    struct AnalysisSectionDTO: Decodable {
+        let title: String
+        let content: String
     }
 }
