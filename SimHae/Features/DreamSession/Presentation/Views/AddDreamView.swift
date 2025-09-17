@@ -303,7 +303,6 @@ private struct CalloutBubble: View {
             )
             .overlay(
                 RoundedRectangle(cornerRadius: 100, style: .circular)
-                    .stroke(Color(hex: "#4512A0").opacity(0.8), lineWidth: 1)
             )
             .padding(.horizontal, 24)
     }
