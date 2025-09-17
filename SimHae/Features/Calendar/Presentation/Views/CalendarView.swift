@@ -55,7 +55,7 @@ struct CalendarTotalView: View {
                     }
                 }
             }
-                       .padding(.bottom, 28)
+                       .padding(.bottom, 48)
             .onAppear {
                 print("🟣 CalendarTotalView VM:", ObjectIdentifier(calendarViewModel),
                       "selected:", calendarViewModel.selectDate)
