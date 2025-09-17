@@ -9,21 +9,24 @@ import SwiftUI
 
 struct SimHaeSplashView: View {
     @State private var isActive = false
+
     var body: some View {
-        if isActive {
-            ContentView()
-        } else {
-            ZStack {
+        ZStack {
+            if isActive {
+                ContentView()
+                    .transition(.opacity)
+            } else {
                 Image("SplashImage")
                     .resizable()
                     .scaledToFill()
                     .ignoresSafeArea()
+                    .transition(.opacity)
             }
-            .onAppear {
-                DispatchQueue.main.asyncAfter(deadline: .now() + 1.5 ) {
-                    withAnimation {
-                        isActive = true
-                    }
+        }
+        .onAppear {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
+                withAnimation(.easeInOut(duration: 0.35)) {
+                    isActive = true
                 }
             }
         }
