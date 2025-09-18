@@ -42,52 +42,48 @@ struct ContentView: View {
                 Spacer()
                 HStack {
                     Spacer()
-                    HStack {
-                        Image(systemName: "house.fill")
-                            .frame(width: 64, height: 64)
-                            .font(.system(size: 22))
+                    HStack(spacing: 42) {
+                        Image(tabSelection == .home ? "home-white" : "home-purple")
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 32, height: 32)
                             .background(
                                 Circle()
                                     .fill(tabSelection == .home ? Color(hex: "#843CFF") : Color(hex: "#FFFFFF").opacity(0.6))
                                     .overlay(Circle().stroke(Color.white.opacity(0.4), lineWidth: 1))
+                                    .frame(width: 64, height: 64)
                             )
-                            .foregroundStyle(tabSelection == .home ? .white : Color(hex: "#843CFF"))
-                            .frame(width: 64, height: 64)
-                            .foregroundStyle(.red)
                             .onTapGesture {
                                 withAnimation(.easeInOut(duration: 0.25)) {
                                     tabSelection = .home
                                 }
                             }
-                        Image(systemName: "calendar")
-                            .frame(width: 64, height: 64)
-                            .font(.system(size: 22))
+                        Image(tabSelection == .calendar ? "calendar-white" : "calendar")
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 32, height: 32)
                             .background(
                                 Circle()
                                     .fill(tabSelection == .calendar ? Color(hex: "#843CFF") : Color(hex: "#FFFFFF").opacity(0.6))
                                     .overlay(Circle().stroke(Color.white.opacity(0.4), lineWidth: 1))
+                                    .frame(width: 64, height: 64)
                             )
-                            .foregroundStyle(tabSelection == .calendar ? .white : Color(hex: "#843CFF"))
-                            .frame(width: 64, height: 64)
-                            .foregroundStyle(.red)
                             .onTapGesture {
                                 withAnimation(.easeInOut(duration: 0.25)) {
                                     tabSelection = .calendar
                                 }
                             }
-                        Image(systemName: "cloud")
-                            .frame(width: 64, height: 64)
-                            .font(.system(size: 22))
+                        Image(tabSelection == .analysis ?"cloud-white" : "cloud-purple" )
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 32, height: 32)
                             .background(
                                 Circle()
                                     .fill(tabSelection == .analysis ? Color(hex: "#843CFF") : Color(hex: "#FFFFFF").opacity(0.6))
                                     .overlay(Circle().stroke(Color.white.opacity(0.4), lineWidth: 1))
+                                    .frame(width: 64, height: 64)
                                 
                             )
-                            .foregroundStyle(tabSelection == .analysis ? .white : Color(hex: "#843CFF"))
-                                    
-                            .frame(width: 64, height: 64)
-                            .foregroundStyle(.red)
                             .onTapGesture {
                                 withAnimation(.easeInOut(duration: 0.25)) {
                                     tabSelection = .analysis
@@ -95,7 +91,8 @@ struct ContentView: View {
                                 }
                             }
                     }
-                    .padding(12)
+                    .padding(.horizontal, 32)
+                    .padding(.vertical, 28)
                     .background(
                         RoundedRectangle(cornerRadius: 100)
                             .fill(Color(hex: "FFFFFF").opacity(0.2))

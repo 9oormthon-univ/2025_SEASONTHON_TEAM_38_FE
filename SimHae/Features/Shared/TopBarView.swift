@@ -15,14 +15,14 @@ struct TopBarView: View {
         HStack {
             // 왼쪽 프로필 버튼
             NavigationLink(destination: MyPageView()) {
-                Image(systemName: "person.circle")
+                Image(.user)
                     .resizable()
                     .scaledToFit()
-                    .frame(width: 24, height: 24)
+                    .frame(width: 28, height: 28)
                     .foregroundStyle(Color(hex: "#B184FF"))
             }
             .padding(.top, 24)
-            .padding(.leading, 16)
+            .padding(.leading, 24)
             
             Spacer()
             
