@@ -68,8 +68,10 @@ struct AnalyzeView: View {
                                 Button {
                                     vm.reload()
                                 } label: {
-                                    Image(systemName: "arrow.clockwise")
+                                    Image("refresh")
+                                        .resizable()
                                         .padding(12)
+                                        .frame(width: 42, height: 42)
                                         .foregroundStyle(Color(hex: "#843CFF"))
                                         .background(
                                             Circle()
