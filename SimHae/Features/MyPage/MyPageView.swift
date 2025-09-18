@@ -113,6 +113,15 @@ struct MyPageView: View {
             .padding(.horizontal, -4)
             .listRowBackground(Color.clear)
             
+            
+            Section(header: Text("기타").foregroundStyle(.secondary)) {
+                NavigationLink(destination: ErrorReportView()) {
+                    Text("오류신고")
+                    .foregroundStyle(Color(hex : "#9963FF"))
+                }
+            }
+            .listRowBackground(Color.clear)
+            
             Section(header: Text("계정").foregroundStyle(.secondary)) {
                 Button(role: .destructive) {
                     showLogoutConfirm = true
