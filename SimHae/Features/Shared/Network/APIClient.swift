@@ -43,6 +43,8 @@ final class APIClient {
             print("Body:", json)
         }
 #endif
+        NetworkLogger.logRequest(req)
+        
         return req
     }
     

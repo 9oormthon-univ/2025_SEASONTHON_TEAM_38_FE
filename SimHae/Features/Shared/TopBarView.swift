@@ -9,12 +9,13 @@ import Foundation
 import SwiftUI
 
 struct TopBarView: View {
+    @StateObject private var authVM = AuthViewModel()
     var tokenCount: Int
     
     var body: some View {
         HStack {
             // 왼쪽 프로필 버튼
-            NavigationLink(destination: MyPageView()) {
+            NavigationLink(destination: MyPageView().environmentObject(authVM)) {
                 Image(.user)
                     .resizable()
                     .scaledToFit()

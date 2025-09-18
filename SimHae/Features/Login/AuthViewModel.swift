@@ -23,9 +23,14 @@ struct AppleLoginResponse: Decodable {
 
 protocol AuthServicing {
     func loginWithApple(identityToken: String, nonce: String) -> AnyPublisher<Void, Error>
-    func logout()
+    func logout() -> AnyPublisher<Void, Error>
     var isAuthenticated: Bool { get }
 }
+
+// 요청/응답 모델
+struct LogoutRequest: Encodable { let refreshToken: String }
+struct EmptyEnvelopeData: Decodable {} // data가 비어오는 경우용
+
 
 final class AuthService: AuthServicing {
     func loginWithApple(identityToken: String, nonce: String) -> AnyPublisher<Void, Error> {
@@ -49,9 +54,25 @@ final class AuthService: AuthServicing {
                     .eraseToAnyPublisher()
             }
 
-    func logout() {
-        TokenStore.clear()
-    }
+    // 서버 로그아웃 호출
+        func logout() -> AnyPublisher<Void, Error> {
+            guard let refresh = TokenStore.refreshToken else {
+                // 이미 토큰이 없으면 그냥 성공으로 처리
+                return Just(())
+                    .setFailureType(to: Error.self)
+                    .eraseToAnyPublisher()
+            }
+
+            let req = APIClient.shared.request("/auth/logout",
+                                               method: "POST",
+                                               body: LogoutRequest(refreshToken: refresh),
+                                               authorized: false)
+
+            // 서버가 표준 Envelope를 준다고 가정 (data 비어있을 수 있음)
+            return APIClient.shared.run(Envelope<EmptyEnvelopeData>.self, with: req)
+                .map { _ in () } // 응답 바디는 버림
+                .eraseToAnyPublisher()
+        }
 
     var isAuthenticated: Bool {
         TokenStore.accessToken != nil && TokenStore.refreshToken != nil
@@ -91,11 +112,8 @@ final class AuthViewModel: ObservableObject {
                 let nonce = currentNonce
             else {
                 self.errorMessage = "Apple ID 토큰을 읽지 못했어요."
-                print("❌ Apple ID 토큰 추출 실패")
                 return
             }
-            print("✅ Apple ID 토큰 추출 성공:", identityToken.prefix(30), "...")
-            print("✅ Nonce:", nonce)
             
             loginWithApple(identityToken: identityToken, nonce: nonce)
         }
@@ -113,23 +131,39 @@ final class AuthViewModel: ObservableObject {
                 self.isLoading = false
                 switch completion {
                 case .finished:
-                    print("✅ 로그인 파이프라인 완료")
                     self.currentNonce = nil
                 case .failure(let err):
                     self.errorMessage = err.localizedDescription
                     print("❌ 로그인 실패:", err)
                 }
             } receiveValue: { [weak self] in
-                print("✅ 로그인 성공 → isAuthenticated = true")
+                print("로그인 성공 → isAuthenticated = true")
                 self?.isAuthenticated = true
             }
             .store(in: &bag)
     }
 
-    func logout() {
-        service.logout()
-        isAuthenticated = false
-    }
+    // 네트워크 로그아웃 → 토큰 삭제 → 상태 전환
+        func logout() {
+            guard !isLoading else { return }
+            isLoading = true
+            errorMessage = nil
+
+            service.logout()
+                .catch { [weak self] err -> AnyPublisher<Void, Never> in
+                    // 서버 실패해도 로컬은 정리하고 넘어가자(사용자 경험용)
+                    self?.errorMessage = err.localizedDescription
+                    return Just(()).eraseToAnyPublisher()
+                }
+                .receive(on: DispatchQueue.main)
+                .sink { [weak self] _ in
+                    // 로컬 토큰 정리
+                    TokenStore.clear()
+                    self?.isAuthenticated = false
+                    self?.isLoading = false
+                }
+                .store(in: &bag)
+        }
 }
 
 func randomNonceString(length: Int = 32) -> String {
@@ -158,4 +192,35 @@ func sha256(_ input: String) -> String {
     let inputData = Data(input.utf8)
     let hashed = SHA256.hash(data: inputData)
     return hashed.compactMap { String(format: "%02x", $0) }.joined()
+}
+
+//로그찍기
+enum NetworkLogger {
+    static func logRequest(_ req: URLRequest) {
+#if DEBUG
+        print("🟦 [REQ]", req.httpMethod ?? "", req.url?.absoluteString ?? "")
+        if let headers = req.allHTTPHeaderFields { print("🟦 Headers:", headers) }
+        if let body = req.httpBody, let json = String(data: body, encoding: .utf8) {
+            print("🟦 Body:", json)
+        }
+#endif
+    }
+
+    static func logResponse(data: Data?, response: URLResponse?, error: Error?) {
+#if DEBUG
+        if let http = response as? HTTPURLResponse {
+            print("🟩 [RES] \(http.statusCode) \(http.url?.absoluteString ?? "")")
+            print("🟩 Headers:", http.allHeaderFields)
+        } else {
+            print("🟩 [RES] (no HTTPURLResponse)")
+        }
+
+        if let data, let text = String(data: data, encoding: .utf8) {
+            print("🟩 Body:", text)
+        }
+        if let error {
+            print("🟥 [ERR]", error.localizedDescription)
+        }
+#endif
+    }
 }

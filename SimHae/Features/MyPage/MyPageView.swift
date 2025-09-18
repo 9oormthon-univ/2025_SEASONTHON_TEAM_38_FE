@@ -12,6 +12,8 @@ struct MyPageView: View {
     @AppStorage("reminderHour") private var reminderHour: Int = 9
     @AppStorage("reminderMinute") private var reminderMinute: Int = 0
     @Environment(\.dismiss) private var dismiss
+    @EnvironmentObject private var route: NavigationRouter
+    
     
     @State private var time: Date = Date()
     @State private var showSettingsAlert = false
@@ -143,7 +145,6 @@ struct MyPageView: View {
             Button("로그아웃", role: .destructive) {
                 // (선택) 알림 예약 취소 같은 부가 정리
                 Task { await NotificationManager.shared.cancelAll() }
-                
                 // 실제 로그아웃
                 authVM.logout()
                 // 여기서 화면 전환은 SimHaeApp의 isAuthenticated 바인딩이 알아서 처리
