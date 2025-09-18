@@ -46,6 +46,23 @@ struct SimpleEntry: TimelineEntry {
 struct SimHaeWidgetEntryView : View {
     var entry: Provider.Entry
 
+    private let quotes: [String] = [
+        "사람들은 의식하든 의식하지 \n못하든, 매일 꿈을 꿔요.\n안 꾸는 사람은 없답니다.",
+        "상어는 잠재의식에 있는 탐욕을\n상징해요. 상어가 나오는 꿈을\n꾸신 적이 있나요?",
+        "꿈을 기록하기 시작하면 꿈을 \n더 많이 꿀 수 있어요.\n무의식의 길을 열어 보세요.",
+        "꿈에 나오는 인물, 특히 멘토나 \n조력자는 기록해 두세요.\n 큰 도움이 됩니다.",
+        "꿈에 나온 무언가를 검색하기 전에,\n당신에게 어떤 의미인지 \n알아보세요."
+    ]
+    
+    private var todayQuote: String {
+            let formatter = DateFormatter()
+            formatter.dateFormat = "yyyyMMdd"
+            let dateString = formatter.string(from: Date())
+            let seed = Int(dateString) ?? 0
+            let index = seed % quotes.count
+            return quotes[index]
+        }
+    
     var body: some View {
         VStack(alignment: .leading) {
             Spacer()
@@ -54,7 +71,7 @@ struct SimHaeWidgetEntryView : View {
                 .scaledToFit()
                 .frame(width: 48, height: 36)
             HStack {
-                Text("상어는 잠재의식에 있는 탐욕을\n상징해요. 상어가 나오는 꿈을\n꾸신 적이 있나요?")
+                Text(todayQuote)
                     .foregroundStyle(.white)
                 
                 Image(systemName: "mic")
