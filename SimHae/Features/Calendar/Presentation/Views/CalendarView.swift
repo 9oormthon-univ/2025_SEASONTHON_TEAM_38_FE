@@ -70,7 +70,7 @@ struct CalendarTotalView: View {
             //.padding(.horizontal, 16) 얘가 뷰를 자꾸 늘었다 줄였다함.
         }
         .background{
-            Image("CalendarBackgroundVer2")
+            Image(.calendarBackgroundVer2)
                 .resizable()
                 .scaledToFill()
                 .ignoresSafeArea(edges: .top)
