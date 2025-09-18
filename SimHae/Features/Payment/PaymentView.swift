@@ -8,6 +8,9 @@
 import SwiftUI
 
 struct PaymentView: View {
+    @Environment(\.dismiss) private var dismiss
+    
+    
     private let columns = [
         GridItem(.flexible()),
         GridItem(.flexible())
@@ -67,6 +70,18 @@ struct PaymentView: View {
                 
             }
             .padding(.horizontal, 20)
+        }
+        .navigationBarBackButtonHidden()
+        .toolbar {
+            ToolbarItem(placement: .navigationBarLeading) {
+                Button(action: {
+                    dismiss()
+                }) {
+                    Image(systemName: "arrow.left")
+                        .foregroundStyle(Color(hex: "#B184FF"))
+                        .padding(.leading, 12)
+                }
+            }
         }
         .navigationTitle("결제하기")
         .navigationBarTitleDisplayMode(.inline)
