@@ -15,7 +15,7 @@ struct AnalysisSectionCard: View {
     var body: some View {
         VStack(spacing: 16) {
             Text(title)
-                .font(.headline)
+                .font(.pretendard(.semibold, size: 15))
                 .foregroundStyle(Color(hex: "#E8D9FF"))
                 .padding(.vertical, 8)
                 .padding(.horizontal, 12)
@@ -26,7 +26,7 @@ struct AnalysisSectionCard: View {
             
             ScrollView(.vertical, showsIndicators: false) {
                 Text(text.splitWord())
-                    .font(.pretendard(.thin, size: 16))
+                    .font(.pretendard(.regular, size: 16))
                     .foregroundStyle(Color(hex: "#E8D9FF"))
                     .multilineTextAlignment(.leading)
             }

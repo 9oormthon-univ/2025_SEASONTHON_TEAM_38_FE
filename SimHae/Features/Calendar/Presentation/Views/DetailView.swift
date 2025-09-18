@@ -120,6 +120,7 @@ struct DetailView: View {
                                 .padding(.horizontal, 16)
                                 
                                 Text("해파리의 제안")
+                                    .font(.headline)
                                     .padding(.top, 48)
                                     .padding(.bottom, 16)
                                 
@@ -129,6 +130,7 @@ struct DetailView: View {
                                     .frame(width: 120, height: 120)
                                 
                                 Text(detail.suggestion.splitWord())
+                                    .font(.pretendard(.regular, size: 16))
                                     .foregroundStyle(Color(hex: "#E8D9FF"))
                                     .font(.body)
                                     .multilineTextAlignment(.leading)

@@ -48,6 +48,7 @@ struct DreamSuggestionView: View {
             } else {
                 VStack(spacing: 12) {
                     Text("해파리의 제안")
+                        .font(.headline)
                         .foregroundStyle(.white)
                         .padding(32)
                     
@@ -60,8 +61,8 @@ struct DreamSuggestionView: View {
                     ForEach(vm.actions, id: \.self) { suggestion in
                         HStack(alignment: .top, spacing: 10) {
                             Text(suggestion.splitWord())
+                                .font(.pretendard(.regular, size: 16))
                                 .multilineTextAlignment(.center)
-                                .font(.body)
                                 .foregroundStyle(Color(hex: "#E8D9FF"))
                                 .padding(28)
                                 .background(

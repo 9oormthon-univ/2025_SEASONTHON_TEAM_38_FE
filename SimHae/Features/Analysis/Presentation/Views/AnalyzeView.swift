@@ -109,6 +109,7 @@ struct AnalyzeView: View {
                             }
                             
                             Text("해파리의 제안")
+                                .font(.headline)
                                 .padding(.top, 48)
                                 .padding(.bottom, 24)
                             
@@ -119,6 +120,7 @@ struct AnalyzeView: View {
                             
                             if let suggestion = vm.summary?.suggestion {
                                 Text(suggestion.splitWord())
+                                    .font(.pretendard(.regular, size: 16))
                                     .foregroundStyle(Color(hex: "#E8D9FF"))
                                     .font(.body)
                                     .multilineTextAlignment(.leading)
