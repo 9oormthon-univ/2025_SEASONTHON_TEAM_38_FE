@@ -17,7 +17,7 @@ final class APIClient {
     static let shared = APIClient()
     private init() {}
     
-    let baseURL = URL(string: "https://www.simhae.p-e.kr")!
+    let baseURL = URL(string: "https://www.simhae.o-r.kr")!
     private let session = URLSession(configuration: .default)
     
     // MARK: - Request Builder
