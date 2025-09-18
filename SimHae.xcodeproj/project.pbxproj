@@ -6,6 +6,13 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		F743D5572E7B62310024C217 /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F743D5562E7B62310024C217 /* WidgetKit.framework */; };
+		F743D5592E7B62310024C217 /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F743D5582E7B62310024C217 /* SwiftUI.framework */; };
+		F743D5682E7B62320024C217 /* SimHaeWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = F743D5542E7B62310024C217 /* SimHaeWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		F7DF8FD72E7A853F0054D065 /* Lottie in Frameworks */ = {isa = PBXBuildFile; productRef = F7DF8FD62E7A853F0054D065 /* Lottie */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXContainerItemProxy section */
 		F71C3E0A2E69479700E13A9A /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -21,17 +28,61 @@
 			remoteGlobalIDString = F71C3DFA2E69479600E13A9A;
 			remoteInfo = SimHae;
 		};
+		F743D5662E7B62320024C217 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = F71C3DF32E69479600E13A9A /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = F743D5532E7B62310024C217;
+			remoteInfo = SimHaeWidgetExtension;
+		};
 /* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		F743D56D2E7B62320024C217 /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				F743D5682E7B62320024C217 /* SimHaeWidgetExtension.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		F71C3DFB2E69479600E13A9A /* SimHae.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SimHae.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		F71C3E092E69479700E13A9A /* SimHaeTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SimHaeTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		F71C3E132E69479700E13A9A /* SimHaeUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SimHaeUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		F743D5542E7B62310024C217 /* SimHaeWidgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = SimHaeWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		F743D5562E7B62310024C217 /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
+		F743D5582E7B62310024C217 /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		F71C3E512E695E6D00E13A9A /* Exceptions for "SimHae" folder in "SimHae" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = F71C3DFA2E69479600E13A9A /* SimHae */;
+		};
+		F743D56C2E7B62320024C217 /* Exceptions for "SimHaeWidget" folder in "SimHaeWidgetExtension" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = F743D5532E7B62310024C217 /* SimHaeWidgetExtension */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		F71C3DFD2E69479600E13A9A /* SimHae */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				F71C3E512E695E6D00E13A9A /* Exceptions for "SimHae" folder in "SimHae" target */,
+			);
 			path = SimHae;
 			sourceTree = "<group>";
 		};
@@ -45,6 +96,14 @@
 			path = SimHaeUITests;
 			sourceTree = "<group>";
 		};
+		F743D55A2E7B62310024C217 /* SimHaeWidget */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				F743D56C2E7B62320024C217 /* Exceptions for "SimHaeWidget" folder in "SimHaeWidgetExtension" target */,
+			);
+			path = SimHaeWidget;
+			sourceTree = "<group>";
+		};
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -52,6 +111,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				F7DF8FD72E7A853F0054D065 /* Lottie in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -69,6 +129,15 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		F743D5512E7B62310024C217 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				F743D5592E7B62310024C217 /* SwiftUI.framework in Frameworks */,
+				F743D5572E7B62310024C217 /* WidgetKit.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -78,6 +147,8 @@
 				F71C3DFD2E69479600E13A9A /* SimHae */,
 				F71C3E0C2E69479700E13A9A /* SimHaeTests */,
 				F71C3E162E69479700E13A9A /* SimHaeUITests */,
+				F743D55A2E7B62310024C217 /* SimHaeWidget */,
+				F743D5552E7B62310024C217 /* Frameworks */,
 				F71C3DFC2E69479600E13A9A /* Products */,
 			);
 			sourceTree = "<group>";
@@ -88,8 +159,18 @@
 				F71C3DFB2E69479600E13A9A /* SimHae.app */,
 				F71C3E092E69479700E13A9A /* SimHaeTests.xctest */,
 				F71C3E132E69479700E13A9A /* SimHaeUITests.xctest */,
+				F743D5542E7B62310024C217 /* SimHaeWidgetExtension.appex */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		F743D5552E7B62310024C217 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				F743D5562E7B62310024C217 /* WidgetKit.framework */,
+				F743D5582E7B62310024C217 /* SwiftUI.framework */,
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -102,16 +183,19 @@
 				F71C3DF72E69479600E13A9A /* Sources */,
 				F71C3DF82E69479600E13A9A /* Frameworks */,
 				F71C3DF92E69479600E13A9A /* Resources */,
+				F743D56D2E7B62320024C217 /* Embed Foundation Extensions */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				F743D5672E7B62320024C217 /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				F71C3DFD2E69479600E13A9A /* SimHae */,
 			);
 			name = SimHae;
 			packageProductDependencies = (
+				F7DF8FD62E7A853F0054D065 /* Lottie */,
 			);
 			productName = SimHae;
 			productReference = F71C3DFB2E69479600E13A9A /* SimHae.app */;
@@ -163,6 +247,28 @@
 			productReference = F71C3E132E69479700E13A9A /* SimHaeUITests.xctest */;
 			productType = "com.apple.product-type.bundle.ui-testing";
 		};
+		F743D5532E7B62310024C217 /* SimHaeWidgetExtension */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = F743D5692E7B62320024C217 /* Build configuration list for PBXNativeTarget "SimHaeWidgetExtension" */;
+			buildPhases = (
+				F743D5502E7B62310024C217 /* Sources */,
+				F743D5512E7B62310024C217 /* Frameworks */,
+				F743D5522E7B62310024C217 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				F743D55A2E7B62310024C217 /* SimHaeWidget */,
+			);
+			name = SimHaeWidgetExtension;
+			packageProductDependencies = (
+			);
+			productName = SimHaeWidgetExtension;
+			productReference = F743D5542E7B62310024C217 /* SimHaeWidgetExtension.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -184,6 +290,9 @@
 						CreatedOnToolsVersion = 16.4;
 						TestTargetID = F71C3DFA2E69479600E13A9A;
 					};
+					F743D5532E7B62310024C217 = {
+						CreatedOnToolsVersion = 16.4;
+					};
 				};
 			};
 			buildConfigurationList = F71C3DF62E69479600E13A9A /* Build configuration list for PBXProject "SimHae" */;
@@ -195,6 +304,9 @@
 			);
 			mainGroup = F71C3DF22E69479600E13A9A;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				F7DF8FD52E7A853F0054D065 /* XCRemoteSwiftPackageReference "lottie-ios" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = F71C3DFC2E69479600E13A9A /* Products */;
 			projectDirPath = "";
@@ -203,6 +315,7 @@
 				F71C3DFA2E69479600E13A9A /* SimHae */,
 				F71C3E082E69479700E13A9A /* SimHaeTests */,
 				F71C3E122E69479700E13A9A /* SimHaeUITests */,
+				F743D5532E7B62310024C217 /* SimHaeWidgetExtension */,
 			);
 		};
 /* End PBXProject section */
@@ -223,6 +336,13 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		F71C3E112E69479700E13A9A /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F743D5522E7B62310024C217 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -253,6 +373,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		F743D5502E7B62310024C217 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
@@ -265,6 +392,11 @@
 			isa = PBXTargetDependency;
 			target = F71C3DFA2E69479600E13A9A /* SimHae */;
 			targetProxy = F71C3E142E69479700E13A9A /* PBXContainerItemProxy */;
+		};
+		F743D5672E7B62320024C217 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = F743D5532E7B62310024C217 /* SimHaeWidgetExtension */;
+			targetProxy = F743D5662E7B62320024C217 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -397,12 +529,16 @@
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = SimHae/Info.plist;
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "";
+				INFOPLIST_KEY_NSSpeechRecognitionUsageDescription = "";
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UILaunchScreen_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UILaunchScreen_Generation[sdk=iphonesimulator*]" = YES;
+				INFOPLIST_KEY_UILaunchStoryboardName = "";
 				"INFOPLIST_KEY_UIStatusBarStyle[sdk=iphoneos*]" = UIStatusBarStyleDefault;
 				"INFOPLIST_KEY_UIStatusBarStyle[sdk=iphonesimulator*]" = UIStatusBarStyleDefault;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
@@ -436,12 +572,16 @@
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = SimHae/Info.plist;
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "";
+				INFOPLIST_KEY_NSSpeechRecognitionUsageDescription = "";
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UILaunchScreen_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UILaunchScreen_Generation[sdk=iphonesimulator*]" = YES;
+				INFOPLIST_KEY_UILaunchStoryboardName = "";
 				"INFOPLIST_KEY_UIStatusBarStyle[sdk=iphoneos*]" = UIStatusBarStyleDefault;
 				"INFOPLIST_KEY_UIStatusBarStyle[sdk=iphonesimulator*]" = UIStatusBarStyleDefault;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
@@ -553,6 +693,65 @@
 			};
 			name = Release;
 		};
+		F743D56A2E7B62320024C217 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = DPYL43TPTX;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = SimHaeWidget/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = SimHaeWidget;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 18.5;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.dream.SimHae.SimHae.SimHaeWidget;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		F743D56B2E7B62320024C217 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = DPYL43TPTX;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = SimHaeWidget/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = SimHaeWidget;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 18.5;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.dream.SimHae.SimHae.SimHaeWidget;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -592,7 +791,35 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
+		F743D5692E7B62320024C217 /* Build configuration list for PBXNativeTarget "SimHaeWidgetExtension" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				F743D56A2E7B62320024C217 /* Debug */,
+				F743D56B2E7B62320024C217 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		F7DF8FD52E7A853F0054D065 /* XCRemoteSwiftPackageReference "lottie-ios" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/airbnb/lottie-ios";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 4.5.2;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		F7DF8FD62E7A853F0054D065 /* Lottie */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = F7DF8FD52E7A853F0054D065 /* XCRemoteSwiftPackageReference "lottie-ios" */;
+			productName = Lottie;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = F71C3DF32E69479600E13A9A /* Project object */;
 }
