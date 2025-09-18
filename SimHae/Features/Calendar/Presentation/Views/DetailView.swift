@@ -172,8 +172,10 @@ struct DetailView: View {
                     Button {
                         showDeleteDialog = true
                     } label: {
-                        Image(systemName: "trash.fill")
-                            .font(.system(size: 18, weight: .semibold))
+                        Image("trash")
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 32, height: 32)
                             .foregroundStyle(Color(hex: "#B184FF"))
                             .padding(.trailing, 8)
                     }
