@@ -23,42 +23,63 @@ struct SimHaeApp: App {
     
     @ObservedObject private var route: NavigationRouter = NavigationRouter()
     
+    @State private var showSplash = true
+    
     var body: some Scene {
         WindowGroup {
-            Group {
-                if authVM.isAuthenticated {
-                    NavigationStack(path: $route.path,
-                                    root: {
-                        ContentView()
-                            .environmentObject(authVM)
-                            .preferredColorScheme(.dark)
-                            .ignoresSafeArea(.keyboard)
-                            .environmentObject(route)
-                            .environmentObject(calendarVM)
-                            .navigationDestination(for: RouteType.self,
-                                                   destination: { type in
-                                switch type {
-                                case .add: AddDreamView(vm: DreamSessionVM, selectedDate: $calendarVM.selectDate)
-                                        .environmentObject(route)
-                                        .environmentObject(calendarVM)
-                                case .loading: DreamLoadingView(vm: DreamSessionVM)
-                                        .environmentObject(route)
-                                case .summary: DreamSummaryView(vm: DreamSessionVM)
-                                        .environmentObject(route)
-                                        .environmentObject(calendarVM)
-                                case .interpretation: DreamInterpretationView(vm: DreamSessionVM)
-                                        .environmentObject(route)
-                                        .environmentObject(calendarVM)
-                                case .suggestion: DreamSuggestionView(vm: DreamSessionVM)
-                                        .environmentObject(route)
-                                        .environmentObject(calendarVM)
+            ZStack {
+                Color.black.ignoresSafeArea()
+                
+                if showSplash {
+                    SimHaeSplashView()
+                        .transition(.opacity)
+                        .onAppear {
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
+                                withAnimation(.easeInOut(duration: 0.35)) {
+                                    showSplash = false
                                 }
-                            })
-                        
-                    })
+                            }
+                        }
                 } else {
-                    LoginView()
-                        .environmentObject(authVM)
+                    if authVM.isAuthenticated {
+                        NavigationStack(path: $route.path,
+                                        root: {
+                            ContentView()
+                                .environmentObject(authVM)
+                                .preferredColorScheme(.dark)
+                                .ignoresSafeArea(.keyboard)
+                                .environmentObject(route)
+                                .environmentObject(calendarVM)
+                                .navigationDestination(for: RouteType.self,
+                                                       destination: { type in
+                                    switch type {
+                                    case .add: AddDreamView(vm: DreamSessionVM, selectedDate: $calendarVM.selectDate)
+                                            .environmentObject(route)
+                                            .environmentObject(calendarVM)
+                                    case .loading: DreamLoadingView(vm: DreamSessionVM)
+                                            .environmentObject(route)
+                                    case .summary: DreamSummaryView(vm: DreamSessionVM)
+                                            .environmentObject(route)
+                                            .environmentObject(calendarVM)
+                                    case .interpretation: DreamInterpretationView(vm: DreamSessionVM)
+                                            .environmentObject(route)
+                                            .environmentObject(calendarVM)
+                                    case .suggestion: DreamSuggestionView(vm: DreamSessionVM)
+                                            .environmentObject(route)
+                                            .environmentObject(calendarVM)
+                                    }
+                                })
+                            
+                        })
+                        .onOpenURL { url in
+                                if url.scheme == "simhae", url.host == "add" {
+                                    route.push(to: .add)
+                                }
+                            }
+                    } else {
+                        LoginView()
+                            .environmentObject(authVM)
+                    }
                 }
             }
         }
