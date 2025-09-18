@@ -9,7 +9,7 @@ import SwiftUI
 import AuthenticationServices
 
 struct LoginView: View {
-    @EnvironmentObject private var appleViewModel: AuthViewModel
+    @EnvironmentObject private var authVM: AuthViewModel
     
     var body: some View {
         
@@ -36,32 +36,10 @@ struct LoginView: View {
             Spacer()
             Spacer()
             
-//            Button(action: {
-//                appleViewModel.signIn()
-//            }) {
-//                HStack(spacing: 12) {
-//                    Image(systemName: "apple.logo")
-//                        .resizable()
-//                        .scaledToFit()
-//                        .frame(width: 20, height: 20)
-//                    
-//                    Text("Apple로 시작하기")
-//                        .font(.system(size: 16, weight: .medium))
-//                }
-//                .frame(maxWidth: 350)
-//            }
-//            .frame(width: 350)
-//            .padding(.vertical, 16)
-//            .background(Color(hex: "FFFFFF"))
-//            .foregroundStyle(Color(hex: "000000"))
-//            .clipShape(RoundedRectangle(cornerRadius: 28, style: .continuous))
-//            .padding(.horizontal, 24)
-//            .padding(.bottom, 24)
-            
             SignInWithAppleButton(.signIn) { request in
                 // 1) 랜덤 nonce 생성
                 let nonce = randomNonceString()
-                appleViewModel.currentNonce = nonce
+                authVM.currentNonce = nonce
                 
                 // 2) hashed nonce를 request에 넣기
                 request.requestedScopes = [.fullName, .email]
@@ -70,9 +48,9 @@ struct LoginView: View {
                 print("➡️ Generated nonce:", nonce)
                 
             } onCompletion: { result in
-                appleViewModel.handleAuthorization(result: result)
+                authVM.handleAuthorization(result: result)
             }
-            .signInWithAppleButtonStyle(.black)
+            .signInWithAppleButtonStyle(.white)
             .frame(height: 48)
             .padding(.horizontal, 24)
             .padding(.bottom, 24)
@@ -84,6 +62,7 @@ struct LoginView: View {
             Image(.detailView)
                 .resizable()
                 .scaledToFill()
+                .ignoresSafeArea()
         }
     }
     
