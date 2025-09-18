@@ -64,8 +64,8 @@ struct PaymentView: View {
                     .padding(.top, 24)
                 
                 LazyVGrid(columns: columns, spacing: 16) {
-                    PaymentCard(title: "1개월 무제한", price: "4,900원", oldPrice: nil, image: "payment")
-                                        PaymentCard(title: "1년 무제한", price: "49,000원", oldPrice: "59,800원", image: "payment")
+                    PaymentCard(title: "1개월 무제한", price: "4,900원", oldPrice: nil, image: "Rainbow")
+                                        PaymentCard(title: "1년 무제한", price: "49,000원", oldPrice: "59,800원", image: "Rainbow")
                 }
                 
             }
